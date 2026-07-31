@@ -1,0 +1,16 @@
+*.elc
+eln-cache/
+straight/
+transient/
+eshell/
+projects
+elpa/
+bookmarks
+network-security.data
+quelpa/
+modules/.dir-locals.el
+/custom.el~
+/custom.el
+/history
+/recentf
+/themes
