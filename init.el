@@ -30,7 +30,7 @@
 (require 'crafted-org-config)
 (require 'crafted-ide-config)
 (require 'crafted-defaults-config)
-(require 'cradted-screencast-config)
+(require 'crafted-screencast-config)
 
 (with-eval-after-load 'rust-ts-mode
   (require 'rust-mode)
