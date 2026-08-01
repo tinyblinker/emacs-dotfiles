@@ -1,1 +1,1 @@
-(load "~/.config/emacs/custom-modules/crafted-early-init-config.el")
+(load "~/.config/emacs/modules/crafted-early-init-config.el")
