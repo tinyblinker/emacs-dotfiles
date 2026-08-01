@@ -5,48 +5,16 @@
 
 ;; Author: System Crafters Community
 
-;;; Commentary:
-
-;; Helpers for installing packages.  Crafted Emacs assumes the use of
-;; `package.el' for package management, thus these are built to
-;; support that library.
-
-;; `crafted-package-installer' defaults to `package-install', but can
-;; be set by the user to some other installer function.
-
-;; `crafted-package-installed-predicate' is used to check if a package
-;; is already installed; it defautls to `package-installed-p', but can
-;; be set by the user to some other predicate function.
-
-;; `crafted-package-install-package' is used to install individual
-;; packages, the installer and predicate functions can be passed in if
-;; needed.
-
-;; `crafted-package-install-package-list' installs packages from the
-;; `package-selected-packages' list.  All `crafted-<module>-package'
-;; files add packages to this list, they are not installed
-;; automatically.  The user is responsible for iterating over that
-;; list to install the packages, if desired.  Users are not obligated
-;; to use the `crafted-<module>-package' files and may prefer to
-;; manage installing packages without using any of the facilities
-;; here.  Additionally, if they choose to use the
-;; `crafted-<module>-package' files, they have the opportunity modify
-;; the list before calling any processing occurs to install any packages
-
 ;;; Code:
 
-;;; Package
 (require 'package)
 
-;;;; Variables to control the package manager
 (defvar crafted-package-installer #'package-install
   "Function to use when installing packages")
 
 (defvar crafted-package-installed-predicate #'package-installed-p
   "Function to use when checking if a package is installed")
 
-;;; Crafted Emacs functions to generically install packages
-;; See (info "(crafted-emacs) Using alternate package managers")
 (defun crafted-package-install-package (package &optional installer-fn predicate-fn)
   "Install PACKAGE optionally using the INSTALLER-FN.
 

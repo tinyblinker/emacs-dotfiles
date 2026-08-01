@@ -5,38 +5,16 @@
 
 ;; Author: System Crafters Community
 
-;;; Commentary:
-
-;; Eglot configuration.
-
-;; Suggested additional keybindings
-;; (with-eval-after-load "prog-mode"
-;;   (keymap-set prog-mode-map "C-c e n" #'flymake-goto-next-error)
-;;   (keymap-set prog-mode-map "C-c e p" #'flymake-goto-prev-error))
-
 ;;; Code:
 
-;;; exec-path-from-shell
-;; Ensure that environment variables inside Emacs look the same as in the
-;; user's shell.  This is especially useful when Emacs is launched with a
-;; desktop launcher (and not from a shell).  In this case, Emacs usually
-;; inherits a default minimal set of environment variables and not the set of
-;; environment variables that are available inside of a shell.  This can lead
-;; to executables not being found or configurations that rely on certain
-;; environment variables not working.  `exec-path-from-shell' prevents the
-;; problem by setting `exec-path' and predefined environment variables as if
-;; Emacs were started from shell.
 (when (or (display-graphic-p)
           (daemonp))
   (when (require 'exec-path-from-shell nil :noerror)
-    ;; Specify environment variables that will be copied (note, "PATH" and
-    ;; "MANPATH" has been already added by default).
     (dolist (var '("SSH_AUTH_SOCK" "SSH_AGENT_PID" "GPG_AGENT_INFO" "LANG"
-                   "LC_CTYPE" "GOPATH" "PYTHONPATH" "JAVA_HOME"))
+                    "LC_CTYPE" "GOPATH" "PYTHONPATH" "JAVA_HOME"))
       (add-to-list 'exec-path-from-shell-variables var))
     (exec-path-from-shell-initialize)))
 
-;;; Eglot
 (defun crafted-ide--add-eglot-hooks (mode-list)
   "Add `eglot-ensure' to modes in MODE-LIST.
 
@@ -51,10 +29,9 @@ manually with something like this:
        ((listp mode) (crafted-ide--add-eglot-hooks mode))
        (t
         (when (and (fboundp mode)
-                   (not (eq 'clojure-mode mode))  ; prefer cider
-                   (not (eq 'lisp-mode mode))     ; prefer sly/slime
-                   (not (eq 'scheme-mode mode))   ; prefer geiser
-                   )
+                   (not (eq 'clojure-mode mode))
+                   (not (eq 'lisp-mode mode))
+                   (not (eq 'scheme-mode mode)))
           (let ((hook-name (format "%s-hook" (symbol-name mode))))
             (message "adding eglot to %s" hook-name)
             (add-hook (intern hook-name) #'eglot-ensure))))))))
@@ -62,13 +39,9 @@ manually with something like this:
 (defun crafted-ide--lsp-bin-exists-p (mode-def)
   "Return non-nil if LSP binary of MODE-DEF is found via `executable-find'."
   (let ((lsp-program (cdr mode-def)))
-    ;; `lsp-program' is either a list of strings or a function object
-    ;; calling `eglot-alternatives'.
     (if (functionp lsp-program)
         (condition-case nil
             (car (funcall lsp-program))
-          ;; When an error occurs it's because Eglot checked for a
-          ;; binary and didn't find one among alternatives.
           (error nil))
       (executable-find (car lsp-program)))))
 
@@ -82,10 +55,8 @@ binary is detected on the system."
                                    #'crafted-ide--lsp-bin-exists-p
                                    eglot-server-programs))))
 
-;; Shutdown server when last managed buffer is killed
 (customize-set-variable 'eglot-autoshutdown t)
 
-;;; tree-sitter
 (defun crafted-ide--configure-tree-sitter-pre-29 ()
   "Configure tree-sitter for Emacs 28 or earlier."
 
@@ -106,26 +77,16 @@ Example: `(crafted-tree-sitter-load 'python)'"
 
 OPT-IN-ONLY is a list of symbols of language grammars to
 auto-install instead of all grammars."
-  ;; only attempt to use tree-sitter when Emacs was built with it.
   (when (member "TREE_SITTER" (split-string system-configuration-features))
     (when (require 'treesit-auto nil :noerror)
-      ;; add all items of opt-in-only to the `treesit-auto-langs'.
       (when opt-in-only
-        ;; (mapc (lambda (e) (add-to-list 'treesit-auto-langs e)) opt-in-only)
         (if (listp opt-in-only)
             (customize-set-variable 'treesit-auto-langs opt-in-only)
-          (customize-set-variable 'treesit-auto-langs (list opt-in-only)))
-        )
-      ;; prefer tree-sitter modes
+          (customize-set-variable 'treesit-auto-langs (list opt-in-only))))
       (global-treesit-auto-mode)
-      ;; install all the tree-sitter grammars
       (treesit-auto-install-all)
-      ;; configure `auto-mode-alist' for tree-sitter modes relying on
-      ;; `fundamental-mode'
       (treesit-auto-add-to-auto-mode-alist))
     (when (locate-library "combobulate")
-      ;; perhaps too gross of an application, but the *-ts-modes
-      ;; eventually derive from this mode.
       (add-hook 'prog-mode-hook #'combobulate-mode))))
 
 (defun crafted-ide-configure-tree-sitter (&optional opt-in-only)
@@ -143,11 +104,9 @@ installed."
       (crafted-ide--configure-tree-sitter-pre-29)
     (crafted-ide--configure-tree-sitter opt-in-only)))
 
-;;; turn on editorconfig if it is available
 (when (require 'editorconfig nil :noerror)
   (add-hook 'prog-mode-hook #'editorconfig-mode))
 
-;;; enhance ibuffer with ibuffer-project if it is available.
 (when (require 'ibuffer-project nil :noerror)
   (defun crafted-ide-enhance-ibuffer-with-ibuffer-project ()
     "Set up integration for `ibuffer' with `ibuffer-project'."

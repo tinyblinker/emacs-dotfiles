@@ -5,10 +5,6 @@
 
 ;; Author: System Crafters Community
 
-;;; Commentary:
-
-;; Screencast configuration
-
 ;;; Code:
 
 (when (locate-library "keycast")

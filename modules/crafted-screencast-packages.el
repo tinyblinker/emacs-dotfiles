@@ -5,10 +5,6 @@
 
 ;; Author: System Crafters Community
 
-;;; Commentary:
-
-;; Screencast configuration
-
 ;;; Code:
 
 (add-to-list 'package-selected-packages 'keycast)

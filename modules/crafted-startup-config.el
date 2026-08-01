@@ -5,14 +5,8 @@
 
 ;; Author: System Crafters Community
 
-;;; Commentary:
-
-;; Provide a fancy splash screen similar to the Emacs default splash
-;; screen or the Emacs about page.
-
 ;;; Code:
 
-;;; Customization Variables - See `M-x customize-group RET crafted-startup'
 (defgroup crafted-startup '()
   "Customizations for Crafted Emacs - Startup."
   :tag "Crafted Startup"
@@ -28,8 +22,6 @@
   :type 'boolean
   :group 'crafted-startup)
 
-;; A local variable used for the backend function. Users should rather
-;; modify the customization variable above.
 (defvar crafted-startup-screen-inhibit-startup-screen nil)
 
 (defcustom crafted-startup-graphical-logo "image"
@@ -62,7 +54,7 @@
                          "system-crafters-logo.png" crafted-emacs-home))
 
 (defconst crafted-startup-ascii-logo
-  '("          .000000.          " ;; Make sure 1st line is as wide as widest
+  '("          .000000.          "
     "         .0.    .0."
     "       .00.      .00."
     " .000cl.            .lc000."
@@ -85,7 +77,7 @@ line or the centering will by off.")
   (let* ((str-mid (/ (length str) 2))
          (line-width (window-max-chars-per-line nil face)))
     (concat
-     (make-string (abs (- (/ line-width 2) str-mid)) ? ) ;;fill w/ spaces
+     (make-string (abs (- (/ line-width 2) str-mid)) ? )
      str)))
 
 (defconst crafted-welcome-text
@@ -111,8 +103,6 @@ screen.  Functions are called in the order listed.  See
   :type '(repeat function)
   :group 'crafted-startup)
 
-;;; Functions for rendering the splash screen
-
 (defun crafted-startup-splash-head ()
   "The top part of the splash screen."
   (if (display-graphic-p)
@@ -121,20 +111,18 @@ screen.  Functions are called in the order listed.  See
                  "image") (crafted-startup--splash-head-image))
        ((string= crafted-startup-graphical-logo
                  "ascii") (crafted-startup--splash-head-ascii))
-       (t nil)) ;;do nothing in all other cases
-    ;; ASCII art in the terminal?
+       (t nil))
     (when crafted-startup-terminal-logo
       (crafted-startup--splash-head-ascii))))
 
 (defun crafted-startup--splash-head-image ()
   "Insert the head part of the splash screen into the current buffer."
   (let* ((image-file (fancy-splash-image-file))
-	 (img (create-image image-file))
-	 (text-width (window-width))
-	 (image-width (and img (car (image-size img)))))
+         (img (create-image image-file))
+         (text-width (window-width))
+         (image-width (and img (car (image-size img)))))
     (when img
       (when (> text-width image-width)
-        ;; Center the image
         (insert (propertize " " 'display
                             `(space :align-to (+ ,(- (/ text-width 2) 0)
                                                  (-0.5 . ,img)))))
@@ -321,19 +309,17 @@ starts.  See the variable documenation for
         (if pure-space-overflow
             (insert pure-space-overflow-message))
         (unless concise
-          (crafted-startup-splash-head))            ;; display the logo
-        (apply #'fancy-splash-insert                ;; insert welcome text
+          (crafted-startup-splash-head))
+        (apply #'fancy-splash-insert
                `(:face (crafted-greeting-face)
-                      ,(crafted-startup--center-with-face
-                        crafted-welcome-text
-                        'crafted-greeting-face)))
+                       ,(crafted-startup--center-with-face
+                         crafted-welcome-text
+                         'crafted-greeting-face)))
         (insert "\n\n")
-        (dolist (text crafted-startup-text)         ;; the rest of the text
+        (dolist (text crafted-startup-text)
           (apply #'fancy-splash-insert text)
           (insert "\n"))
         (with-eval-after-load 'crafted-updates-config
-          ;; If the user loads the respective module, check for updates
-          ;; and display the information on the start screen.
           (crafted-updates-check-for-latest)
           (if (> (condition-case nil
                      (crafted-updates--get-new-commit-count)
@@ -375,18 +361,15 @@ starts.  See the variable documenation for
     (if concise
         (progn
           (display-buffer splash-buffer)
-          ;; If the splash screen is in a split window, fit it.
           (let ((window (get-buffer-window splash-buffer t)))
             (or (null window)
                 (eq window (selected-window))
                 (eq window (next-window window))
                 (fit-window-to-buffer window))
-            buf)) ;; return the buffer
+            buf))
       (switch-to-buffer splash-buffer))))
 
 (unless crafted-startup-inhibit-splash
-  ;; Setting the initial-buffer-choice to the function to show the
-  ;; Crafted Emacs startup screen when Emacs is started.
   (setq initial-buffer-choice #'crafted-startup-screen))
 
 (provide 'crafted-startup-config)

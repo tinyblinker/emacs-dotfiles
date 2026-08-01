@@ -5,10 +5,6 @@
 
 ;; Author: System Crafters Community
 
-;;; Commentary:
-
-;; Packages to configure with `crafted-ui-config.el'
-
 ;;; Code:
 
 (add-to-list 'package-selected-packages 'all-the-icons)

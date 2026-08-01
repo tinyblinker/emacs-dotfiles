@@ -5,32 +5,8 @@
 
 ;; Author: System Crafters Community
 
-;;; Commentary:
-
-;; User interface customizations. Examples are icons, line numbers,
-;; and how help buffers are displayed.
-
-;; This package provides a basic, customized appearance for
-;; Emacs. Specifically, it uses: Helpful to customize the information
-;; and visual display of help buffers, such as that created by M-x
-;; `describe-function'; All-the-icons, to provide font-based icons
-;; (rather than raster or vector images); and includes some Emacs Lisp
-;; demonstrations.
-
-;;  Run `all-the-icons-install-fonts' to ensure the fonts necessary
-;; for ALL THE ICONS are available on your system. You must run this
-;; function if the "stop" icon at the beginning of this paragraph is
-;; not displayed properly (it appears as a box with some numbers
-;; and/or letters inside it).
-
-;; Read the documentation for `all-the-icons'; on Windows,
-;; `all-the-icons-install-fonts' only downloads fonts, they must be
-;; installed manually. This is necessary if icons are not displaying
-;; properly.
-
 ;;; Code:
 
-;;; Customization Variables - See `M-x customize-group RET crafted-ui'
 (defgroup crafted-ui '()
   "UI configuration for Crafted Emacs"
   :tag "Crafted UI"
@@ -51,13 +27,6 @@ Modes derived from the modes defined in
   :type 'list
   :group 'crafted-ui)
 
-;;; Note: There is one more customization variable
-;;; `crafted-ui-display-line-numbers', which is defined below because it
-;;; depends on further code.
-
-;;; Help Buffers
-
-;; Make `describe-*' screens more helpful
 (when (require 'helpful nil :noerror)
   (keymap-set helpful-mode-map "<remap> <revert-buffer>" #'helpful-update)
   (keymap-global-set "<remap> <describe-command>"        #'helpful-command)
@@ -67,10 +36,8 @@ Modes derived from the modes defined in
   (keymap-global-set "<remap> <describe-variable>"       #'helpful-variable)
   (keymap-global-set "C-h F"                             #'helpful-function))
 
-;; Bind extra `describe-*' commands
 (keymap-global-set "C-h K" #'describe-keymap)
 
-;;; Line Numbers
 (defun crafted-ui--enable-line-numbers-mode ()
   "Turn on line numbers mode.
 
@@ -113,14 +80,9 @@ Used as hook for modes which should not display line numebrs."
          (set-default sym val)
          (crafted-ui--update-line-numbers-display)))
 
-;;; Elisp-Demos
-
-;; also add some examples
 (when (require 'elisp-demos nil :noerror)
   (advice-add 'helpful-update :after #'elisp-demos-advice-helpful-update))
 
-;; add visual pulse when changing focus, like beacon but built-in
-;; from from https://karthinks.com/software/batteries-included-with-emacs/
 (defun pulse-line (&rest _)
   "Pulse the current line."
   (pulse-momentary-highlight-one-line (point)))
@@ -130,8 +92,6 @@ Used as hook for modes which should not display line numebrs."
                    recenter-top-bottom
                    other-window))
   (advice-add command :after #'pulse-line))
-
-;;; Breadcrumbs
 
 (when (require 'breadcrumb nil :noerror)
   (breadcrumb-mode))

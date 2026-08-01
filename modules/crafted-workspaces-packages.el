@@ -6,10 +6,6 @@
 ;; Author: System Crafters Community
 ;; Keywords: project, workspace
 
-;;; Commentary:
-
-;; Provide tabspaces package for managing workspaces
-
 ;;; Code:
 (add-to-list 'package-selected-packages 'tabspaces)
 

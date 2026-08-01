@@ -5,10 +5,6 @@
 
 ;; Author: System Crafters Community
 
-;;; Commentary:
-
-;; Add completion packages to the list of packages to install.
-
 ;;; Code:
 
 (add-to-list 'package-selected-packages 'cape)
