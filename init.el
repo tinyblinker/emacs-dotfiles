@@ -23,16 +23,14 @@
 (require 'crafted-screencast-packages)
 
 (add-to-list 'package-selected-packages 'rust-mode)
-(add-to-list 'package-selected-packages 'ef-themes)
 
 (package-install-selected-packages :noconfirm)
 
 (require 'crafted-completion-config)
 (require 'crafted-org-config)
 (require 'crafted-ide-config)
-(require 'crafted-screencast-config)
-(crafted-ide-eglot-auto-ensure-all)
-(crafted-ide-configure-tree-sitter)
+(require 'crafted-defaults-config)
+(require 'cradted-screencast-config)
 
 (with-eval-after-load 'rust-ts-mode
   (require 'rust-mode)
