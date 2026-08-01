@@ -13,7 +13,7 @@
 (customize-set-variable 'scroll-step 1)
 (customize-set-variable 'scroll-margin 5)
 
-(load "~/.config/emacs/custom-modules/crafted-init-config.el")
+(load "~/.config/emacs/modules/crafted-init-config.el")
 
 (require 'crafted-defaults-config)
 

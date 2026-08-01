@@ -18,3 +18,4 @@ modules/.dir-locals.el
 /modules/#crafted-init-config.el#
 /modules/.#crafted-init-config.el
 /tree-sitter
+/init.el~
