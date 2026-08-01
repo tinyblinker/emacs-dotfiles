@@ -24,9 +24,13 @@
 ;; Add package definition for completion packages
 ;; to 'package-selected-packages
 (require 'crafted-completion-packages)
-(require 'crafted-evil-packages)
 (require 'crafted-org-packages)
 (require 'crafted-ide-packages)
+(require 'crafted-org-packages)
+(require 'crafted-lisp-packages)
+(require 'crafted-screencast-packages)
+(require 'crafted-ui-packages)
+(require 'crafted-workspaces-packages)
 
 ;; Manually select additional packages
 (add-to-list 'package-selected-packages 'rust-mode)
@@ -37,9 +41,13 @@
 
 ;; Load configuration for the completion module
 (require 'crafted-completion-config)
-(require 'crafted-evil-config)
 (require 'crafted-org-config)
 (require 'crafted-ide-config)
+(require 'crafted-defaults-config)
+(require 'crafted-lisp-config)
+(require 'cradted-screencast-config)
+(require 'crafted-ui-config)
+(require 'crafted-workspaces-config)
 (crafted-ide-eglot-auto-ensure-all)
 (crafted-ide-configure-tree-sitter)
 

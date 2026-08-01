@@ -14,3 +14,7 @@ modules/.dir-locals.el
 /history
 /recentf
 /themes
+/auto-save-list
+/modules/#crafted-init-config.el#
+/modules/.#crafted-init-config.el
+/tree-sitter
