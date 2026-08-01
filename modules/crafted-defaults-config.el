@@ -1,11 +1,4 @@
-;;; crafted-defaults-config.el --- Crafted Emacs Defaults -*- lexical-binding: t; -*-
-
-;; Copyright (C) 2024
-;; SPDX-License-Identifier: MIT
-
-;; Author: System Crafters Community
-
-;;; Code:
+;;; -*- lexical-binding: t; -*-
 
 (defgroup crafted-defaults '()
   "Customizations for Crafted Emacs - Defaults."

@@ -1,11 +1,4 @@
-;;; crafted-completion-packages.el --- Completion packages  -*- lexical-binding: t; -*-
-
-;; Copyright (C) 2022
-;; SPDX-License-Identifier: MIT
-
-;; Author: System Crafters Community
-
-;;; Code:
+;;;  -*- lexical-binding: t; -*-
 
 (add-to-list 'package-selected-packages 'cape)
 (add-to-list 'package-selected-packages 'consult)

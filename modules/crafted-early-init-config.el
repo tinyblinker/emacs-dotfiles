@@ -1,11 +1,4 @@
-;;; crafted-early-init-config.el --- Crafted early initialization  -*- lexical-binding: t; -*-
-
-;; Copyright (C) 2023
-;; SPDX-License-Identifier: MIT
-
-;; Author: System Crafters Community
-
-;;; Code:
+;;; -*- lexical-binding: t; -*-
 
 (require 'package)
 

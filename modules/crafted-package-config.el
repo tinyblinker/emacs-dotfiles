@@ -1,11 +1,4 @@
-;;; crafted-package-config.el --- Macro helpers for crafted modules  -*- lexical-binding: t; -*-
-
-;; Copyright (C) 2022
-;; SPDX-License-Identifier: MIT
-
-;; Author: System Crafters Community
-
-;;; Code:
+;;; -*- lexical-binding: t -*-
 
 (require 'package)
 

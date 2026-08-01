@@ -1,11 +1,4 @@
-;;; crafted-org-packages.el --- Crafted Org Packages  -*- lexical-binding: t; -*-
-
-;; Copyright (C) 2022
-;; SPDX-License-Identifier: MIT
-
-;; Author: System Crafters Community
-
-;;; Code:
+;;; -*- lexical-binding: t -*-
 
 (add-to-list 'package-selected-packages 'denote)
 

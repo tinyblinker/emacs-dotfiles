@@ -1,11 +1,4 @@
-;;; crafted-org-config.el --- Crafted Org Config  -*- lexical-binding: t; -*-
-
-;; Copyright (C) 2022
-;; SPDX-License-Identifier: MIT
-
-;; Author: System Crafters Community
-
-;;; Code:
+;;; -*- lexical-binding: t -*-
 
 (customize-set-variable 'org-return-follows-link t)
 (customize-set-variable 'org-mouse-1-follows-link t)

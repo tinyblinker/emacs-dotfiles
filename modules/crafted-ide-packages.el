@@ -1,11 +1,4 @@
-;;; crafted-ide-packages.el --- Crafted IDE Packages -*- lexical-binding: t; -*-
-
-;; Copyright (C) 2023
-;; SPDX-License-Identifier: MIT
-
-;; Author: System Crafters Community
-
-;;; Code:
+;;; -*- lexical-binding: t -*-
 
 (when (version< emacs-version "29")
   (add-to-list 'package-selected-packages 'eglot)

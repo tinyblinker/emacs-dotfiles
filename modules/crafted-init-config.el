@@ -1,11 +1,4 @@
-;;;; crafted-init-config.el --- Crafted Emacs initial configuration  -*- lexical-binding: t; -*-
-
-;; Copyright (C) 2024
-;; SPDX-License-Identifier: MIT
-
-;; Author: System Crafters Community
-
-;;; Code:
+;;; -*- lexical-binding: t -*-
 
 (defgroup crafted '()
   "Customization options for Crafted Emacs."

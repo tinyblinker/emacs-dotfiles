@@ -1,11 +1,4 @@
-;;; crafted-screencast.el --- Crafted Emacs Screencast Config -*- lexical-binding: t; -*-
-
-;; Copyright (C) 2022
-;; SPDX-License-Identifier: MIT
-
-;; Author: System Crafters Community
-
-;;; Code:
+;;; -*- lexical-binding: t -*-
 
 (when (locate-library "keycast")
   (customize-set-variable 'keycast-mode-line-remove-tail-elements nil)

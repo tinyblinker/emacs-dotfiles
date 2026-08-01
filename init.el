@@ -1,3 +1,5 @@
+;;; -*- lexical-binding: t -*-
+
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (when (and custom-file
            (file-exists-p custom-file))
@@ -12,6 +14,15 @@
 (customize-set-variable 'scroll-bar-mode nil)
 (customize-set-variable 'scroll-step 1)
 (customize-set-variable 'scroll-margin 5)
+
+(defun add-lexical-binding-to-file ()
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (if (looking-at-p ".*lexical-binding.*")
+        (message "already had the \'lexical-binding\'")
+      (insert ";;; -*- lexical-binding: t -*-\n\n")
+      (message "added successfully"))))
 
 (load "~/.config/emacs/modules/crafted-init-config.el")
 

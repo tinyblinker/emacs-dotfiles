@@ -1,11 +1,4 @@
-;;; crafted-completion-config.el --- Crafted Completion Configuration -*- lexical-binding: t; -*-
-
-;; Copyright (C) 2023
-;; SPDX-License-Identifier: MIT
-
-;; Author: System Crafters Community
-
-;;; Code:
+;;; -*- lexical-binding: t; -*-
 
 (when (require 'vertico nil :noerror)
   (require 'vertico-directory)
