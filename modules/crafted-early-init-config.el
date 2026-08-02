@@ -2,10 +2,11 @@
 
 (require 'package)
 
-(when (version< emacs-version "28")
-  (add-to-list 'package-archives '("nongnu" . "https://elpa.nongnu.org/nongnu/")))
-(add-to-list 'package-archives '("stable" . "https://stable.melpa.org/packages/"))
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+(customize-set-variable 'package-archives '(("gnu" . "https://mirrors.ustc.edu.cn/elpa/gnu/")
+                         ("melpa" . "https://mirrors.ustc.edu.cn/elpa/melpa/")
+                         ("nongnu" . "https://mirrors.ustc.edu.cn/elpa/nongnu/")
+                         ("stable" . "https://mirrors.ustc.edu.cn/elpa
+/stable-melpa/")))
 
 (customize-set-variable 'package-archive-priorities
                         '(("gnu"    . 99)
