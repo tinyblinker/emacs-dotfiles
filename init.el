@@ -51,4 +51,4 @@
   (keymap-set rust-ts-mode-map "C-c C-c C-l" #'rust-run-clippy)
   (keymap-set rust-ts-mode-map "C-c C-f" #'rust-format-buffer))
 
-(load-theme 'ef-summer t)
+
