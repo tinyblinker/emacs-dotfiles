@@ -32,16 +32,26 @@
 
 ;; config "embark": show more thing in candidates
 ;; config "embark-consult": use consult when embark activated
-(when (require 'embark nil :noerror)
+;; (when (require 'embark nil :noerror)
 
-  (keymap-global-set "<remap> <describe-bindings>" #'embark-bindings)
-  (keymap-global-set "C-." 'embark-act)
+;;   (keymap-global-set "<remap> <describe-bindings>" #'embark-bindings)
+;;   (keymap-global-set "C-." 'embark-act)
 
-  (setq prefix-help-command #'embark-prefix-help-command)
+;;   (setq prefix-help-command #'embark-prefix-help-command)
 
-  (when (require 'embark-consult nil :noerror)
-    (with-eval-after-load 'embark-consult
-      (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))))
+;;   (when (require 'embark-consult nil :noerror)
+;;     (with-eval-after-load 'embark-consult
+;;       (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))))
+
+(when (require 'embark-consult nil :noerror)
+  (with-eval-after-load 'embark-consult
+    (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))
+  (when (require 'embark nil :noerror)
+
+    (keymap-global-set "<remap> <describe-bindings>" #'embark-bindings)
+    (keymap-global-set "C-." 'embark-act)
+
+    (setq prefix-help-command #'embark-prefix-help-command)))
 
 ;; config "corfu": completion ui in buffers
 (when (require 'corfu nil :noerror)
