@@ -1,10 +1,12 @@
 ;;; -*- lexical-binding: t; -*-
 
+;; define groups for crafted default settings
 (defgroup crafted-defaults '()
   "Customizations for Crafted Emacs - Defaults."
   :tag "Crafted Defaults"
   :group 'crafted)
 
+;; define a customized variable
 (defcustom crafted-windows-prefix-key "C-c w"
   "Configure the prefix key for window movement bindings.
 
@@ -13,36 +15,32 @@ also enables undo functionality if the window layout changes."
   :group 'crafted-defaults
   :type 'string)
 
-
+;; variables about "auto-revert"
 (customize-set-variable 'global-auto-revert-non-file-buffers t)
-
 (global-auto-revert-mode 1)
 
+;; variables about "dired" file-manager
 (customize-set-variable 'dired-dwim-target t)
-
 (customize-set-variable 'dired-auto-revert-buffer t)
 
+;; variables about the eshell
 (customize-set-variable 'eshell-scroll-to-bottom-on-input 'this)
 
+;; variables about the "switch-to-buffer"
 (customize-set-variable 'switch-to-buffer-in-dedicated-window 'pop)
 (customize-set-variable 'switch-to-buffer-obey-display-actions t)
 
+;; variables and keymap about the "ibuffer"
 (keymap-global-set "<remap> <list-buffers>" #'ibuffer-list-buffers)
 (customize-set-variable 'ibuffer-movement-cycle nil)
 (customize-set-variable 'ibuffer-old-time 24)
 
+;; variables about the "completion-preview-mode"
+(global-completion-preview-mode 1)
+(keymap-set completion-preview-active-mode-map "M-n" #'completion-preview-next-candidate)
+(keymap-set completion-preview-active-mode-map "M-p" #'completion-preview-prev-candidate)
 
-(if (version< emacs-version "28")
-    (if (locate-library "icomplete-vertical")
-        (icomplete-vertical-mode 1)
-      (icomplete-mode 1))
-  (fido-vertical-mode 1))
-
-(when (version< "30" emacs-version)
-  (global-completion-preview-mode 1)
-  (keymap-set completion-preview-active-mode-map "M-n" #'completion-preview-next-candidate)
-  (keymap-set completion-preview-active-mode-map "M-p" #'completion-preview-prev-candidate))
-
+;;
 (customize-set-variable 'tab-always-indent 'complete)
 (customize-set-variable 'completion-cycle-threshold 3)
 (customize-set-variable 'completion-category-overrides
