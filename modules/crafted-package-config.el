@@ -1,13 +1,15 @@
 ;;; -*- lexical-binding: t -*-
 
+;; load the "package"
 (require 'package)
 
+;; define the package installer's variables
 (defvar crafted-package-installer #'package-install
   "Function to use when installing packages")
-
 (defvar crafted-package-installed-predicate #'package-installed-p
   "Function to use when checking if a package is installed")
 
+;; if a pkg not installed, then install it
 (defun crafted-package-install-package (package &optional installer-fn predicate-fn)
   "Install PACKAGE optionally using the INSTALLER-FN.
 
@@ -21,6 +23,7 @@ INSTALLER-FN are held in the
     (unless (funcall checker package)
       (funcall installer package))))
 
+;; if user use the package.el, then just install pkgs in "packages-selected-packages"
 (defun crafted-package-install-selected-packages ()
   "Installs all packages listed in the `package-selected-packages' list.
 
@@ -33,5 +36,6 @@ this."
       (package-install-selected-packages t)
     (mapc #'crafted-package-install-package package-selected-packages)))
 
+;; provide necessary feature
 (provide 'crafted-package-config)
 ;;; crafted-package-config.el ends here
