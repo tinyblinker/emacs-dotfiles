@@ -1,9 +1,5 @@
 ;;; -*- lexical-binding: t -*-
 
-(setq custom-file (expand-file-name "var/custom.el" user-emacs-directory))
-(when (file-exists-p custom-file)
-  (load custom-file nil :nomessage))
-
 (add-to-list 'load-path (expand-file-name "modules" user-emacs-directory))
 
 (require 'helper-config)
