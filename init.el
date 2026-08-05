@@ -27,7 +27,9 @@
 
 (add-to-list 'load-path (expand-file-name "modules" user-emacs-directory))
 
-(require 'crafted-defaults-config)
+(require 'ui-config)
+(require 'editing-config)
+(require 'buffer-config)
 (require 'crafted-completion-config)
 (require 'crafted-org-config)
 (require 'crafted-ide-config)
