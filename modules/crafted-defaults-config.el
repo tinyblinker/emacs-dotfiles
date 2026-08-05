@@ -112,20 +112,26 @@ also enables undo functionality if the window layout changes."
     (add-hook 'prog-mode-hook #'flyspell-prog-mode)))
 
 ;; config the "hydra" and "dumb-jump"
-(when (and (require 'hydra nil :noerror)
-           (require 'dumb-jump nil :noerror))
+(use-package dump-jump
+  :ensure t
+  :hook
+  (xref-backend-functions . dumb-jump-xref-activate))
+
+(use-package hydra
+  :ensure t
+  :after dump-jump
+  :config
   (defhydra dumb-jump-hydra (:color blue :columns 3)
-    "Dumb Jump"
-    ("j" dumb-jump-go "Go")
-    ("o" dumb-jump-go-other-window "Other window")
-    ("e" dumb-jump-go-prefer-external "Go external")
-    ("x" dumb-jump-go-prefer-external-other-window "Go external other window")
-    ("i" dumb-jump-go-prompt "Prompt")
-    ("l" dumb-jump-quick-look "Quick look")
-    ("b" dumb-jump-back "Back"))
-  (keymap-set dumb-jump-mode-map "C-M-y" #'dumb-jump-hydra/body))
-(with-eval-after-load 'dumb-jump
-  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
+            "Dumb Jump"
+            ("j" dumb-jump-go "Go")
+            ("o" dumb-jump-go-other-window "Other window")
+            ("e" dumb-jump-go-prefer-external "Go external")
+            ("x" dumb-jump-go-prefer-external-other-window "Go external other window")
+            ("i" dumb-jump-go-prompt "Prompt")
+            ("l" dumb-jump-quick-look "Quick look")
+            ("b" dumb-jump-back "Back"))
+  :bind (:map dumb-jump-mode-map
+              ("C-M-y" . dump-jump-hydra/body)))
 
 ;; settings about the windows managements
 (use-package winner

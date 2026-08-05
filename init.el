@@ -20,23 +20,13 @@
   (save-excursion
     (goto-char (point-min))
     (if (looking-at-p ".*lexical-binding.*")
-        (message "already had the \'lexical-binding\'")
+        (message "already had the 'lexical-binding'")
       (insert ";;; -*- lexical-binding: t -*-\n\n")
       (message "added successfully"))))
 
 (load "~/.config/emacs/modules/crafted-init-config.el")
 
 (require 'crafted-defaults-config)
-
-(require 'crafted-completion-packages)
-(require 'crafted-org-packages)
-(require 'crafted-ide-packages)
-(require 'crafted-screencast-packages)
-
-(add-to-list 'package-selected-packages 'rust-mode)
-
-(package-install-selected-packages :noconfirm)
-
 (require 'crafted-completion-config)
 (require 'crafted-org-config)
 (require 'crafted-ide-config)
