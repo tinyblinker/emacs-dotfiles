@@ -2,15 +2,20 @@
 
 ;; set package src "mirrors" and "priorities"
 (require 'package)
-(customize-set-variable 'package-archives '(("gnu" . "https://mirrors.ustc.edu.cn/elpa/gnu/")
-                         ("melpa" . "https://mirrors.ustc.edu.cn/elpa/melpa/")
-                         ("nongnu" . "https://mirrors.ustc.edu.cn/elpa/nongnu/")
-                         ("stable" . "https://mirrors.ustc.edu.cn/elpa/stable-melpa/")))
+(customize-set-variable 'package-archives
+                        '(("gnu-mirror" . "https://mirrors.ustc.edu.cn/elpa/gnu/")
+                          ("nongnu-mirror" . "https://mirrors.ustc.edu.cn/elpa/nongnu/")
+                          ("melpa-mirror" . "https://mirrors.ustc.edu.cn/elpa/melpa/")
+                          ("gnu"    . "https://elpa.gnu.org/packages/")
+                          ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+                          ("melpa"  . "https://melpa.org/packages/")))
 (customize-set-variable 'package-archive-priorities
-                        '(("gnu"    . 99)
-                          ("nongnu" . 80)
-                          ("stable" . 70)
-                          ("melpa"  . 0)))
+                        '(("gnu-mirror" . 99)
+                          ("gnu"    . 98)
+                          ("nongnu-mirror" . 80)
+                          ("nongnu" . 79)
+                          ("melpa-mirror"  . 70)
+                          ("melpa" . 69)))
 
 ;; defvar to set default variables(overwrite by "early-init.el")
 (defvar crafted-package-perform-stale-archive-check t
