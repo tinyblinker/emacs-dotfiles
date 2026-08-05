@@ -19,9 +19,6 @@ also enables undo functionality if the window layout changes."
 (customize-set-variable 'global-auto-revert-non-file-buffers t)
 (global-auto-revert-mode 1)
 
-;; variables about "dired" file-manager
-(customize-set-variable 'dired-dwim-target t)
-(customize-set-variable 'dired-auto-revert-buffer t)
 
 ;; variables about the eshell
 (customize-set-variable 'eshell-scroll-to-bottom-on-input 'this)
@@ -29,12 +26,6 @@ also enables undo functionality if the window layout changes."
 ;; variables about the "switch-to-buffer"
 (customize-set-variable 'switch-to-buffer-in-dedicated-window 'pop)
 (customize-set-variable 'switch-to-buffer-obey-display-actions t)
-
-
-;; variables and kbds about the "completion-preview-mode"
-(global-completion-preview-mode 1)
-(keymap-set completion-preview-active-mode-map "M-n" #'completion-preview-next-candidate)
-(keymap-set completion-preview-active-mode-map "M-p" #'completion-preview-prev-candidate)
 
 ;; variables about "completions"
 (customize-set-variable 'tab-always-indent 'complete)
@@ -45,10 +36,23 @@ also enables undo functionality if the window layout changes."
 (customize-set-variable 'xref-show-definitions-function
                         #'xref-show-definitions-completing-read)
 
+(use-package delete-selection
+  :config (delete-selection-mode))
+
+(use-package so-long
+  :config (global-so-long-mode 1))
+
+(use-package repeat
+  :config (repeat-mode 1))
+
+(use-package completion-preview
+  :config
+  (global-completion-preview-mode 1)
+  :bind (:map completion-preview-active-mode-map
+              ("M-n" . completion-preview-next-candidate)
+              ("M-p" . completion-preview-prev-candidate)))
+
 ;; miscs variables about "editor settings"
-(delete-selection-mode)
-(global-so-long-mode 1)
-(repeat-mode 1)
 (setq-default indent-tabs-mode nil)
 (setq-default bidi-paragraph-direction 'left-to-right)
 (setq-default bidi-inhibit-bpa t)
@@ -84,16 +88,24 @@ also enables undo functionality if the window layout changes."
 (add-hook 'after-save-hook
           #'executable-make-buffer-file-executable-if-script-p)
 
+(use-package dired
+  :custom
+  (dried-dwim-target t)
+  (dried-auto-revert-buffer t))
+
 ;; variables about "dictionary" 
-(keymap-set global-map "M-#" #'dictionary-lookup-definition)
-(add-to-list 'display-buffer-alist
-             '("^\\*Dictionary\\*"
-               (display-buffer-in-side-window)
-               (side . left)
-               (window-width . 70)))
+(use-package dictionary
+  :bind ("M-#" . dictionary-lookup-definition)
+  :config
+  (add-to-list 'display-buffer-alist
+               '("^\\*Dictionary\\*"
+                 (display-buffer-in-side-window)
+                 (side . left)
+                 (window-width . 70))))
 
 ;; settings for plain text's spellcheck and in codes' spellcheck of comments
-(with-eval-after-load 'ispell
+(use-package ispell
+  :config
   (when (executable-find ispell-program-name)
     (add-hook 'text-mode-hook #'flyspell-mode)
     (add-hook 'prog-mode-hook #'flyspell-prog-mode)))
