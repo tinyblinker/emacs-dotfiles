@@ -90,9 +90,10 @@ Launch Emacs. Packages install automatically on first run.
 │   ├── auto-saves/            Auto-saves (#file#)
 │   ├── auto-save-list/        Crash recovery
 │   ├── recentf                Recent file list
+│   ├── eln-cache/              Native-compiled cache
 │   └── history                Minibuffer history
 └── modules/
-    ├── redirect-file-config.el File redirection (custom, backup, auto-save, recentf, savehist → var/)
+    ├── redirect-file-config.el File redirection (custom, backup, auto-save, recentf, savehist, eln-cache → var/)
     ├── helper-config.el       Utilities
     ├── completion-config.el  Completion system (vars, vertico, corfu, consult, cape)
     ├── editing-config.el     Editor defaults (revert, indent, so-long, etc.)

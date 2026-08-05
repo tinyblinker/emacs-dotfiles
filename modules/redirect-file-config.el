@@ -15,5 +15,9 @@
 (setq recentf-save-file (expand-file-name "var/recentf" user-emacs-directory))
 (setq savehist-file (expand-file-name "var/history" user-emacs-directory))
 
+(when (featurep 'native-compile)
+  (startup-redirect-eln-cache
+   (expand-file-name "var/eln-cache/" user-emacs-directory)))
+
 (provide 'redirect-file-config)
 ;;; redirect-file-config.el ends here

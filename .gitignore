@@ -1,6 +1,5 @@
 *.elc
 modules/crafted-completion-packages.el~
-eln-cache/
 straight/
 transient/
 eshell/
