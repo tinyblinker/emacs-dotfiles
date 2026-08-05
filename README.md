@@ -84,6 +84,7 @@ Launch Emacs. Packages install automatically on first run.
 ~/.config/emacs/
 ├── early-init.el             Package archives & init
 ├── init.el                   Bootstrap (16 lines)
+├── var/                       Auto-generated (custom, backup, history, recentf)
 └── modules/
     ├── redirect-file-config.el File redirection (backup, auto-save, recentf, savehist → var/)
     ├── helper-config.el       Utilities
