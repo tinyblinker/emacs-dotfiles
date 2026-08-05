@@ -11,7 +11,7 @@
     (fido-mode -1)
     (fido-vertical-mode -1)
     (icomplete-mode -1)
-    (icomplete-vertical-mode -1))))
+    (icomplete-vertical-mode -1)))
 
 ;; config "marginalia": show docs(more info) in "vertico" completions list 
 (use-package marginalia

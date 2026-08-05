@@ -43,19 +43,12 @@ Skips modes listed in `crafted-ide-eglot-excluded-modes'."
 (use-package treesit-auto
 :if (member "TREE_SITTER" (split-string system-configuration-features))
   :ensure t
-  :config
   :custom
-  (tree-sitter-auto-langs '(python rust bash asm))
+  (treesit-auto-langs '(python rust bash asm))
   :config
   (global-treesit-auto-mode)
   (treesit-auto-install-all)
-  (treesit-auto-add-to-auto))
-
-;; config the combobulate
-(use-package combobulate
-  :if (member "TREE_SITTER" (split-string system-configuration-features))
-  :ensure t
-  :hook (prog-mode . combobulate-mode))
+  (treesit-auto-add-to-auto-mode-alist))
 
 ;; require the "editorconfig" and the "ibuffer-project" for setups
 (use-package editorconfig
@@ -74,7 +67,7 @@ Skips modes listed in `crafted-ide-eglot-excluded-modes'."
   (ibuffer . crafted-ide-enhance-ibuffer-with-ibuffer-project))
 
 ;; use the aggressive-indent
-(use-package aggressive-ident
+(use-package aggressive-indent
   :ensure t
   :hook (prog-mode . aggressive-indent-mode))
 
