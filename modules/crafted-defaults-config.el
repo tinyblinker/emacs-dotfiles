@@ -30,10 +30,6 @@ also enables undo functionality if the window layout changes."
 (customize-set-variable 'switch-to-buffer-in-dedicated-window 'pop)
 (customize-set-variable 'switch-to-buffer-obey-display-actions t)
 
-;; variables and keymap about the "ibuffer"
-(keymap-global-set "<remap> <list-buffers>" #'ibuffer-list-buffers)
-(customize-set-variable 'ibuffer-movement-cycle nil)
-(customize-set-variable 'ibuffer-old-time 24)
 
 ;; variables and kbds about the "completion-preview-mode"
 (global-completion-preview-mode 1)
@@ -53,7 +49,6 @@ also enables undo functionality if the window layout changes."
 (delete-selection-mode)
 (global-so-long-mode 1)
 (repeat-mode 1)
-(savehist-mode 1)
 (setq-default indent-tabs-mode nil)
 (setq-default bidi-paragraph-direction 'left-to-right)
 (setq-default bidi-inhibit-bpa t)
@@ -63,6 +58,16 @@ also enables undo functionality if the window layout changes."
 (customize-set-variable 'ediff-window-setup-function
                         'ediff-setup-windows-plain)
 (customize-set-variable 'load-prefer-newer t)
+
+
+(use-package ibuffer
+  :bind ("<remap><list-buffer>" . ibuffer-list-buffers)
+  :custom
+  (ibuffer-movement-cycle nil)
+  (ibuffer-old-time 24))
+
+
+
 (add-to-list 'display-buffer-alist
              '("\\*Help\\*"
                (display-buffer-reuse-window display-buffer-pop-up-window)))
@@ -71,7 +76,11 @@ also enables undo functionality if the window layout changes."
                (display-buffer-reuse-window display-buffer-pop-up-window)
                (inhibit-same-window . t)
                (window-height . 10)))
-(add-hook 'after-init-hook #'recentf-mode)
+(use-package recentf
+  :hook (after-init . recentf-mode))
+
+(use-package savehist
+  :config (savehist-mode 1))
 (add-hook 'after-save-hook
           #'executable-make-buffer-file-executable-if-script-p)
 
@@ -106,15 +115,18 @@ also enables undo functionality if the window layout changes."
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 
 ;; settings about the windows managements
-(winner-mode 1)
-(define-prefix-command 'crafted-windows-key-map)
-(keymap-set 'crafted-windows-key-map "u" 'winner-undo)
-(keymap-set 'crafted-windows-key-map "r" 'winner-redo)
-(keymap-set 'crafted-windows-key-map "n" 'windmove-down)
-(keymap-set 'crafted-windows-key-map "p" 'windmove-up)
-(keymap-set 'crafted-windows-key-map "b" 'windmove-left)
-(keymap-set 'crafted-windows-key-map "f" 'windmove-right)
-(keymap-global-set crafted-windows-prefix-key 'crafted-windows-key-map)
+(use-package winner
+  :config
+  (winner-mode 1)
+  (define-prefix-command 'crafted-windows-key-map)
+  :bind (("C-c w" . crafted-windows-key-map)
+         :map crafted-windows-key-map
+         ("u" . winner-undo)
+         ("r" . winner-redo)
+         ("n" . windmove-down)
+         ("p" . windmove-up)
+         ("b" . windmove-left)
+         ("f" . windmove-right)))
 
 ;; scroll the screen smoothly
 (setq auto-window-vscroll nil)
