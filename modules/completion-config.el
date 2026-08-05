@@ -1,6 +1,17 @@
 ;;; -*- lexical-binding: t; -*-
 
-;; config "vertico": minibuffer vertical layout
+(setq tab-always-indent 'complete
+      completion-cycle-threshold 3
+      completions-detailed t
+      xref-show-definitions-function #'xref-show-definitions-completing-read)
+
+(use-package completion-preview
+  :config
+  (global-completion-preview-mode -1)
+  :bind (:map completion-preview-active-mode-map
+              ("M-n" . completion-preview-next-candidate)
+              ("M-p" . completion-preview-prev-candidate)))
+
 (use-package vertico
   :ensure t
   :custom (vertico-cycle t)
@@ -40,9 +51,7 @@
   (corfu-cycle t)
   (corfu-auto t)
   (corfu-auto-prefix 2)
-  :config
-  (global-completion-preview-mode -1)
-  (global-corfu-mode 1))
+  :config (global-corfu-mode 1))
 
 (use-package corfu-terminal
   :ensure t
