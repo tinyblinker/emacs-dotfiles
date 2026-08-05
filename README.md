@@ -86,6 +86,7 @@ Launch Emacs. Packages install automatically on first run.
 ├── init.el                   Bootstrap (16 lines)
 ├── custom.el                 Auto-generated
 └── modules/
+    ├── redirect-file-config.el File redirection (backup, auto-save, recentf, savehist → var/)
     ├── helper-config.el       Utilities
     ├── completion-config.el  Completion system (vars, vertico, corfu, consult, cape)
     ├── editing-config.el     Editor defaults (revert, indent, so-long, etc.)
