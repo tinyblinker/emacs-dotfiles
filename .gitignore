@@ -12,10 +12,8 @@ quelpa/
 modules/.dir-locals.el
 /custom.el~
 /custom.el
-/history
-/recentf
+/var/
 /themes
-/auto-save-list
 /modules/#crafted-init-config.el#
 /modules/.#crafted-init-config.el
 /tree-sitter
