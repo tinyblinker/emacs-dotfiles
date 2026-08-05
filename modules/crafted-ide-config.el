@@ -41,10 +41,13 @@ Skips modes listed in `crafted-ide-eglot-excluded-modes'."
 
 ;; Config the treesit-auto
 (use-package treesit-auto
-:if (member "TREE_SITTER" (split-string system-configuration-features))
+  :if (member "TREE_SITTER" (split-string system-configuration-features))
   :ensure t
   :custom
-  (treesit-auto-langs '(python rust bash asm))
+  (treesit-auto-langs '(
+                        python
+                        rust
+                        bash))
   :config
   (global-treesit-auto-mode)
   (treesit-auto-install-all)

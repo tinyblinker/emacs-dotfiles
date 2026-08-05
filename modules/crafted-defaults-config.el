@@ -36,9 +36,6 @@ also enables undo functionality if the window layout changes."
 (customize-set-variable 'xref-show-definitions-function
                         #'xref-show-definitions-completing-read)
 
-(use-package delete-selection
-  :config (delete-selection-mode))
-
 (use-package so-long
   :config (global-so-long-mode 1))
 
@@ -112,14 +109,14 @@ also enables undo functionality if the window layout changes."
     (add-hook 'prog-mode-hook #'flyspell-prog-mode)))
 
 ;; config the "hydra" and "dumb-jump"
-(use-package dump-jump
+(use-package dumb-jump
   :ensure t
   :hook
   (xref-backend-functions . dumb-jump-xref-activate))
 
 (use-package hydra
   :ensure t
-  :after dump-jump
+  :after dumb-jump
   :config
   (defhydra dumb-jump-hydra (:color blue :columns 3)
             "Dumb Jump"
@@ -131,7 +128,7 @@ also enables undo functionality if the window layout changes."
             ("l" dumb-jump-quick-look "Quick look")
             ("b" dumb-jump-back "Back"))
   :bind (:map dumb-jump-mode-map
-              ("C-M-y" . dump-jump-hydra/body)))
+              ("C-M-y" . dumb-jump-hydra/body)))
 
 ;; settings about the windows managements
 (use-package winner
