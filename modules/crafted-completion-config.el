@@ -43,7 +43,6 @@
 ;; config "consult": (with magic command and RT preview) enhanced search and navigation
 (use-package consult
   :ensure t
-  :after embark-consult
   :bind (("C-s" . consult-line)
          :map minibuffer-local-map
          ("C-r" . consult-history))

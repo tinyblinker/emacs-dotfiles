@@ -31,7 +31,6 @@
 (require 'crafted-completion-config)
 (require 'crafted-org-config)
 (require 'crafted-ide-config)
-(require 'crafted-defaults-config)
 (require 'crafted-screencast-config)
 
 (use-package rust-mode

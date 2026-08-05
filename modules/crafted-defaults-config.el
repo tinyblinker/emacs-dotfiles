@@ -44,7 +44,7 @@ also enables undo functionality if the window layout changes."
 
 (use-package completion-preview
   :config
-  (global-completion-preview-mode 1)
+  (global-completion-preview-mode -1)
   :bind (:map completion-preview-active-mode-map
               ("M-n" . completion-preview-next-candidate)
               ("M-p" . completion-preview-prev-candidate)))
@@ -90,23 +90,6 @@ also enables undo functionality if the window layout changes."
   :custom
   (dried-dwim-target t)
   (dried-auto-revert-buffer t))
-
-;; variables about "dictionary" 
-(use-package dictionary
-  :bind ("M-#" . dictionary-lookup-definition)
-  :config
-  (add-to-list 'display-buffer-alist
-               '("^\\*Dictionary\\*"
-                 (display-buffer-in-side-window)
-                 (side . left)
-                 (window-width . 70))))
-
-;; settings for plain text's spellcheck and in codes' spellcheck of comments
-(use-package ispell
-  :config
-  (when (executable-find ispell-program-name)
-    (add-hook 'text-mode-hook #'flyspell-mode)
-    (add-hook 'prog-mode-hook #'flyspell-prog-mode)))
 
 ;; config the "hydra" and "dumb-jump"
 (use-package dumb-jump
