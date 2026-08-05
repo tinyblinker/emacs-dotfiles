@@ -85,6 +85,7 @@ also enables undo functionality if the window layout changes."
 
 (use-package savehist
   :config (savehist-mode 1))
+
 (add-hook 'after-save-hook
           #'executable-make-buffer-file-executable-if-script-p)
 

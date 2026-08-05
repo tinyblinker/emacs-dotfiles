@@ -83,20 +83,22 @@
              ("M-d" . corfu-popupinfo-toggle)))
 
 ;; config "cape": like friendly snniper in neovim
-(when (require 'cape nil :noerror)
-
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-
-  (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
-
+(use-package cape
+  :ensure t
+  :after corfu
+  :init
   (defun crafted-completion-corfu-eshell ()
     "Special settings for when using corfu with eshell."
     (setq-local corfu-quit-at-boundary t
                 corfu-quit-no-match t
                 corfu-auto nil)
     (corfu-mode))
-  (add-hook 'eshell-mode-hook #'crafted-completion-corfu-eshell))
+  :config
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
+  :hook
+  (eshell . crafted-completion-corfu-eshell))
 
 ;; provide the necessary feature
 (provide 'crafted-completion-config)

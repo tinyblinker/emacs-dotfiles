@@ -80,3 +80,4 @@ Run this in the `before-init-hook'"
 ;; provide the necessary feature
 (provide 'crafted-early-init-config)
 ;;; crafted-early-init-config.el ends here
+
