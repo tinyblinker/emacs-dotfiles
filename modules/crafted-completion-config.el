@@ -3,7 +3,6 @@
 ;; config "vertico": minibuffer vertical layout
 (use-package vertico
   :ensure t
-  :demand t
   :custom (vertico-cycle t)
   :config
   (vertico-mode 1)
@@ -15,24 +14,13 @@
 
 ;; config "marginalia": show docs(more info) in "vertico" completions list 
 (use-package marginalia
-:ensure t
-:after vertico
-:config (marginalia-mode 1))
-
-;; config "consult": (with magic command and RT preview) enhanced search and navigation
-(use-package consult
   :ensure t
-  :demand t
-  :bind (("C-s" . consult-line)
-         :map minibuffer-local-map
-         ("C-r" . consult-history))
-  :init
-  (setq completion-in-region-function #'consult-completion-in-region))
+  :after vertico
+  :config (marginalia-mode 1))
 
 ;; config "orderless": with fuzzel algorithm supporrt
 (use-package orderless
   :ensure t
-  :demand t
   :custom
   (completion-styles '(orderless basic))
   (completion-category-overrides '((file (styles . (partial-completion))))))
@@ -40,7 +28,6 @@
 ;; config "embark": show more thing in candidates
 (use-package embark
   :ensure t
-  :demand t
   :bind
   ("<remap> <describe-bindings>" . embark-bindings)
   ("C-." . embark-act)
@@ -50,14 +37,22 @@
 ;; config "embark-consult": use consult when embark activated
 (use-package embark-consult
   :ensure t
-  :after (embark consult)
   :hook
   (embark-collect-mode-hook . consult-preview-at-point-mode))
+
+;; config "consult": (with magic command and RT preview) enhanced search and navigation
+(use-package consult
+  :ensure t
+  :after embark-consult
+  :bind (("C-s" . consult-line)
+         :map minibuffer-local-map
+         ("C-r" . consult-history))
+  :init
+  (setq completion-in-region-function #'consult-completion-in-region))
 
 ;; config "corfu": completion ui in buffers
 (use-package corfu
   :ensure t
-  :demand t
   :custom
   (corfu-cycle t)
   (corfu-auto t)

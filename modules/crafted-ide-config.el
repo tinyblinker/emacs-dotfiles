@@ -48,6 +48,9 @@ Skips modes listed in `crafted-ide-eglot-excluded-modes'."
                         python
                         rust
                         bash))
+  :init
+  (setq treesit-extra-load-path
+        (list (expand-file-name "tree-sitter" user-emacs-directory)))
   :config
   (global-treesit-auto-mode)
   (treesit-auto-install-all)

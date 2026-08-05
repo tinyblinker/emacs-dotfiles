@@ -1,20 +1,21 @@
 ;;; -*- lexical-binding: t -*-
 
+;; set "custom.el"
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (when (and custom-file
            (file-exists-p custom-file))
   (load custom-file nil :nomessage))
 
-(customize-set-variable 'inhibit-startup-screen t)
-(customize-set-variable 'global-display-line-numbers-mode 1)
-(customize-set-variable 'menu-bar-mode nil)
-(customize-set-variable 'tool-bar-mode nil)
-(customize-set-variable 'initial-scratch-message nil)
-(customize-set-variable 'blink-cursor-mode nil)
-(customize-set-variable 'scroll-bar-mode nil)
+(global-display-line-numbers-mode 1)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(blink-cursor-mode -1)
+(scroll-bar-mode -1)
 (customize-set-variable 'scroll-step 1)
-(customize-set-variable 'scroll-margin 5)
+(customize-set-variable 'initial-scratch-message nil)
+(customize-set-variable 'inhibit-startup-screen t)
 
+;; helper function
 (defun add-lexical-binding-to-file ()
   (interactive)
   (save-excursion
@@ -24,7 +25,7 @@
       (insert ";;; -*- lexical-binding: t -*-\n\n")
       (message "added successfully"))))
 
-(load "~/.config/emacs/modules/crafted-init-config.el")
+(load (expand-file-name "modules/crafted-init-config.el" user-emacs-directory))
 
 (require 'crafted-defaults-config)
 (require 'crafted-completion-config)
