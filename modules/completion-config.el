@@ -59,6 +59,11 @@
   :after corfu
   :config (corfu-terminal-mode +1))
 
-;; provide the necessary feature
+(use-package cape
+  :ensure t
+  :config
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev))
+
 (provide 'completion-config)
 ;;; completion-config.el ends here

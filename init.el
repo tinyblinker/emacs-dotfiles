@@ -6,6 +6,7 @@
 
 (add-to-list 'load-path (expand-file-name "modules" user-emacs-directory))
 
+(require 'helper-config)
 (require 'ui-config)
 (require 'editing-config)
 (require 'buffer-config)
