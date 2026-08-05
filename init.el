@@ -43,12 +43,13 @@
 (require 'crafted-defaults-config)
 (require 'crafted-screencast-config)
 
-(with-eval-after-load 'rust-ts-mode
-  (require 'rust-mode)
-  (keymap-set rust-ts-mode-map "C-c C-c C-u" #'rust-compile)
-  (keymap-set rust-ts-mode-map "C-c C-c C-k" #'rust-check)
-  (keymap-set rust-ts-mode-map "C-c C-c C-t" #'rust-test)
-  (keymap-set rust-ts-mode-map "C-c C-c C-l" #'rust-run-clippy)
-  (keymap-set rust-ts-mode-map "C-c C-f" #'rust-format-buffer))
-
+(use-package rust-mode
+  :ensure t
+  :after rust-ts-mode
+  :bind (:map rust-ts-mode-map
+              ("C-c C-c C-u" . #'rust-compile)
+              ("C-c C-c C-k" . #'rust-check)
+              ("C-c C-c C-t" . #'rust-test)
+              ("C-c C-c C-l" . #'rust-run-clippy)
+              ("C-c C-f" . #'rust-format-buffer)))
 
