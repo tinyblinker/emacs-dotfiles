@@ -28,10 +28,6 @@
   (org-hide-emphasis-markers t)
   :hook (org-mode . org-indent-mode))
 
-;; Config org-appear
-(use-package org-appear
-  :ensure t
-  :hook (org-mode . org-appear-mode))
 
 ;; provide necessary feature
 (provide 'crafted-org-config)
