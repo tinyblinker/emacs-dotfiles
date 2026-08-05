@@ -1,9 +1,12 @@
 ;;; -*- lexical-binding: t -*-
 
 ;; set "keycast" for the real-time display of the kdb
-(when (locate-library "keycast")
-  (customize-set-variable 'keycast-mode-line-remove-tail-elements nil)
-  (customize-set-variable 'keycast-mode-line-insert-after 'mode-line-misc-info)
+(use-package keycast
+  :ensure t
+  :custom
+  (keycast-mode-line-mode-remove-tail-elements nil)
+  (keycast-mode-line-mode-remove-insert-after 'mode-line-misc-info)
+  :config
   (keycast-mode-line-mode))
 
 ;; add necessaey features

@@ -1,11 +1,5 @@
 ;;; -*- lexical-binding: t -*-
 
-;; set some customized variables
-(customize-set-variable 'org-return-follows-link t)
-(customize-set-variable 'org-mouse-1-follows-link t)
-(customize-set-variable 'org-link-descriptive t)
-(customize-set-variable 'org-hide-emphasis-markers t)
-
 ;; disable auto-pair in the "org-mode"
 (use-package electric-pair
   :hook
@@ -21,10 +15,23 @@
                          t
                        (,electric-pair-inhibit-predicate c)))))))
 
-;; add some hooks
-(add-hook 'org-mode-hook #'org-indent-mode)
-(when (locate-library "org-appear")
-  (add-hook 'org-mode-hook 'org-appear-mode))
+;; Config denote
+(use-package denote
+  :ensure t)
+
+;; Config the org-mode
+(use-package org
+  :custom
+  (org-return-follows-link t)
+  (org-mouse-1-follows-link t)
+  (org-link-descriptive t)
+  (org-hide-emphasis-markers t)
+  :hook (org-mode . org-indent-mode))
+
+;; Config org-appear
+(use-package org-appear
+  :ensure t
+  :hook (org-mode . org-appear-mode))
 
 ;; provide necessary feature
 (provide 'crafted-org-config)
