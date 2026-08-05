@@ -4,6 +4,9 @@
 </h1>
 
 <p align="center">
+  <a href="https://www.gnu.org/software/emacs/">
+    <img src="https://img.shields.io/badge/Emacs-30.2-%237F5AB6?style=flat-square&logo=gnu-emacs&logoColor=white" alt="Emacs 30.2">
+  </a>
   <a href="https://github.com/tinyblinker/emacs-dotfiles/stargazers">
     <img src="https://img.shields.io/github/stars/tinyblinker/emacs-dotfiles?style=flat-square&color=D0BCFF" alt="Stars">
   </a>
