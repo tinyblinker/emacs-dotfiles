@@ -25,13 +25,15 @@
       (insert ";;; -*- lexical-binding: t -*-\n\n")
       (message "added successfully"))))
 
-(load (expand-file-name "modules/crafted-init-config.el" user-emacs-directory))
+(add-to-list 'load-path (expand-file-name "modules" user-emacs-directory))
 
 (require 'crafted-defaults-config)
 (require 'crafted-completion-config)
 (require 'crafted-org-config)
 (require 'crafted-ide-config)
 (require 'crafted-screencast-config)
+
+(load-theme 'modus-vivendi t)
 
 (use-package rust-mode
   :ensure t
