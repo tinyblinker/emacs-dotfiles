@@ -1,24 +1,8 @@
-;;; -*- lexical-binding: t; -*-
-
-;; define groups for crafted default settings
-(defgroup crafted-defaults '()
-  "Customizations for Crafted Emacs - Defaults."
-  :tag "Crafted Defaults"
-  :group 'crafted)
-
-;; define a customized variable
-(defcustom crafted-windows-prefix-key "C-c w"
-  "Configure the prefix key for window movement bindings.
-
-Movement commands provided by `windmove' package, `winner-mode'
-also enables undo functionality if the window layout changes."
-  :group 'crafted-defaults
-  :type 'string)
+;;; -*- lexical-binding: t -*-
 
 ;; variables about "auto-revert"
 (customize-set-variable 'global-auto-revert-non-file-buffers t)
 (global-auto-revert-mode 1)
-
 
 ;; variables about the eshell
 (customize-set-variable 'eshell-scroll-to-bottom-on-input 'this)
@@ -30,8 +14,6 @@ also enables undo functionality if the window layout changes."
 ;; variables about "completions"
 (customize-set-variable 'tab-always-indent 'complete)
 (customize-set-variable 'completion-cycle-threshold 3)
-(customize-set-variable 'completion-category-overrides
-                        '((file (styles . (partial-completion)))))
 (customize-set-variable 'completions-detailed t)
 (customize-set-variable 'xref-show-definitions-function
                         #'xref-show-definitions-completing-read)
@@ -60,14 +42,11 @@ also enables undo functionality if the window layout changes."
                         'ediff-setup-windows-plain)
 (customize-set-variable 'load-prefer-newer t)
 
-
 (use-package ibuffer
   :bind ("<remap><list-buffer>" . ibuffer-list-buffers)
   :custom
   (ibuffer-movement-cycle nil)
   (ibuffer-old-time 24))
-
-
 
 (add-to-list 'display-buffer-alist
              '("\\*Help\\*"
@@ -91,35 +70,13 @@ also enables undo functionality if the window layout changes."
   (dried-dwim-target t)
   (dried-auto-revert-buffer t))
 
-;; config the "hydra" and "dumb-jump"
-(use-package dumb-jump
-  :ensure t
-  :hook
-  (xref-backend-functions . dumb-jump-xref-activate))
-
-(use-package hydra
-  :ensure t
-  :after dumb-jump
-  :config
-  (defhydra dumb-jump-hydra (:color blue :columns 3)
-            "Dumb Jump"
-            ("j" dumb-jump-go "Go")
-            ("o" dumb-jump-go-other-window "Other window")
-            ("e" dumb-jump-go-prefer-external "Go external")
-            ("x" dumb-jump-go-prefer-external-other-window "Go external other window")
-            ("i" dumb-jump-go-prompt "Prompt")
-            ("l" dumb-jump-quick-look "Quick look")
-            ("b" dumb-jump-back "Back"))
-  :bind (:map dumb-jump-mode-map
-              ("C-M-y" . dumb-jump-hydra/body)))
-
 ;; settings about the windows managements
 (use-package winner
   :config
   (winner-mode 1)
-  (define-prefix-command 'crafted-windows-key-map)
-  :bind (("C-c w" . crafted-windows-key-map)
-         :map crafted-windows-key-map
+  (define-prefix-command 'windows-key-map)
+  :bind (("C-c w" . windows-key-map)
+         :map windows-key-map
          ("u" . winner-undo)
          ("r" . winner-redo)
          ("n" . windmove-down)
