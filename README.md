@@ -50,7 +50,7 @@ Launch Emacs. Packages install automatically on first run.
 | Category | Stack |
 |----------|-------|
 | Minibuffer | `vertico` + `orderless` + `marginalia` — vertical fuzzy completion |
-| In-buffer | `corfu` + `cape` + `kind-icon` — popup completion + backends + icons |
+| In-buffer | `corfu` + `cape` — popup completion + extra backends |
 | Search | `consult` — `consult-line`, `consult-ripgrep`, etc. |
 | LSP | `eglot` — auto-starts rust-analyzer on `.rs` files |
 | Cargo | `rust-mode` — `cargo build/check/test/clippy/fmt` |
@@ -86,7 +86,7 @@ Launch Emacs. Packages install automatically on first run.
 ├── custom.el                 Auto-generated
 └── modules/
     ├── helper-config.el       Utilities
-    ├── completion-config.el  Completion system (vars, vertico, corfu, consult, cape, kind-icon)
+    ├── completion-config.el  Completion system (vars, vertico, corfu, consult, cape)
     ├── editing-config.el     Editor defaults (revert, indent, so-long, etc.)
     ├── buffer-config.el      Buffers & windows (ibuffer, winner, windmove)
     ├── ui-config.el          Visual (bars, scrolling, keycast)
