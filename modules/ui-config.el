@@ -5,9 +5,9 @@
 (tool-bar-mode -1)
 (blink-cursor-mode -1)
 (scroll-bar-mode -1)
-(customize-set-variable 'scroll-step 1)
-(customize-set-variable 'initial-scratch-message nil)
-(customize-set-variable 'inhibit-startup-screen t)
+(setq scroll-step 1
+      initial-scratch-message nil
+      inhibit-startup-screen t)
 
 (use-package keycast
   :ensure t
@@ -17,12 +17,11 @@
   :config
   (keycast-mode-line-mode))
 
-;; smooth scrolling
-(setq auto-window-vscroll nil)
-(customize-set-variable 'fast-but-imprecise-scrolling t)
-(customize-set-variable 'scroll-conservatively 101)
-(customize-set-variable 'scroll-margin 0)
-(customize-set-variable 'scroll-preserve-screen-position t)
+(setq auto-window-vscroll nil
+      fast-but-imprecise-scrolling t
+      scroll-conservatively 101
+      scroll-margin 0
+      scroll-preserve-screen-position t)
 
 (provide 'ui-config)
 ;;; ui-config.el ends here
