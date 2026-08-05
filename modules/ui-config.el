@@ -2,7 +2,7 @@
 
 (set-face-attribute 'default nil
                     :family "JetBrainsMono Nerd Font Mono"
-                    :height 170)
+                    :height 190)
 
 (setq default-frame-alist
       '((width . 100) (height . 40)))

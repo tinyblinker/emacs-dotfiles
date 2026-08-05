@@ -56,7 +56,7 @@ Launch Emacs. Packages install automatically on first run.
 | Cargo | `rust-mode` — `cargo build/check/test/clippy/fmt` |
 | Syntax | `treesit-auto` — tree-sitter grammars for Rust & Bash |
 | Notes | `denote` — structured org-mode note-taking |
-| Font | `JetBrainsMono Nerd Font Mono` 17pt — coding font with icons |
+| Font | `JetBrainsMono Nerd Font Mono` 19pt — coding font with icons |
 | Theme | `modus-vivendi` — built-in high-contrast dark theme |
 
 ## Keybindings
