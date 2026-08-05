@@ -65,15 +65,5 @@
   (add-to-list 'completion-at-point-functions #'cape-file)
   (add-to-list 'completion-at-point-functions #'cape-dabbrev))
 
-;; add icon to corfu
-(use-package kind-icon
-  :ensure t
-  :after corfu
-  :custom
-  (kind-icon-blend-background t)
-  (kind-icon-default-face 'corfu-default) ; only needed with blend-background
-  :config
-  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
-
 (provide 'completion-config)
 ;;; completion-config.el ends here
