@@ -10,8 +10,6 @@ bookmarks
 network-security.data
 quelpa/
 modules/.dir-locals.el
-/custom.el~
-/custom.el
 /var/
 /themes
 /modules/#crafted-init-config.el#
