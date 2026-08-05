@@ -56,6 +56,7 @@ Launch Emacs. Packages install automatically on first run.
 | Cargo | `rust-mode` — `cargo build/check/test/clippy/fmt` |
 | Syntax | `treesit-auto` — tree-sitter grammars for Rust & Bash |
 | Notes | `denote` — structured org-mode note-taking |
+| Font | `JetBrainsMono Nerd Font Mono` 15pt — coding font with icons |
 | Theme | `modus-vivendi` — built-in high-contrast dark theme |
 
 ## Keybindings
@@ -89,7 +90,7 @@ Launch Emacs. Packages install automatically on first run.
     ├── completion-config.el  Completion system (vars, vertico, corfu, consult, cape)
     ├── editing-config.el     Editor defaults (revert, indent, so-long, etc.)
     ├── buffer-config.el      Buffers & windows (ibuffer, winner, windmove)
-    ├── ui-config.el          Visual (bars, scrolling, keycast)
+    ├── ui-config.el          Visual (font, bars, scrolling, keycast)
     ├── ide-config.el         LSP & syntax (eglot, treesit, editorconfig)
     ├── org-config.el         Org-mode & denote
     └── rust-config.el        Cargo keybindings
