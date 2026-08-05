@@ -7,14 +7,6 @@
 (setq default-frame-alist
       '((width . 100) (height . 40)))
 
-(setq backup-directory-alist
-      `((".*" . ,(expand-file-name "var/backup/" user-emacs-directory)))
-      auto-save-file-name-transforms
-      `((".*" ,(expand-file-name "var/auto-saves/" user-emacs-directory) t))
-      auto-save-list-file-prefix
-      (expand-file-name "var/auto-save-list/" user-emacs-directory)
-      create-lockfiles nil)
-
 (global-display-line-numbers-mode 1)
 (menu-bar-mode -1)
 (tool-bar-mode -1)

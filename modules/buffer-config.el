@@ -1,8 +1,5 @@
 ;;; -*- lexical-binding: t -*-
 
-(setq recentf-save-file (expand-file-name "var/recentf" user-emacs-directory))
-(setq savehist-file (expand-file-name "var/history" user-emacs-directory))
-
 (use-package ibuffer
   :bind ("<remap><list-buffer>" . ibuffer-list-buffers)
   :custom
