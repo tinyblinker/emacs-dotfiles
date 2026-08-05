@@ -12,5 +12,6 @@
 (require 'completion-config)
 (require 'ide-config)
 (require 'org-config)
+(require 'rust-config)
 
 (load-theme 'modus-vivendi t)
