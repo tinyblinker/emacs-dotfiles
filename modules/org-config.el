@@ -3,10 +3,10 @@
 ;; disable auto-pair in the "org-mode"
 (use-package electric-pair
   :hook
-  (org-mode . crafted-org-enhance-electric-pair-inhibit-predicate)
-  (electric-pair-mode-hook . crafted-org-enhance-electric-pair-inhibit-predicate)
+  (org-mode . org-enhance-electric-pair-inhibit-predicate)
+  (electric-pair-mode-hook . org-enhance-electric-pair-inhibit-predicate)
   :config
-  (defun crafted-org-enhance-electric-pair-inhibit-predicate ()
+  (defun org-enhance-electric-pair-inhibit-predicate ()
     "Disable auto-pairing of \"<\" in `org-mode' when using `electric-pair-mode'."
     (when (and electric-pair-mode (eql major-mode #'org-mode))
       (setq-local electric-pair-inhibit-predicate
@@ -28,7 +28,5 @@
   (org-hide-emphasis-markers t)
   :hook (org-mode . org-indent-mode))
 
-
-;; provide necessary feature
-(provide 'crafted-org-config)
-;;; crafted-org-config.el ends here
+(provide 'org-config)
+;;; org-config.el ends here

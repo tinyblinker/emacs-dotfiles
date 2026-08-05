@@ -36,6 +36,15 @@
   :ensure t
   :hook (prog-mode . editorconfig-mode))
 
-;; provide the necessary feature
-(provide 'crafted-ide-config)
-;;; crafted-ide-config.el ends here
+(use-package rust-mode
+  :ensure t
+  :after rust-ts-mode
+  :bind (:map rust-ts-mode-map
+              ("C-c C-c C-u" . #'rust-compile)
+              ("C-c C-c C-k" . #'rust-check)
+              ("C-c C-c C-t" . #'rust-test)
+              ("C-c C-c C-l" . #'rust-run-clippy)
+              ("C-c C-f" . #'rust-format-buffer)))
+
+(provide 'ide-config)
+;;; ide-config.el ends here

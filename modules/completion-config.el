@@ -51,5 +51,5 @@
   :config (corfu-terminal-mode +1))
 
 ;; provide the necessary feature
-(provide 'crafted-completion-config)
-;;; crafted-completion.el ends here
+(provide 'completion-config)
+;;; completion-config.el ends here
