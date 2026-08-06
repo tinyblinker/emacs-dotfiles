@@ -34,5 +34,8 @@
 (add-hook 'after-save-hook
           #'executable-make-buffer-file-executable-if-script-p)
 
+;; Auto-insert matching parentheses, quotes, brackets globally
+(electric-pair-mode 1)
+
 (provide 'editing-config)
 ;;; editing-config.el ends here

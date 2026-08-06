@@ -11,6 +11,7 @@
 
 ;; Clean up the UI: line numbers on, all chrome off, no startup screen
 (global-display-line-numbers-mode 1)
+(setq display-line-numbers-type 'relative)
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (blink-cursor-mode -1)
@@ -18,6 +19,12 @@
 (setq scroll-step 1
       initial-scratch-message nil
       inhibit-startup-screen t)
+
+;; Highlight matching parentheses
+(show-paren-mode 1)
+
+;; Smooth pixel-precise scrolling (Emacs 29+)
+(pixel-scroll-precision-mode 1)
 
 ;; Show pressed key sequences in the mode-line
 (use-package keycast

@@ -19,10 +19,14 @@
 
 ;; Track recently opened files for quick access
 (use-package recentf
-  :hook (after-init . recentf-mode))
+  :hook (after-init . recentf-mode)
+  :custom
+  (recentf-exclude '("var/" "elpa/" ".git/" "^/tmp/" "/ssh:" "/sudo:")))
 
 ;; Save and restore minibuffer history across sessions
 (use-package savehist
+  :custom
+  (savehist-additional-variables '(kill-ring register-alist search-ring regexp-search-ring))
   :config (savehist-mode 1))
 
 ;; Smarter Dired: guess the copy target and auto-revert
