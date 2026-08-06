@@ -50,14 +50,14 @@ Launch Emacs. Packages install automatically on first run.
 | Category | Stack |
 |----------|-------|
 | Minibuffer | `icomplete-vertical` + `completion-preview` — built-in vertical completion + inline preview |
-| In-buffer | `corfu` + `cape` — popup completion + extra backends |
+| In-buffer | `corfu` + `cape` — popup completion + extra backends (dabbrev, file, keyword) |
 | LSP | `eglot` — auto-starts rust-analyzer on `.rs` files, inlay hints, code actions |
-| Cargo | `rust-mode` — `cargo build/check/test/clippy/fmt` |
-| Syntax | `rust-ts-mode` + `treesitter` — built-in tree-sitter grammars (Emacs 30+) |
+| Cargo | `rust-mode` — `cargo build/check/test/clippy/fmt` keybindings |
+| Editing | `electric-pair` + `repeat` + `so-long` — auto-pairs, repeatable keys, long-line protection |
+| Shell | `exec-path-from-shell` + `eshell` — GUI env import, auto-scroll on input |
 | Notes | `denote` + `org-mode` — structured note-taking, agenda, capture templates |
 | Hints | `which-key` — popup keybinding discovery on prefix keys |
-| Font | `JetBrainsMono Nerd Font Mono` 19pt — coding font with icons |
-| Theme | `modus-vivendi` — built-in high-contrast dark theme |
+| UI | `keycast` + `pixel-scroll-precision` — mode-line key display, smooth scrolling |
 
 ## Keybindings
 
@@ -94,6 +94,15 @@ Launch Emacs. Packages install automatically on first run.
 | `C-c n g` | Grep notes directory |
 | `C-c n d` | Dired notes directory |
 
+**Capture workflow:** `C-c c t` → `inbox.org` (todos) · `C-c c n` → `capture-notes.org` (scratch notes) → promote to `C-c n n` (denote permanent note)
+
+### Editing
+
+| Keys | Command |
+|------|---------|
+| `C-x k` | Kill current buffer |
+| `M-n / M-p` | Cycle completion preview |
+
 ### Window
 
 | Keys | Command |
@@ -107,7 +116,11 @@ Launch Emacs. Packages install automatically on first run.
 ~/.config/emacs/
 ├── early-init.el             Package archives & init
 ├── init.el                   Bootstrap (19 lines)
-├── var/                       Auto-generated
+├── org/                       Org-mode files
+│   ├── inbox.org              Capture target for todos (auto-created)
+│   └── capture-notes.org      Capture target for scratch notes (auto-created)
+├── notes/                     Denote knowledge base (auto-created)
+├── var/                       Auto-generated data
 │   ├── custom.el              Customize settings
 │   ├── backup/                Edit backups (file~)
 │   ├── auto-saves/            Auto-saves (#file#)
@@ -116,16 +129,16 @@ Launch Emacs. Packages install automatically on first run.
 │   ├── eln-cache/              Native-compiled cache
 │   └── history                Minibuffer history
 └── modules/
-    ├── redirect-file-config.el File redirection (custom, backup, auto-save, recentf, savehist, eln-cache → var/)
-    ├── helper-config.el       Utilities
-    ├── completion-config.el  Completion system (vars, icomplete-vertical, corfu, cape)
-    ├── editing-config.el     Editor defaults (revert, indent, so-long, etc.)
-    ├── buffer-config.el      Buffers & windows (ibuffer, winner, windmove)
-    ├── ui-config.el          Visual (font, bars, scrolling, keycast)
-    ├── ide-config.el         LSP (eglot keybindings, inlay hints, editorconfig)
-    ├── which-key-config.el   Keybinding discovery popups
-    ├── org-config.el         Org-mode & denote
-    └── rust-config.el        Cargo keybindings
+    ├── redirect-file-config.el File redirection (custom, backup, auto-save, recentf, savehist → var/)
+    ├── helper-config.el       Utility commands
+    ├── completion-config.el  Completion (corfu, cape, icomplete-vertical, completion-preview)
+    ├── editing-config.el     Editor defaults (electric-pair, repeat, so-long, bidi, indentation)
+    ├── buffer-config.el      Buffers & windows (ibuffer, winner, windmove, recentf, savehist)
+    ├── ui-config.el          Visual (font, bars, pixel-scroll, keycast)
+    ├── ide-config.el         LSP & tools (eglot, editorconfig, exec-path-from-shell)
+    ├── which-key-config.el   Keybinding hint popups
+    ├── org-config.el         Org-mode, denote, capture, agenda
+    └── rust-config.el        Cargo keybindings for rust-ts-mode
 ```
 
 ## License

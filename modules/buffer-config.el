@@ -4,8 +4,8 @@
 (use-package ibuffer
   :bind ("<remap><list-buffer>" . ibuffer-list-buffers)
   :custom
-  (ibuffer-movement-cycle nil)
-  (ibuffer-old-time 24))
+  (ibuffer-movement-cycle nil)  ;; Wrap around ends of buffer list? No.
+  (ibuffer-old-time 24))        ;; Mark buffers as "old" after 24 hours
 
 ;; Always reuse or pop up a window for Help and Completions buffers
 (add-to-list 'display-buffer-alist
@@ -17,23 +17,23 @@
                (inhibit-same-window . t)
                (window-height . 10)))
 
-;; Track recently opened files for quick access
+;; Track recently opened files, excluding noise directories and remote paths
 (use-package recentf
   :hook (after-init . recentf-mode)
   :custom
   (recentf-exclude '("var/" "elpa/" ".git/" "^/tmp/" "/ssh:" "/sudo:")))
 
-;; Save and restore minibuffer history across sessions
+;; Save and restore minibuffer history, kill ring, and search rings across sessions
 (use-package savehist
   :custom
   (savehist-additional-variables '(kill-ring register-alist search-ring regexp-search-ring))
   :config (savehist-mode 1))
 
-;; Smarter Dired: guess the copy target and auto-revert
+;; Smarter Dired: DWIM copy target and auto-revert on file changes
 (use-package dired
   :custom
-  (dired-dwim-target t)
-  (dired-auto-revert-buffer t))
+  (dired-dwim-target t)           ;; Guess copy/move target from the other Dired window
+  (dired-auto-revert-buffer t))   ;; Refresh listing when files are changed externally
 
 ;; Window movement and undo/redo: C-c w {n,p,b,f} move, {u,r} undo/redo layout
 (use-package winner

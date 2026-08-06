@@ -1,6 +1,7 @@
 ;;; -*- lexical-binding: t; -*-
 
-;; Import shell environment variables (SSH, PATH, etc.) when running in GUI or daemon mode
+;; Import shell environment variables when running in GUI or daemon mode
+;; (Terminal Emacs inherits the shell env; GUI/daemon must pull it in explicitly)
 (use-package exec-path-from-shell
   :ensure t
   :if (and (or (display-graphic-p) (daemonp))
@@ -13,7 +14,7 @@
 
 ;; Eglot: auto-start LSP server (rust-analyzer) in Rust tree-sitter mode
 (use-package eglot
-  :custom (eglot-autoshutdown t)
+  :custom (eglot-autoshutdown t) ;; Shut down LSP server when last managed buffer is closed
   :hook (rust-ts-mode . eglot-ensure)
   :bind (:map eglot-mode-map
               ("C-c l a" . eglot-code-actions)
@@ -22,7 +23,7 @@
               ("C-c l ." . xref-find-definitions)
               ("C-c l ," . xref-find-references)))
 
-;; Show type annotations inline via LSP inlay hints (Emacs 30+)
+;; Show type annotations inline via LSP inlay hints on Rust buffers (Emacs 30+)
 (add-hook 'rust-ts-mode-hook #'eglot-inlay-hints-mode)
 
 ;; Apply .editorconfig project settings automatically in programming modes

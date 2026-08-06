@@ -27,8 +27,11 @@
          ("C-c n d" . denote-dired))
   :custom
   (denote-directory (expand-file-name "notes/" user-emacs-directory))
+  ;; Prompt for title and keywords when creating a new denote note
   (denote-prompts '(title keywords))
+  ;; Sort keywords alphabetically in file name
   (denote-sort-keywords t)
+  ;; Infer keywords from existing notes as you type
   (denote-infer-keywords t)
   :config
   (unless (file-directory-p denote-directory)
@@ -39,15 +42,15 @@
 (use-package org
   ;; Basic appearance and link behavior
   :custom
-  (org-return-follows-link t)
-  (org-mouse-1-follows-link t)
-  (org-hide-emphasis-markers t)
-  (org-startup-indented t)
-  (org-log-into-drawer t)
-  (org-ellipsis " ⮵")
-  (org-fontify-whole-heading-line t)
-  (org-fontify-quote-and-verse-blocks t)
-  (org-pretty-entities t)
+  (org-return-follows-link t)           ;; Enter key opens links at point
+  (org-mouse-1-follows-link t)          ;; Single mouse click opens links
+  (org-hide-emphasis-markers t)         ;; Hide */_~= markup, show styled text only
+  (org-startup-indented t)              ;; Turn on org-indent-mode at startup
+  (org-log-into-drawer t)               ;; File state change notes into LOGBOOK drawer
+  (org-ellipsis " ⮵")                   ;; Custom ellipsis for folded headings
+  (org-fontify-whole-heading-line t)    ;; Apply heading face to the entire line, not just text
+  (org-fontify-quote-and-verse-blocks t) ;; Apply special face to quote and verse blocks
+  (org-pretty-entities t)               ;; Display \alpha etc. as Unicode characters
   ;; Global keybindings for agenda and capture
   :bind (("C-c a" . org-agenda)
          ("C-c c" . org-capture))
@@ -74,7 +77,7 @@
   ;; Enable built-in structure templates (<s TAB, <e TAB, etc.)
   (require 'org-tempo)
 
-  ;; Enable org-id for stable cross-reference links between notes
+  ;; Enable org-id for stable cross-reference links; create an ID when inserting a link interactively
   (require 'org-id)
   (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id))
 

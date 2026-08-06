@@ -5,14 +5,14 @@
 (when (file-exists-p custom-file)
   (load custom-file nil :nomessage))
 
-;; Redirect backup, auto-save, and lock files into the var/ directory
+;; Redirect backup (~), auto-save (#), and lockfiles into var/ to declutter workspace
 (setq backup-directory-alist
       `((".*" . ,(expand-file-name "var/backup/" user-emacs-directory)))
       auto-save-file-name-transforms
       `((".*" ,(expand-file-name "var/auto-save-list/" user-emacs-directory) t))
       auto-save-list-file-prefix
       (expand-file-name "var/auto-save-list/" user-emacs-directory)
-      create-lockfiles nil)
+      create-lockfiles nil) ;; Disable .# lock files entirely (single-user setup)
 
 ;; Save recent file list and minibuffer history in var/
 (setq recentf-save-file (expand-file-name "var/recentf" user-emacs-directory))

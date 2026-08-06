@@ -4,16 +4,16 @@
 (add-to-list 'load-path (expand-file-name "modules" user-emacs-directory))
 
 ;; Load all configuration modules
-(require 'helper-config)
-(require 'redirect-file-config)
-(require 'ui-config)
-(require 'which-key-config)
-(require 'editing-config)
-(require 'buffer-config)
-(require 'completion-config)
-(require 'ide-config)
-(require 'org-config)
-(require 'rust-config)
+(require 'helper-config)          ;; Utility commands
+(require 'redirect-file-config)   ;; Redirect cache/backup/save files into var/
+(require 'ui-config)              ;; Font, theme, scrolling, UI chrome
+(require 'which-key-config)       ;; Keybinding hint popups
+(require 'editing-config)         ;; Global editing defaults
+(require 'buffer-config)          ;; Buffer, window, dired, history
+(require 'completion-config)      ;; Corfu, cape, icomplete-vertical, completion-preview
+(require 'ide-config)             ;; Eglot LSP, editorconfig, shell env
+(require 'org-config)             ;; Org-mode, denote, capture, agenda
+(require 'rust-config)            ;; Cargo keybindings for rust-ts-mode
 
 ;; Apply the dark high-contrast modus-vivendi theme
 (load-theme 'modus-vivendi t)

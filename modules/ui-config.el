@@ -16,6 +16,7 @@
 (tool-bar-mode -1)
 (blink-cursor-mode -1)
 (scroll-bar-mode -1)
+;; One-line-at-a-time keyboard scrolling (1 = one line per scroll event)
 (setq scroll-step 1
       initial-scratch-message nil
       inhibit-startup-screen t)
@@ -30,17 +31,19 @@
 (use-package keycast
   :ensure t
   :custom
+  ;; Show all key sequence elements (do not strip duplicates from the tail)
   (keycast-mode-line-mode-remove-tail-elements nil)
+  ;; Place keycast near the right side of the mode-line
   (keycast-mode-line-mode-remove-insert-after 'mode-line-misc-info)
   :config
   (keycast-mode-line-mode))
 
-;; Smooth, pixel-accurate scrolling configuration
-(setq auto-window-vscroll nil
-      fast-but-imprecise-scrolling t
-      scroll-conservatively 101
-      scroll-margin 0
-      scroll-preserve-screen-position t)
+;; Native smooth scrolling: disable vscroll slack, favor precise pixel scroll
+(setq auto-window-vscroll nil         ;; Let pixel-scroll handle vertical alignment
+      fast-but-imprecise-scrolling t  ;; Enable fast scrolling path for large jumps
+      scroll-conservatively 101        ;; Never recenter during scroll (value > 100)
+      scroll-margin 0                  ;; No extra padding around cursor when scrolling
+      scroll-preserve-screen-position t) ;; Keep cursor at same screen line on scroll
 
 (provide 'ui-config)
 ;;; ui-config.el ends here
