@@ -54,7 +54,8 @@ Launch Emacs. Packages install automatically on first run.
 | LSP | `eglot` — auto-starts rust-analyzer on `.rs` files, inlay hints, code actions |
 | Cargo | `rust-mode` — `cargo build/check/test/clippy/fmt` |
 | Syntax | `rust-ts-mode` + `treesitter` — built-in tree-sitter grammars (Emacs 30+) |
-| Notes | `denote` — structured org-mode note-taking |
+| Notes | `denote` + `org-mode` — structured note-taking, agenda, capture templates |
+| Hints | `which-key` — popup keybinding discovery on prefix keys |
 | Font | `JetBrainsMono Nerd Font Mono` 19pt — coding font with icons |
 | Theme | `modus-vivendi` — built-in high-contrast dark theme |
 
@@ -80,15 +81,17 @@ Launch Emacs. Packages install automatically on first run.
 | `C-c l .` | Find definition |
 | `C-c l ,` | Find references |
 
-### Denote
+### Org
 
 | Keys | Command |
 |------|---------|
-| `C-c n n` | New note |
-| `C-c n r` | Rename file |
-| `C-c n l` | Insert link |
+| `C-c a` | Open agenda |
+| `C-c c` | Quick capture |
+| `C-c n n` | New denote note |
+| `C-c n r` | Rename denote file |
+| `C-c n l` | Insert denote link |
 | `C-c n b` | Show backlinks |
-| `C-c n g` | Grep notes |
+| `C-c n g` | Grep notes directory |
 | `C-c n d` | Dired notes directory |
 
 ### Window
@@ -103,7 +106,7 @@ Launch Emacs. Packages install automatically on first run.
 ```
 ~/.config/emacs/
 ├── early-init.el             Package archives & init
-├── init.el                   Bootstrap (16 lines)
+├── init.el                   Bootstrap (19 lines)
 ├── var/                       Auto-generated
 │   ├── custom.el              Customize settings
 │   ├── backup/                Edit backups (file~)
@@ -120,6 +123,7 @@ Launch Emacs. Packages install automatically on first run.
     ├── buffer-config.el      Buffers & windows (ibuffer, winner, windmove)
     ├── ui-config.el          Visual (font, bars, scrolling, keycast)
     ├── ide-config.el         LSP (eglot keybindings, inlay hints, editorconfig)
+    ├── which-key-config.el   Keybinding discovery popups
     ├── org-config.el         Org-mode & denote
     └── rust-config.el        Cargo keybindings
 ```

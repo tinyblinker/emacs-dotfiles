@@ -7,6 +7,7 @@
 (require 'helper-config)
 (require 'redirect-file-config)
 (require 'ui-config)
+(require 'which-key-config)
 (require 'editing-config)
 (require 'buffer-config)
 (require 'completion-config)
