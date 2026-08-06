@@ -14,7 +14,16 @@
 ;; Eglot: auto-start LSP server (rust-analyzer) in Rust tree-sitter mode
 (use-package eglot
   :custom (eglot-autoshutdown t)
-  :hook (rust-ts-mode . eglot-ensure))
+  :hook (rust-ts-mode . eglot-ensure)
+  :bind (:map eglot-mode-map
+              ("C-c l a" . eglot-code-actions)
+              ("C-c l r" . eglot-rename)
+              ("C-c l f" . eglot-format-buffer)
+              ("C-c l ." . xref-find-definitions)
+              ("C-c l ," . xref-find-references)))
+
+;; Show type annotations inline via LSP inlay hints (Emacs 30+)
+(add-hook 'rust-ts-mode-hook #'eglot-inlay-hints-mode)
 
 ;; Apply .editorconfig project settings automatically in programming modes
 (use-package editorconfig
