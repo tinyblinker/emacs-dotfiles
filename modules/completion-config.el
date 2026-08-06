@@ -3,49 +3,23 @@
 (setq tab-always-indent 'complete
       completion-cycle-threshold 3
       completions-detailed t
-      xref-show-definitions-function #'xref-show-definitions-completing-read)
+      completions-format 'vertical
+      xref-show-definitions-function #'xref-show-definitions-completing-read
+      completion-styles '(flex basic)
+      completion-category-overrides '((file (styles . (partial-completion)))))
 
+;; Emacs 30 built-in ghost-text completion preview
 (use-package completion-preview
   :config
-  (global-completion-preview-mode -1)
+  (global-completion-preview-mode 1)
   :bind (:map completion-preview-active-mode-map
               ("M-n" . completion-preview-next-candidate)
               ("M-p" . completion-preview-prev-candidate)))
 
-(use-package vertico
-  :ensure t
-  :custom (vertico-cycle t)
-  :config
-  (vertico-mode 1)
-  (fido-mode -1)
-  (fido-vertical-mode -1)
-  (icomplete-mode -1)
-  (icomplete-vertical-mode -1))
+;; Vertical minibuffer completion UI (replaces Vertico)
+(icomplete-vertical-mode 1)
 
-;; config "marginalia": show docs(more info) in "vertico" completions list 
-(use-package marginalia
-  :ensure t
-  :after vertico
-  :config (marginalia-mode 1))
-
-;; config "orderless": with fuzzel algorithm supporrt
-(use-package orderless
-  :ensure t
-  :custom
-  (completion-styles '(orderless basic))
-  (completion-category-overrides '((file (styles . (partial-completion)))))
-  (completion-category-defaults nil))
-
-;; config "consult": (with magic command and RT preview) enhanced search and navigation
-(use-package consult
-  :ensure t
-  :bind (("C-s" . consult-line)
-         :map minibuffer-local-map
-         ("C-r" . consult-history))
-  :init
-  (setq completion-in-region-function #'consult-completion-in-region))
-
-;; config "corfu": completion ui in buffers
+;; config "corfu": in-buffer popup completion UI
 (use-package corfu
   :ensure t
   :custom
