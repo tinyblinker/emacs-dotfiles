@@ -41,38 +41,22 @@
   :custom
   (org-return-follows-link t)
   (org-mouse-1-follows-link t)
-  (org-link-descriptive t)
   (org-hide-emphasis-markers t)
   (org-startup-indented t)
-  ;; Log state changes into a LOGBOOK drawer
   (org-log-into-drawer t)
-  ;; Use a nicer ellipsis symbol for folded headings
   (org-ellipsis " ⮵")
-  ;; Fontify entire heading line and done headlines
   (org-fontify-whole-heading-line t)
-  (org-fontify-done-headline t)
   (org-fontify-quote-and-verse-blocks t)
   (org-pretty-entities t)
-  ;; Indent content under headings
-  :hook (org-mode . org-indent-mode)
   ;; Global keybindings for agenda and capture
   :bind (("C-c a" . org-agenda)
          ("C-c c" . org-capture))
   :config
-  ;; Set org directory inside the Emacs config tree
   (setq org-directory (expand-file-name "org/" user-emacs-directory))
-  (setq org-default-notes-file (expand-file-name "inbox.org" org-directory))
   (setq org-agenda-files `(,org-directory))
 
-  ;; Create org-directory and default files if missing
   (unless (file-directory-p org-directory)
     (make-directory org-directory t))
-
-  (dolist (file '("inbox.org" "capture-notes.org"))
-    (let ((filepath (expand-file-name file org-directory)))
-      (unless (file-exists-p filepath)
-        (with-temp-buffer
-          (write-file filepath)))))
 
   ;; Capture templates for quick todo and note entries
   (setq org-capture-templates
