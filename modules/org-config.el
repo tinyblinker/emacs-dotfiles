@@ -31,6 +31,8 @@
   (denote-sort-keywords t)
   (denote-infer-keywords t)
   :config
+  (unless (file-directory-p denote-directory)
+    (make-directory denote-directory t))
   (denote-rename-buffer-mode 1))
 
 ;; Org-mode: note-taking, task management, agenda, and capture
@@ -66,7 +68,7 @@
   (unless (file-directory-p org-directory)
     (make-directory org-directory t))
 
-  (dolist (file '("inbox.org" "notes.org"))
+  (dolist (file '("inbox.org" "capture-notes.org"))
     (let ((filepath (expand-file-name file org-directory)))
       (unless (file-exists-p filepath)
         (with-temp-buffer
@@ -78,7 +80,7 @@
            (file "inbox.org")
            "* TODO %?\n  %U\n  %a")
           ("n" "Note" entry
-           (file "notes.org")
+           (file "capture-notes.org")
            "* %?\n  %U\n  %a")))
 
   ;; TODO workflow states: TODO -> NEXT -> DONE
