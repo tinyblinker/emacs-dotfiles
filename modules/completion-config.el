@@ -27,7 +27,16 @@
   (corfu-cycle t)
   (corfu-auto t)
   (corfu-auto-prefix 2)
-  :config (global-corfu-mode 1))
+  (corfu-auto-delay 0.2)
+  (corfu-preselect 'prompt)
+  (corfu-quit-no-match 'separator)
+  (corfu-on-exact-match 'insert)
+  :config
+  (global-corfu-mode 1)
+  (corfu-history-mode 1)
+  (corfu-popupinfo-mode 1)
+  (corfu-echo-mode 1)
+  (corfu-indexed-mode 1))
 
 ;; Make Corfu popup work in terminal (non-GUI) frames
 (use-package corfu-terminal
