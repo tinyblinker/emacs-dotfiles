@@ -16,22 +16,6 @@
   :custom (eglot-autoshutdown t)
   :hook (rust-ts-mode . eglot-ensure))
 
-;; Config the treesit-auto
-(use-package treesit-auto
-  :if (member "TREE_SITTER" (split-string system-configuration-features))
-  :ensure t
-  :custom
-  (treesit-auto-langs '(
-                        rust
-                        bash))
-  :init
-  (setq treesit-extra-load-path
-        (list (expand-file-name "tree-sitter" user-emacs-directory)))
-  :config
-  (global-treesit-auto-mode)
-  (treesit-auto-install-all)
-  (treesit-auto-add-to-auto-mode-alist))
-
 (use-package editorconfig
   :ensure t
   :hook (prog-mode . editorconfig-mode))
