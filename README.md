@@ -51,10 +51,9 @@ Launch Emacs. Packages install automatically on first run.
 |----------|-------|
 | Minibuffer | `icomplete-vertical` + `completion-preview` — built-in vertical completion + inline preview |
 | In-buffer | `corfu` + `cape` — popup completion + extra backends |
-| Search | `consult` — `consult-line`, `consult-ripgrep`, etc. |
-| LSP | `eglot` — auto-starts rust-analyzer on `.rs` files |
+| LSP | `eglot` — auto-starts rust-analyzer on `.rs` files, inlay hints, code actions |
 | Cargo | `rust-mode` — `cargo build/check/test/clippy/fmt` |
-| Syntax | `treesit-auto` — tree-sitter grammars for Rust & Bash |
+| Syntax | `rust-ts-mode` + `treesitter` — built-in tree-sitter grammars (Emacs 30+) |
 | Notes | `denote` — structured org-mode note-taking |
 | Font | `JetBrainsMono Nerd Font Mono` 19pt — coding font with icons |
 | Theme | `modus-vivendi` — built-in high-contrast dark theme |
@@ -70,6 +69,27 @@ Launch Emacs. Packages install automatically on first run.
 | `C-c C-c C-t` | `cargo test` |
 | `C-c C-c C-l` | `cargo clippy` |
 | `C-c C-f` | rustfmt buffer |
+
+### LSP (Eglot)
+
+| Keys | Command |
+|------|---------|
+| `C-c l a` | Code actions (quick fix) |
+| `C-c l r` | Rename symbol |
+| `C-c l f` | Format buffer |
+| `C-c l .` | Find definition |
+| `C-c l ,` | Find references |
+
+### Denote
+
+| Keys | Command |
+|------|---------|
+| `C-c n n` | New note |
+| `C-c n r` | Rename file |
+| `C-c n l` | Insert link |
+| `C-c n b` | Show backlinks |
+| `C-c n g` | Grep notes |
+| `C-c n d` | Dired notes directory |
 
 ### Window
 
@@ -99,7 +119,7 @@ Launch Emacs. Packages install automatically on first run.
     ├── editing-config.el     Editor defaults (revert, indent, so-long, etc.)
     ├── buffer-config.el      Buffers & windows (ibuffer, winner, windmove)
     ├── ui-config.el          Visual (font, bars, scrolling, keycast)
-    ├── ide-config.el         LSP & syntax (eglot, treesit, editorconfig)
+    ├── ide-config.el         LSP (eglot keybindings, inlay hints, editorconfig)
     ├── org-config.el         Org-mode & denote
     └── rust-config.el        Cargo keybindings
 ```
