@@ -1,11 +1,13 @@
 ;;; -*- lexical-binding: t -*-
 
+;; Replace the default buffer list with ibuffer (filterable, grouped view)
 (use-package ibuffer
   :bind ("<remap><list-buffer>" . ibuffer-list-buffers)
   :custom
   (ibuffer-movement-cycle nil)
   (ibuffer-old-time 24))
 
+;; Always reuse or pop up a window for Help and Completions buffers
 (add-to-list 'display-buffer-alist
              '("\\*Help\\*"
                (display-buffer-reuse-window display-buffer-pop-up-window)))
@@ -15,18 +17,21 @@
                (inhibit-same-window . t)
                (window-height . 10)))
 
+;; Track recently opened files for quick access
 (use-package recentf
   :hook (after-init . recentf-mode))
 
+;; Save and restore minibuffer history across sessions
 (use-package savehist
   :config (savehist-mode 1))
 
+;; Smarter Dired: guess the copy target and auto-revert
 (use-package dired
   :custom
   (dired-dwim-target t)
   (dired-auto-revert-buffer t))
 
-;; window management
+;; Window movement and undo/redo: C-c w {n,p,b,f} move, {u,r} undo/redo layout
 (use-package winner
   :config
   (winner-mode 1)

@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t; -*-
 
-;; when in "graphic" or "daemon" mode: need some variables
+;; Import shell environment variables (SSH, PATH, etc.) when running in GUI or daemon mode
 (use-package exec-path-from-shell
   :ensure t
   :if (and (or (display-graphic-p) (daemonp))
@@ -11,11 +11,12 @@
     (add-to-list 'exec-path-from-shell-variables var))
   (exec-path-from-shell-initialize))
 
-;; config the "eglot"
+;; Eglot: auto-start LSP server (rust-analyzer) in Rust tree-sitter mode
 (use-package eglot
   :custom (eglot-autoshutdown t)
   :hook (rust-ts-mode . eglot-ensure))
 
+;; Apply .editorconfig project settings automatically in programming modes
 (use-package editorconfig
   :ensure t
   :hook (prog-mode . editorconfig-mode))

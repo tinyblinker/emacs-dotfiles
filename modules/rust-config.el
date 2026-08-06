@@ -1,5 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
+;; Cargo commands: build/check/test/clippy/format bound under C-c C-c and C-c C-f
 (use-package rust-mode
   :ensure t
   :after rust-ts-mode

@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-;; disable auto-pair in the "org-mode"
+;; Disable auto-pairing of "<" in org-mode (avoids accidental timestamps)
 (use-package electric-pair
   :hook
   (org-mode . org-enhance-electric-pair-inhibit-predicate)
@@ -15,11 +15,11 @@
                          t
                        (,electric-pair-inhibit-predicate c)))))))
 
-;; Config denote
+;; Denote: structured note-taking with consistent file naming
 (use-package denote
   :ensure t)
 
-;; Config the org-mode
+;; Org-mode: clickable links, hidden markup, indented headings
 (use-package org
   :custom
   (org-return-follows-link t)

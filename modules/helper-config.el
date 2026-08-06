@@ -1,5 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
+;; Command to insert lexical-binding header into the current buffer
 (defun add-lexical-binding-to-file ()
   (interactive)
   (save-excursion
