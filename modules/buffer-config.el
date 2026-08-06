@@ -23,8 +23,8 @@
 
 (use-package dired
   :custom
-  (dried-dwim-target t)
-  (dried-auto-revert-buffer t))
+  (dired-dwim-target t)
+  (dired-auto-revert-buffer t))
 
 ;; window management
 (use-package winner

@@ -7,7 +7,7 @@
 (setq backup-directory-alist
       `((".*" . ,(expand-file-name "var/backup/" user-emacs-directory)))
       auto-save-file-name-transforms
-      `((".*" ,(expand-file-name "var/auto-saves/" user-emacs-directory) t))
+      `((".*" ,(expand-file-name "var/auto-save-list/" user-emacs-directory) t))
       auto-save-list-file-prefix
       (expand-file-name "var/auto-save-list/" user-emacs-directory)
       create-lockfiles nil)

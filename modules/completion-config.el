@@ -33,7 +33,8 @@
   :ensure t
   :custom
   (completion-styles '(orderless basic))
-  (completion-category-overrides '((file (styles . (partial-completion))))))
+  (completion-category-overrides '((file (styles . (partial-completion)))))
+  (completion-category-defaults nil))
 
 ;; config "consult": (with magic command and RT preview) enhanced search and navigation
 (use-package consult
