@@ -25,8 +25,10 @@
                         rust
                         bash))
   :init
-  (setq treesit-extra-load-path
-        (list (expand-file-name "tree-sitter" user-emacs-directory)))
+  (advice-add #'treesit-install-language-grammar :before
+              (lambda (&rest _)
+                (setq treesit-extra-load-path
+                      (list (expand-file-name "var/tree-sitter" user-emacs-directory)))))
   :config
   (global-treesit-auto-mode)
   (treesit-auto-install-all)
