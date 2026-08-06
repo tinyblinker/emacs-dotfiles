@@ -36,12 +36,15 @@
   :after corfu
   :config (corfu-terminal-mode +1))
 
-;; Cape: extra completion backends for file paths and dynamic abbreviations
+;; Cape: extra completion backends (file, keyword, dabbrev, history, line, elisp)
 (use-package cape
   :ensure t
-  :config
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev))
+  :bind ("C-c p" . cape-prefix-map)
+  :init
+  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions #'cape-file)
+  (add-hook 'completion-at-point-functions #'cape-keyword)
+  (add-hook 'completion-at-point-functions #'cape-elisp-block))
 
 (provide 'completion-config)
 ;;; completion-config.el ends here
