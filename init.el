@@ -14,6 +14,7 @@
 (require 'ide-config)             ;; Eglot LSP, editorconfig, shell env
 (require 'org-config)             ;; Org-mode, denote, capture, agenda
 (require 'rust-config)            ;; Cargo keybindings for rust-ts-mode
+(require 'magit-config)           ;; Git integration with Magit
 
 ;; Apply the dark high-contrast modus-vivendi theme
 (load-theme 'modus-vivendi t)
