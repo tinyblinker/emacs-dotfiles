@@ -15,6 +15,7 @@
 (require 'org-config)             ;; Org-mode, denote, capture, agenda
 (require 'rust-config)            ;; Cargo keybindings for rust-ts-mode
 (require 'magit-config)           ;; Git integration with Magit
+(require 'diff-hl-config)         ;; Inline git change indicators
 
 ;; Apply the dark high-contrast modus-vivendi theme
 (load-theme 'modus-vivendi t)

@@ -53,6 +53,7 @@ Launch Emacs. Packages install automatically on first run.
 | In-buffer | `corfu` + `cape` — popup completion + extra backends (dabbrev, file, keyword) |
 | LSP | `eglot` — auto-starts rust-analyzer on `.rs` files, inlay hints, code actions |
 | Cargo | `rust-mode` — `cargo build/check/test/clippy/fmt` keybindings |
+| Git | `magit` + `diff-hl` — porcelain Git interface + inline gutter indicators |
 | Editing | `electric-pair` + `repeat` + `so-long` — auto-pairs, repeatable keys, long-line protection |
 | Shell | `exec-path-from-shell` + `eshell` — GUI env import, auto-scroll on input |
 | Notes | `denote` + `org-mode` — structured note-taking, agenda, capture templates |
@@ -103,6 +104,21 @@ Launch Emacs. Packages install automatically on first run.
 | `C-x k` | Kill current buffer |
 | `M-n / M-p` | Cycle completion preview |
 
+### Git (Magit)
+
+| Keys | Command |
+|------|---------|
+| `C-x g` | Open magit status |
+| `C-c g` | Git command menu (dispatch) |
+| `C-c f` | File-level git commands |
+| `s` | Stage change at point |
+| `u` | Unstage change at point |
+| `c c` | Commit staged changes |
+| `C-c C-c` | Confirm commit (in message buffer) |
+| `P p` | Push to remote |
+| `M-n / M-p` | Jump to next/previous hunk |
+| `C-c v d` | Show diff of hunk at point |
+
 ### Window
 
 | Keys | Command |
@@ -137,6 +153,8 @@ Launch Emacs. Packages install automatically on first run.
     ├── ui-config.el          Visual (font, bars, pixel-scroll, keycast)
     ├── ide-config.el         LSP & tools (eglot, editorconfig, exec-path-from-shell)
     ├── which-key-config.el   Keybinding hint popups
+    ├── magit-config.el       Git porcelain interface
+    ├── diff-hl-config.el     Inline git change indicators (gutter)
     ├── org-config.el         Org-mode, denote, capture, agenda
     └── rust-config.el        Cargo keybindings for rust-ts-mode
 ```
