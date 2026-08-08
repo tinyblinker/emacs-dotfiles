@@ -16,9 +16,11 @@
                        (,electric-pair-inhibit-predicate c)))))))
 
 ;; Denote: structured note-taking with consistent file naming
+;; Defer denote — it only loads when you press C-c n ... or open a Dired buffer.
+;; The dired hook is moved into :config so it won't try to run before denote is loaded.
 (use-package denote
   :ensure t
-  :hook (dired-mode . denote-dired-mode)
+  :defer t
   :bind (("C-c n n" . denote)
          ("C-c n r" . denote-rename-file)
          ("C-c n l" . denote-link)
@@ -34,13 +36,16 @@
   ;; Infer keywords from existing notes as you type
   (denote-infer-keywords t)
   :config
+  (add-hook 'dired-mode-hook #'denote-dired-mode)
   (unless (file-directory-p denote-directory)
     (make-directory denote-directory t))
   (denote-rename-buffer-mode 1))
 
 ;; Org-mode: note-taking, task management, agenda, and capture
+;; Defer org — it auto-loads when opening a .org file or pressing C-c a / C-c c.
+;; Org is a massive package; deferring it cuts startup time significantly.
 (use-package org
-  ;; Basic appearance and link behavior
+  :defer t
   :custom
   (org-return-follows-link t)           ;; Enter key opens links at point
   (org-mouse-1-follows-link t)          ;; Single mouse click opens links

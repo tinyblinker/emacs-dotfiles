@@ -33,6 +33,28 @@ A lightweight Emacs configuration focused on two things:
 
 Heavily pruned from [Crafted Emacs](https://github.com/SystemCrafters/crafted-emacs) — stripped of framework overhead, cosmetic plugins, and anything not serving the two core workflows above.
 
+## Startup Optimization
+
+The config uses several techniques to keep startup under one second:
+
+| Technique | Where | What it does |
+|-----------|-------|--------------|
+| `package-quickstart` | `early-init.el` | Merge all package autoloads into one file so Emacs reads it in a single pass instead of scanning 50+ directories |
+| GC throttle | `early-init.el` | Set `gc-cons-threshold` to max during init so Emacs never pauses for garbage collection while loading packages; restored after startup |
+| File-handler cleanup | `early-init.el` | Temporarily nil `file-name-handler-alist` so every `load`/`require` doesn't check for remote paths, compressed files, etc. |
+| Lazy loading | `modules/*.el` | Heavy packages (magit, org, denote, diff-hl, keycast) use `:defer t` or `:defer 1` — they only load when first used or after a 1-second idle timer |
+
+Package load strategy:
+
+```
+eager (at startup)           lazy (on first use)         idle (1s after init)
+─────────────────────        ─────────────────────       ─────────────────────
+corfu  cape  which-key       org (open .org file)        magit
+electric-pair  so-long       denote (C-c n ...)          diff-hl
+exec-path-from-shell         treemacs (C-c t)            keycast
+editorconfig  eglot          rust-mode (open .rs file)
+```
+
 ## Quick Start
 
 ```bash

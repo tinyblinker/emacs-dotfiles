@@ -2,6 +2,7 @@
 
 (use-package diff-hl
   :ensure t
+  :defer 1               ; load 1s after idle, not needed at startup
   :hook
   (magit-post-refresh . diff-hl-magit-post-refresh) ;; Refresh indicators after magit commands
   :config

@@ -30,6 +30,7 @@
 ;; Show pressed key sequences in the mode-line
 (use-package keycast
   :ensure t
+  :defer 1               ; load 1s after idle, mode-line display can wait
   :custom
   ;; Show all key sequence elements (do not strip duplicates from the tail)
   (keycast-mode-line-mode-remove-tail-elements nil)
