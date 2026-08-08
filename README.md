@@ -58,6 +58,7 @@ Launch Emacs. Packages install automatically on first run.
 | Shell | `exec-path-from-shell` + `eshell` — GUI env import, auto-scroll on input |
 | Notes | `denote` + `org-mode` — structured note-taking, agenda, capture templates |
 | Hints | `which-key` — popup keybinding discovery on prefix keys |
+| Project | `project.el` + `treemacs` + `treemacs-magit` — project navigation sidebar, file search, git-synced tree |
 | UI | `keycast` + `pixel-scroll-precision` — mode-line key display, smooth scrolling |
 
 ## Keybindings
@@ -126,6 +127,32 @@ Launch Emacs. Packages install automatically on first run.
 | `C-c w n/p/b/f` | Move focus | 
 | `C-c w u` / `C-c w r` | Undo/redo layout |
 
+### Project (project.el)
+
+| Keys | Command |
+|------|---------|
+| `C-x p f` | Find file in project |
+| `C-x p g` | Grep (search) in project |
+| `C-x p p` | Switch to another project |
+| `C-x p D` | Open project root in dired |
+| `C-x p s` | Shell in project root |
+| `C-x p e` | Eshell in project root |
+| `C-x p c` | Compile in project root |
+
+### Treemacs
+
+| Keys | Command |
+|------|---------|
+| `C-c t` | Toggle treemacs sidebar |
+| `TAB` / `RET` | Expand/collapse or visit node |
+| `u` | Go to parent directory |
+| `M-n` / `M-p` | Jump to next/previous sibling |
+| `C-j` / `C-k` | Jump to next/previous project |
+| `?` | Show keybinding helper hydra |
+| `o` prefix | Open-file variants (split, ace-window, etc.) |
+| `C-c C-p` prefix | Project add/remove/rename commands |
+| `r` | Refresh the current tree |
+
 ## Structure
 
 ```
@@ -151,7 +178,7 @@ Launch Emacs. Packages install automatically on first run.
     ├── editing-config.el     Editor defaults (electric-pair, repeat, so-long, bidi, indentation)
     ├── buffer-config.el      Buffers & windows (ibuffer, winner, windmove, recentf, savehist)
     ├── ui-config.el          Visual (font, bars, pixel-scroll, keycast)
-    ├── ide-config.el         LSP & tools (eglot, editorconfig, exec-path-from-shell)
+    ├── ide-config.el         LSP, projects, editorconfig (eglot, treemacs, project.el, editorconfig)
     ├── which-key-config.el   Keybinding hint popups
     ├── magit-config.el       Git porcelain interface
     ├── diff-hl-config.el     Inline git change indicators (gutter)

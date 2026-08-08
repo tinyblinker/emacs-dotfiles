@@ -31,5 +31,39 @@
   :ensure t
   :hook (prog-mode . editorconfig-mode))
 
+;; Show the current project name in the mode line; click to open the project menu
+(setq project-mode-line t)
+
+;; Treemacs: tree-style file explorer sidebar for project navigation
+(use-package treemacs
+  :ensure t
+  :defer t                                       ;; Load lazily on first invocation
+  :init
+  (global-set-key (kbd "C-c t") #'treemacs-select-window) ;; Toggle sidebar
+  :config
+  (progn
+    (setq treemacs-width 35)                     ;; Sidebar width in characters
+    (setq treemacs-position 'left)               ;; Dock on the left side
+    (setq treemacs-show-cursor nil)              ;; Hide cursor in the tree
+    (setq treemacs-no-delete-other-windows t)    ;; Protect sidebar from delete-other-windows
+    (setq treemacs-silent-refresh nil)           ;; Log a message on manual refresh
+    (setq treemacs-show-hidden-files t)          ;; Show dotfiles
+    (setq treemacs-space-between-root-nodes t)   ;; Add a blank line between project roots
+    (setq treemacs-collapse-dirs (if (executable-find "python3") 3 0)) ;; Collapse single-child dirs
+    (treemacs-follow-mode t)                     ;; Auto-focus the current file in the tree
+    (treemacs-filewatch-mode t)                  ;; Auto-refresh when files change on disk
+    (treemacs-fringe-indicator-mode 'always)     ;; Show a fringe bar on the current line
+    (pcase (cons (not (null (executable-find "git")))
+                 (not (null (executable-find "python3"))))
+      (`(t . t)
+       (treemacs-git-mode 'deferred))            ;; Full git coloring with async python
+      (`(t . _)
+       (treemacs-git-mode 'simple)))))           ;; Basic git coloring without python
+
+;; Treemacs-magit: keep treemacs git faces in sync after magit stage/unstage/commit
+(use-package treemacs-magit
+  :ensure t
+  :after (treemacs magit))                       ;; Hooks into magit events automatically
+
 (provide 'ide-config)
 ;;; ide-config.el ends here
