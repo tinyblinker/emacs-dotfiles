@@ -55,21 +55,5 @@
   (add-hook 'completion-at-point-functions #'cape-keyword)     ;; Complete programming keywords
   (add-hook 'completion-at-point-functions #'cape-elisp-block)) ;; Complete in elisp contexts
 
-;; minibuffer completion settings
-(with-eval-after-load 'minibuffer
-  (define-key minibuffer-local-completion-map
-              (kbd "C-n")
-              #'minibuffer-next-completion)
-  (define-key minibuffer-local-completion-map
-              (kbd "C-p")
-              #'minibuffer-previous-completion)
-  
-  (define-key minibuffer-local-completion-map
-              (kbd "TAB")
-              #'minibuffer-complete)
-  (define-key minibuffer-local-completion-map
-              (kbd "<tab>")
-              #'minibuffer-complete))
-
 (provide 'completion-config)
 ;;; completion-config.el ends here
