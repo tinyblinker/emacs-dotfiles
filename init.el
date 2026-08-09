@@ -10,7 +10,7 @@
 (require 'which-key-config)       ;; Keybinding hint popups
 (require 'editing-config)         ;; Global editing defaults
 (require 'buffer-config)          ;; Buffer, window, dired, history
-(require 'completion-config)      ;; Corfu, cape, icomplete-vertical, completion-preview
+(require 'completion-config)      ;; Corfu, cape, fido-vertical, completion-preview
 (require 'ide-config)             ;; Eglot LSP, editorconfig, shell env
 (require 'org-config)             ;; Org-mode, denote, capture, agenda
 (require 'rust-config)            ;; Cargo keybindings for rust-ts-mode

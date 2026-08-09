@@ -71,7 +71,7 @@ Launch Emacs. Packages install automatically on first run.
 
 | Category | Stack |
 |----------|-------|
-| Minibuffer | `icomplete-vertical` + `completion-preview` — built-in vertical completion + inline preview |
+| Minibuffer | `fido-vertical` + `completion-preview` — built-in vertical completion + inline preview |
 | In-buffer | `corfu` + `cape` — popup completion + extra backends (dabbrev, file, keyword) |
 | LSP | `eglot` — auto-starts rust-analyzer on `.rs` files, inlay hints, code actions |
 | Cargo | `rust-mode` — `cargo build/check/test/clippy/fmt` keybindings |
@@ -196,7 +196,7 @@ Launch Emacs. Packages install automatically on first run.
 └── modules/
     ├── redirect-file-config.el File redirection (custom, backup, auto-save, recentf, savehist → var/)
     ├── helper-config.el       Utility commands
-    ├── completion-config.el  Completion (corfu, cape, icomplete-vertical, completion-preview)
+    ├── completion-config.el  Completion (corfu, cape, fido-vertical, completion-preview)
     ├── editing-config.el     Editor defaults (electric-pair, repeat, so-long, bidi, indentation)
     ├── buffer-config.el      Buffers & windows (ibuffer, winner, windmove, recentf, savehist)
     ├── ui-config.el          Visual (font, bars, pixel-scroll, keycast)
