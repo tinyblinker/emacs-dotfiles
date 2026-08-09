@@ -20,6 +20,11 @@
 ;; Vertical minibuffer completion using built-in fido-vertical
 (fido-vertical-mode 1)
 
+;; Bind TAB to icomplete's inline force-complete (avoids popping up *Completions* buffer)
+(with-eval-after-load 'icomplete
+  (keymap-set icomplete-minibuffer-map "TAB" #'icomplete-force-complete)
+  (keymap-set icomplete-minibuffer-map "<tab>" #'icomplete-force-complete))
+
 ;; Corfu: in-buffer popup completion with auto-trigger
 (use-package corfu
   :ensure t
