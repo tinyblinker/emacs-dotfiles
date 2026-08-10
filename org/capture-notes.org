@@ -1,3 +1,8 @@
 * 我不知道我在记录什么
   [2026-08-10 Mon 15:13]
   [[file:~/.config/emacs/org/inbox.org]]
+* [#A] archlinux小主机旁路由配置 
+** 核心:mihomo
+在archlinux旁路由小主机上配置mihomo
+为局域网设备提供科学上网支持;
+* archlinux小主机qq聊天机器人配置
