@@ -63,8 +63,15 @@
   (setq org-directory (expand-file-name "org/" user-emacs-directory))
   (setq org-agenda-files `(,org-directory))
 
+  ;; Create files and dirs if not exists
   (unless (file-directory-p org-directory)
     (make-directory org-directory t))
+  (let((file (expand-file-name "org/inbox.org" user-emacs-directory)))
+    (unless (file-exists-p file)
+    (write-region "" nil file)))
+  (let((file (expand-file-name "org/capture-notes.org" user-emacs-directory)))
+    (unless (file-exists-p file)
+    (write-region "" nil file)))
 
   ;; Capture templates for quick todo and note entries
   (setq org-capture-templates
