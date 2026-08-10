@@ -1,0 +1,3 @@
+* 我不知道我在记录什么
+  [2026-08-10 Mon 15:13]
+  [[file:~/.config/emacs/org/inbox.org]]

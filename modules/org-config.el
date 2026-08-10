@@ -1,7 +1,7 @@
 ;;; -*- lexical-binding: t -*-
 
 ;; Disable auto-pairing of "<" in org-mode (avoids accidental timestamps)
-(use-package electric-pair
+(use-package elec-pair
   :hook
   (org-mode . org-enhance-electric-pair-inhibit-predicate)
   (electric-pair-mode-hook . org-enhance-electric-pair-inhibit-predicate)
@@ -66,12 +66,6 @@
   ;; Create files and dirs if not exists
   (unless (file-directory-p org-directory)
     (make-directory org-directory t))
-  (let((file (expand-file-name "org/inbox.org" user-emacs-directory)))
-    (unless (file-exists-p file)
-    (write-region "" nil file)))
-  (let((file (expand-file-name "org/capture-notes.org" user-emacs-directory)))
-    (unless (file-exists-p file)
-    (write-region "" nil file)))
 
   ;; Capture templates for quick todo and note entries
   (setq org-capture-templates

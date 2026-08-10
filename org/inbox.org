@@ -1,0 +1,6 @@
+* TODO 好好吃饭和睡觉,test
+  [2026-08-10 Mon 15:10]
+  [[file:~/.config/emacs/modules/org-config.el::org-mode . org-enhance-electric-pair-inhibit-predicate]]
+* TODO test01
+  [2026-08-10 Mon 15:13]
+  [[file:~/.config/emacs/org]]
