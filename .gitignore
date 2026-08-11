@@ -17,3 +17,4 @@ modules/.dir-locals.el
 /init.el~
 /.cache/
 /org-roam.db
+/package-quickstart.el
