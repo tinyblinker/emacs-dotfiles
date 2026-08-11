@@ -15,32 +15,6 @@
                          t
                        (,electric-pair-inhibit-predicate c)))))))
 
-;; Denote: structured note-taking with consistent file naming
-;; Defer denote — it only loads when you press C-c n ... or open a Dired buffer.
-;; The dired hook is moved into :config so it won't try to run before denote is loaded.
-(use-package denote
-  :ensure t
-  :defer t
-  :bind (("C-c n n" . denote)
-         ("C-c n r" . denote-rename-file)
-         ("C-c n l" . denote-link)
-         ("C-c n b" . denote-backlinks)
-         ("C-c n g" . denote-grep)
-         ("C-c n d" . denote-dired))
-  :custom
-  (denote-directory (expand-file-name "notes/" user-emacs-directory))
-  ;; Prompt for title and keywords when creating a new denote note
-  (denote-prompts '(title keywords))
-  ;; Sort keywords alphabetically in file name
-  (denote-sort-keywords t)
-  ;; Infer keywords from existing notes as you type
-  (denote-infer-keywords t)
-  :config
-  (add-hook 'dired-mode-hook #'denote-dired-mode)
-  (unless (file-directory-p denote-directory)
-    (make-directory denote-directory t))
-  (denote-rename-buffer-mode 1))
-
 ;; Org-mode: note-taking, task management, agenda, and capture
 ;; Defer org — it auto-loads when opening a .org file or pressing C-c a / C-c c.
 ;; Org is a massive package; deferring it cuts startup time significantly.

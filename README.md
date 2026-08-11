@@ -42,7 +42,7 @@ The config uses several techniques to keep startup under one second:
 | `package-quickstart` | `early-init.el` | Merge all package autoloads into one file so Emacs reads it in a single pass instead of scanning 50+ directories |
 | GC throttle | `early-init.el` | Set `gc-cons-threshold` to max during init so Emacs never pauses for garbage collection while loading packages; restored after startup |
 | File-handler cleanup | `early-init.el` | Temporarily nil `file-name-handler-alist` so every `load`/`require` doesn't check for remote paths, compressed files, etc. |
-| Lazy loading | `modules/*.el` | Heavy packages (magit, org, denote, diff-hl, keycast) use `:defer t` or `:defer 1` — they only load when first used or after a 1-second idle timer |
+| Lazy loading | `modules/*.el` | Heavy packages (magit, org, org-roam, diff-hl, keycast) use `:defer t` or `:defer 1` — they only load when first used or after a 1-second idle timer |
 
 Package load strategy:
 
@@ -50,9 +50,10 @@ Package load strategy:
 eager (at startup)           lazy (on first use)         idle (1s after init)
 ─────────────────────        ─────────────────────       ─────────────────────
 corfu  cape  which-key       org (open .org file)        magit
-electric-pair  so-long       denote (C-c n ...)          diff-hl
-exec-path-from-shell         treemacs (C-c t)            keycast
-editorconfig  eglot          rust-mode (open .rs file)
+embark  consult  marginalia  org-roam (C-c n ...)        diff-hl
+electric-pair  so-long       treemacs (C-c t)            keycast
+exec-path-from-shell         rust-mode (open .rs file)
+editorconfig  eglot
 ```
 
 ## Quick Start
@@ -71,14 +72,14 @@ Launch Emacs. Packages install automatically on first run.
 
 | Category | Stack |
 |----------|-------|
-| Minibuffer | `fido-vertical` + `completion-preview` — built-in vertical completion + inline preview |
+| Minibuffer | `consult` + `embark` + `marginalia` + `fido-vertical` + `completion-preview` — live-preview commands, context actions, rich annotations, built-in vertical completion + inline preview |
 | In-buffer | `corfu` + `cape` — popup completion + extra backends (dabbrev, file, keyword) |
 | LSP | `eglot` — auto-starts rust-analyzer on `.rs` files, inlay hints, code actions |
 | Cargo | `rust-mode` — `cargo build/check/test/clippy/fmt` keybindings |
 | Git | `magit` + `diff-hl` — porcelain Git interface + inline gutter indicators |
 | Editing | `electric-pair` + `repeat` + `so-long` — auto-pairs, repeatable keys, long-line protection |
 | Shell | `exec-path-from-shell` + `eshell` — GUI env import, auto-scroll on input |
-| Notes | `denote` + `org-mode` — structured note-taking, agenda, capture templates |
+| Notes | `org-roam` + `org-mode` — networked note-taking with backlinks, graph visualization, agenda, capture templates |
 | Hints | `which-key` — popup keybinding discovery on prefix keys |
 | Project | `project.el` + `treemacs` + `treemacs-magit` — project navigation sidebar, file search, git-synced tree |
 | UI | `keycast` + `pixel-scroll-precision` — mode-line key display, smooth scrolling |
@@ -111,14 +112,35 @@ Launch Emacs. Packages install automatically on first run.
 |------|---------|
 | `C-c a` | Open agenda |
 | `C-c c` | Quick capture |
-| `C-c n n` | New denote note |
-| `C-c n r` | Rename denote file |
-| `C-c n l` | Insert denote link |
-| `C-c n b` | Show backlinks |
-| `C-c n g` | Grep notes directory |
-| `C-c n d` | Dired notes directory |
+| `C-c n n` | Find or create Org-roam note |
+| `C-c n i` | Insert link to a note |
+| `C-c n l` | Toggle backlinks sidebar |
+| `C-c n g` | Show note graph |
+| `C-c n t` | Add tag to note |
+| `C-c n a` | Add alias to note |
 
-**Capture workflow:** `C-c c t` → `inbox.org` (todos) · `C-c c n` → `capture-notes.org` (scratch notes) → promote to `C-c n n` (denote permanent note)
+**Capture workflow:** `C-c c t` → `inbox.org` (todos) · `C-c c n` → `capture-notes.org` (scratch notes) → promote to `C-c n n` (org-roam permanent note)
+
+### Embark / Consult
+
+| Keys | Command |
+|------|---------|
+| `C-.` | Act on target at point (context menu) |
+| `C-;` | Run default action (open file, jump to symbol, etc.) |
+| `C-h B` | Describe all active keybindings |
+| `C-c h` | Search minibuffer history |
+| `C-c m` | Search man pages |
+| `C-c i` | Search Info manuals |
+| `M-g g` | Go to line (w/ preview) |
+| `M-g o` | Go to outline heading |
+| `M-g i` | Go to symbol in buffer (imenu) |
+| `M-g m` | Jump to mark (w/ preview) |
+| `M-s g` | Grep project (w/ preview) |
+| `M-s r` | Ripgrep project (w/ preview) |
+| `M-s l` | Search lines in buffer (w/ preview) |
+| `M-s d` | Find file by name (w/ preview) |
+| `M-s f` | Find file with fd (w/ preview) |
+| `M-y` | Enhanced yank-pop (w/ preview) |
 
 ### Editing
 
@@ -180,11 +202,11 @@ Launch Emacs. Packages install automatically on first run.
 ```
 ~/.config/emacs/
 ├── early-init.el             Package archives & init
-├── init.el                   Bootstrap (19 lines)
+├── init.el                   Bootstrap (24 lines)
 ├── org/                       Org-mode files
 │   ├── inbox.org              Capture target for todos (auto-created)
 │   └── capture-notes.org      Capture target for scratch notes (auto-created)
-├── notes/                     Denote knowledge base (auto-created)
+├── notes/                     Org-roam knowledge base (automatically indexed)
 ├── var/                       Auto-generated data
 │   ├── custom.el              Customize settings
 │   ├── backup/                Edit backups (file~)
@@ -197,6 +219,8 @@ Launch Emacs. Packages install automatically on first run.
     ├── redirect-file-config.el File redirection (custom, backup, auto-save, recentf, savehist → var/)
     ├── helper-config.el       Utility commands
     ├── completion-config.el  Completion (corfu, cape, fido-vertical, completion-preview)
+    ├── embark-consult-config.el Embark context actions, Consult preview commands, integration
+    ├── marginalia-config.el  Rich completion annotations (file attributes, docstrings, etc.)
     ├── editing-config.el     Editor defaults (electric-pair, repeat, so-long, bidi, indentation)
     ├── buffer-config.el      Buffers & windows (ibuffer, winner, windmove, recentf, savehist)
     ├── ui-config.el          Visual (font, bars, pixel-scroll, keycast)
@@ -204,7 +228,8 @@ Launch Emacs. Packages install automatically on first run.
     ├── which-key-config.el   Keybinding hint popups
     ├── magit-config.el       Git porcelain interface
     ├── diff-hl-config.el     Inline git change indicators (gutter)
-    ├── org-config.el         Org-mode, denote, capture, agenda
+    ├── org-config.el         Org-mode, capture, agenda
+    ├── org-roam-config.el    Networked note-taking, backlinks, graph
     └── rust-config.el        Cargo keybindings for rust-ts-mode
 ```
 
