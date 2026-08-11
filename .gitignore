@@ -16,3 +16,4 @@ modules/.dir-locals.el
 /tree-sitter
 /init.el~
 /.cache/
+/org-roam.db

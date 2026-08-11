@@ -13,6 +13,7 @@
 (require 'completion-config)      ;; Corfu, cape, fido-vertical, completion-preview
 (require 'embark-consult-config)  ;; Embark context actions, Consult preview commands, integration
 (require 'marginalia-config)      ;; Rich completion annotations (file attrs, docstrings, etc.)
+(require 'orderless-config)       ;; Space-separated out-of-order completion matching
 (require 'ide-config)             ;; Eglot LSP, editorconfig, shell env
 (require 'org-config)             ;; Org-mode, capture, agenda
 (require 'org-roam-config)        ;; Networked note-taking, backlinks, graph visualization
