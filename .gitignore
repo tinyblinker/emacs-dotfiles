@@ -18,3 +18,4 @@ modules/.dir-locals.el
 /.cache/
 /org-roam.db
 /package-quickstart.el
+/.org-id-locations

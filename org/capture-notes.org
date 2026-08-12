@@ -6,3 +6,6 @@
 在archlinux旁路由小主机上配置mihomo
 为局域网设备提供科学上网支持;
 * archlinux小主机qq聊天机器人配置
+* 我认为我应该记录一些笔记
+  [2026-08-11 Tue 13:30]
+  [[file:~/.config/emacs/notes/20260811131548-测试节点.org]]

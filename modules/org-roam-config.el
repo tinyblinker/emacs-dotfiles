@@ -9,7 +9,7 @@
 (use-package org-roam
   :ensure t
   :defer t
-  :bind (("C-c n n" . org-roam-node-find)        ;; Find or create a note by title
+  :bind (("C-c n f" . org-roam-node-find)        ;; Find or create a note by title
          ("C-c n i" . org-roam-node-insert)       ;; Insert a link to an existing note at point
          ("C-c n l" . org-roam-buffer-toggle)    ;; Toggle the backlinks sidebar for the current note
          ("C-c n g" . org-roam-graph)             ;; Show an interactive graph of note connections
