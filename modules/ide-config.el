@@ -34,12 +34,6 @@
 ;; Show the current project name in the mode line; click to open the project menu
 (setq project-mode-line t)
 
-;; envrc.el: enable direnv support in emacs
-(use-package envrc
-  :ensure t
-  :config
-  (envrc-global-mode))
-
 ;; Treemacs: tree-style file explorer sidebar for project navigation
 (use-package treemacs
   :ensure t
