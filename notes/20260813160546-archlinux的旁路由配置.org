@@ -1,7 +1,9 @@
-#+title:      archlinux旁路由配置
-#+date:       [2026-08-10 Mon 18:12]
-#+filetags:   :linux:
-#+identifier: 20260810T181209
+:PROPERTIES:
+:ID:       d609461c-c718-47e9-b41b-6aa49a91e362
+:END:
+#+title: archlinux的旁路由配置
+#+date: 2026-08-13 16:05
+#+filetags:
 * 原理
 
 一台运行 Arch Linux 的小主机通过 WiFi 连接上游路由器, 同一局域网内的其他设
@@ -721,4 +723,5 @@ mihomo 直连。两种处理方式:
 
 不需要。当前拓扑下 TUN ~auto-route~ + 策略路由表 ~2022~ 已经实现透明代理, TProxy
 不会带来额外收益, 反而需要维护 iptables/nftables TPROXY 规则和 fwmark 路由表。
+
 
