@@ -20,6 +20,7 @@
 (require 'rust-config)            ;; Cargo keybindings for rust-ts-mode
 (require 'magit-config)           ;; Git integration with Magit
 (require 'diff-hl-config)         ;; Inline git change indicators
+(require 'dired-sidebar-config)   ;; dired's sidebar configs
 
 ;; Apply the dark high-contrast modus-vivendi theme
 (load-theme 'modus-vivendi t)

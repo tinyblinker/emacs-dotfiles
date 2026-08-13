@@ -19,3 +19,4 @@ modules/.dir-locals.el
 /org-roam.db
 /package-quickstart.el
 /.org-id-locations
+/tramp
