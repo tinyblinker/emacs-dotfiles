@@ -20,3 +20,4 @@ modules/.dir-locals.el
 /package-quickstart.el
 /.org-id-locations
 /tramp
+/url/
