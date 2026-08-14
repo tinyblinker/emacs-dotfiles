@@ -37,5 +37,8 @@
 ;; Auto-insert matching parentheses, quotes, brackets globally
 (electric-pair-mode 1)
 
+;; delete selected things when paste things
+(delete-selection-mode 1)
+
 (provide 'editing-config)
 ;;; editing-config.el ends here

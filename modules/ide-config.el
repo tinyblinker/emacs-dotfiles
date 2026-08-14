@@ -15,7 +15,9 @@
 ;; Eglot: auto-start LSP server (rust-analyzer) in Rust tree-sitter mode
 (use-package eglot
   :custom (eglot-autoshutdown t) ;; Shut down LSP server when last managed buffer is closed
-  :hook (rust-ts-mode . eglot-ensure)
+  :hook
+  (rust-ts-mode . eglot-ensure)
+  (rust-mode . eglot-ensure)
   :bind (:map eglot-mode-map
               ("C-c l a" . eglot-code-actions)
               ("C-c l r" . eglot-rename)

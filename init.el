@@ -11,16 +11,12 @@
 (require 'editing-config)         ;; Global editing defaults
 (require 'buffer-config)          ;; Buffer, window, dired, history
 (require 'completion-config)      ;; Corfu, cape, fido-vertical, completion-preview
-(require 'embark-consult-config)  ;; Embark context actions, Consult preview commands, integration
-(require 'marginalia-config)      ;; Rich completion annotations (file attrs, docstrings, etc.)
-(require 'orderless-config)       ;; Space-separated out-of-order completion matching
 (require 'ide-config)             ;; Eglot LSP, editorconfig, shell env
 (require 'org-config)             ;; Org-mode, capture, agenda
 (require 'org-roam-config)        ;; Networked note-taking, backlinks, graph visualization
 (require 'rust-config)            ;; Cargo keybindings for rust-ts-mode
 (require 'magit-config)           ;; Git integration with Magit
 (require 'diff-hl-config)         ;; Inline git change indicators
-(require 'dired-sidebar-config)   ;; dired's sidebar configs
 
 ;; Apply the dark high-contrast modus-vivendi theme
 (load-theme 'modus-vivendi t)
