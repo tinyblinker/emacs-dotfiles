@@ -3,7 +3,7 @@
 ;; Set default font family and size
 (set-face-attribute 'default nil
                     :family "JetBrainsMono Nerd Font Mono"
-                    :height 190)
+                    :height 150)
 
 ;; Default frame size: 100 columns wide, 40 rows tall
 (setq default-frame-alist
