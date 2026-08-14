@@ -25,9 +25,6 @@
               ("C-c l ." . xref-find-definitions)
               ("C-c l ," . xref-find-references)))
 
-;; Show type annotations inline via LSP inlay hints on Rust buffers (Emacs 30+)
-(add-hook 'rust-ts-mode-hook #'eglot-inlay-hints-mode)
-
 ;; Apply .editorconfig project settings automatically in programming modes
 (use-package editorconfig
   :ensure t

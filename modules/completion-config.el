@@ -7,15 +7,8 @@
       completions-format 'vertical   ;; Display completions in a vertical list
       xref-show-definitions-function #'xref-show-definitions-completing-read ;; Fuzzy choose definitions
       completion-styles '(flex basic) ;; Use flex (fuzzy) matching first, fall back to basic
+      completions-format 'vertical    ;; set completion format
       completion-category-overrides '((file (styles . (partial-completion))))) ;; Use partial-completion for file paths
-
-;; Show inline ghost-text completion preview at point (Emacs 30 built-in)
-(use-package completion-preview
-  :config
-  (global-completion-preview-mode 1)
-  :bind (:map completion-preview-active-mode-map
-              ("M-n" . completion-preview-next-candidate)
-              ("M-p" . completion-preview-prev-candidate)))
 
 ;; Vertical minibuffer completion using built-in fido-vertical
 (fido-vertical-mode 1)
