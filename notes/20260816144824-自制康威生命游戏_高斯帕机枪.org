@@ -5,6 +5,13 @@
 #+date: 2026-08-16 14:48
 #+filetags:
 #+STARTUP: inlineimages
+#+OPTIONS: toc:nil
+#+OPTIONS: num:nil
+#+OPTIONS: ^:nil
+#+OPTIONS: _:nil
+#+OPTIONS: \n:t
+#+OPTIONS: author:nil
+#+OPTIONS: date:nil
 * 我的源码仓库
 - [[https://github.com/tinyblinker/life_game][github]]
 - [[https://gitee.com/tinyblinker/life_game][gitee]]

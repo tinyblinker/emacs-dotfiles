@@ -47,5 +47,12 @@
   :config
   (add-to-list 'org-babel-tangle-lang-exts '("mermaid" . "mmd")))
 
+;; add ox-gfm for modern markdown export
+(use-package ox-gfm
+  :ensure t
+  :config
+  (eval-after-load "org"
+    '(require 'ox-gfm nil t)))
+
 (provide 'org-config)
 ;;; org-config.el ends here
