@@ -4,6 +4,7 @@
 #+title: 自制康威生命游戏(高斯帕机枪)
 #+date: 2026-08-16 14:48
 #+filetags:
+#+STARTUP: inlineimages
 * 简介
 康威生命游戏（英语：Conway's Game of Life），又称康威生命棋,是英国数学家约翰·何顿·康威在1970年发明的细胞自动机.
 它最初于1970年10月在《科学美国人》杂志上马丁·葛登能的“数学游戏”专栏出现.
@@ -178,12 +179,15 @@ fn update_mycells(arr: &mut Vec<Vec<MyCell>>) -> () {
 * 程序流程图
 #+begin_src mermaid :file flowchart.png
 flowchart TD
-  A([开始]) --> B[初始化arr:Vec<Vec<MyCell>>]
-  B --> C[draw_the_gun(arr: &mut Vec<Vec<MyCell>>) -> ()]
-  C --> D[fn draw(arr: &Vec<Vec<MyCell>>) -> ()]
-  D --> E[thread::sleep(Duration::from_secs_f32(0.15));]
-  E --> F[fn flush_the_screen() -> ()]
-  F --> G[fn update_alive_around_count(arr: &mut Vec<Vec<MyCell>>) -> ()]
-  G --> H[fn update_mycells(arr: &mut Vec<Vec<MyCell>>) -> ()]
-  h --> D
+  A([开始]) --> B["初始化arr:Vec<Vec<MyCell>>"]
+  B --> C["draw_the_gun(arr: &mut Vec<Vec<MyCell>>) -> ()"]
+  C --> D["fn draw(arr: &Vec<Vec<MyCell>>) -> ()"]
+  D --> E["thread::sleep(Duration::from_secs_f32(0.15));"]
+  E --> F["fn flush_the_screen() -> ()"]
+  F --> G["fn update_alive_around_count(arr: &mut Vec<Vec<MyCell>>) -> ()"]
+  G --> H["fn update_mycells(arr: &mut Vec<Vec<MyCell>>) -> ()"]
+  H --> D
 #+end_src
+- 求值结果
+#+RESULTS:
+[[file:flowchart.png]]
