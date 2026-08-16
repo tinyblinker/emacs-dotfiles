@@ -62,5 +62,12 @@
   (require 'org-id)
   (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id))
 
+;; add mermaid support for org-mode
+(use-package ob-mermaid
+  :ensure t
+  :after org
+  :config
+  (add-to-list 'org-babel-tangle-lang-exts '("mermaid" . "mmd")))
+
 (provide 'org-config)
 ;;; org-config.el ends here

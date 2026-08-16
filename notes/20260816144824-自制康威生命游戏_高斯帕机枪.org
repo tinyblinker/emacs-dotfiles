@@ -17,35 +17,45 @@
 ** (核心) fn main()
 - 核心的程序循环所在处
 #+begin_src rust
-fn main() {
-    // init an 2D vector
-    let cols: usize = 40;
-    let rows: usize = 100;
-    let mut arr: Vec<Vec<MyCell>> = (0..cols)
-        .map(|_| {
-            (0..rows)
-                .map(|_| MyCell {
-                    is_alive: false,
-                    alive_around_cnt: 0,
-                })
-                .collect()
-        })
-        .collect();
+  fn main() {
+      // init an 2D vector
+      let cols: usize = 40;
+      let rows: usize = 100;
+      let mut arr: Vec<Vec<MyCell>> = (0..cols)
+          .map(|_| {
+              (0..rows)
+                  .map(|_| MyCell {
+                      is_alive: false,
+                      alive_around_cnt: 0,
+                  })
+                  .collect()
+          })
+          .collect();
 
-    // draw the gun(绘制"高斯帕机枪")
-    draw_the_gun(&mut arr);
+      // draw the gun(绘制"高斯帕机枪")
+      draw_the_gun(&mut arr);
 
-    // start the main loop("开始进行核心主循环")
-    loop {
-        draw(&arr);
-        thread::sleep(Duration::from_secs_f32(0.15));
-        flush_the_screen();
-        update_alive_around_count(&mut arr);
-        update_mycells(&mut arr);
-    }
+      // start the main loop("开始进行核心主循环")
+      loop {
+          draw(&arr);
+          thread::sleep(Duration::from_secs_f32(0.15));
+          flush_the_screen();
+          update_alive_around_count(&mut arr);
+          update_mycells(&mut arr);
+      }
+  }
+#+end_src
+** (核心) struct MyCell
+- is_alive: true->当前细胞存活,flase->当前细胞死亡;
+  alive_around_cnt->当前细胞周围的存活细胞数量;
+#+begin_src rust
+struct MyCell {
+    is_alive: bool,
+    alive_around_cnt: usize,
 }
 #+end_src
-** 1
+** fn draw_the_gun(arr: &mut Vec<Vec<MyCell>>) -> ()
+- 绘制高斯帕机枪
 #+begin_src rust
 fn draw_the_gun(arr: &mut Vec<Vec<MyCell>>) -> () {
     let directions: [(usize, usize); 36] = [
@@ -92,4 +102,88 @@ fn draw_the_gun(arr: &mut Vec<Vec<MyCell>>) -> () {
 }  
 
 #+end_src
-
+** fn draw(arr: &Vec<Vec<MyCell>>) -> ()
+- 绘制"一次"当前的生命游戏图("O"表示存活细胞,"-"表示死亡细胞)
+#+begin_src rust
+// draw the current cells' status
+fn draw(arr: &Vec<Vec<MyCell>>) -> () {
+    for i in arr {
+        for j in i {
+            match j.is_alive {
+                true => print!("O"),
+                false => print!("-"),
+            }
+        }
+        print!("\n");
+    }
+}
+#+end_src
+** thread::sleep(Duration::from_secs_f32(0.15))
+- 就是让当前的程序停止0.15秒再运行,防止"draw()"
+  还没在终端画完所有字符就继续执行了
+#+begin_src rust
+thread::sleep(Duration::from_secs_f32(0.15));
+#+end_src
+** fn flush_the_screen() -> ()
+- 向终端写入"\x1B[2J\x1B[H"清空屏幕并把光标移动到左上角
+#+begin_src rust
+  fn flush_the_screen() -> () {
+      print!("\x1B[2J\x1B[H");
+  }
+#+end_src
+** fn update_alive_around_count(arr: &mut Vec<Vec<MyCell>>) -> ()
+- 遍历arr,更新arr中每个MyCell(细胞)周围的存活细胞数并存入MyCell结构体
+  的"alive_around_cnt"成员中,方便统一管理MyCell
+#+begin_src rust
+fn update_alive_around_count(arr: &mut Vec<Vec<MyCell>>) -> () {
+    let max_cols: usize = arr.len() - 1;
+    let max_rows: usize = arr[0].len() - 1;
+    for i in 0..max_cols {
+        for j in 0..max_rows {
+            match count_cells_around(&arr, i, j) {
+                -1 => continue,
+                count => arr[i][j].alive_around_cnt = count as usize,
+            }
+        }
+    }
+}
+#+end_src
+** fn update_mycells(arr: &mut Vec<Vec<MyCell>>) -> ()
+- 遍历arr,根据MyCell结构体中的"alive_around_cnt"和
+  "is_alive"判断"下一代"时当前细胞的"is_alive"状态
+#+begin_src rust
+fn update_mycells(arr: &mut Vec<Vec<MyCell>>) -> () {
+    let max_cols: usize = arr.len() - 1;
+    let max_rows: usize = arr[0].len() - 1;
+    for i in 0..max_cols {
+        for j in 0..max_rows {
+            match arr[i][j].is_alive {
+                true => {
+                    if arr[i][j].alive_around_cnt < 2 {
+                        arr[i][j].is_alive = false;
+                    } else if arr[i][j].alive_around_cnt > 3 {
+                        arr[i][j].is_alive = false;
+                    }
+                }
+                false => {
+                    if arr[i][j].alive_around_cnt == 3 {
+                        arr[i][j].is_alive = true;
+                    }
+                }
+            }
+        }
+    }
+}
+#+end_src
+* 程序流程图
+#+begin_src mermaid :file flowchart.png
+flowchart TD
+  A([开始]) --> B[初始化arr:Vec<Vec<MyCell>>]
+  B --> C[draw_the_gun(arr: &mut Vec<Vec<MyCell>>) -> ()]
+  C --> D[fn draw(arr: &Vec<Vec<MyCell>>) -> ()]
+  D --> E[thread::sleep(Duration::from_secs_f32(0.15));]
+  E --> F[fn flush_the_screen() -> ()]
+  F --> G[fn update_alive_around_count(arr: &mut Vec<Vec<MyCell>>) -> ()]
+  G --> H[fn update_mycells(arr: &mut Vec<Vec<MyCell>>) -> ()]
+  h --> D
+#+end_src
