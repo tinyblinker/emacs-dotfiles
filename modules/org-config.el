@@ -36,9 +36,6 @@
   ;; Enable built-in structure templates (<s TAB, <e TAB, etc.)
   (require 'org-tempo)
 
-  ;; use "ox-md" to export markdown in emacs
-  (require 'ox-md)
-
   ;; Enable org-id for stable cross-reference links; create an ID when inserting a link interactively
   (require 'org-id)
   (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id))
