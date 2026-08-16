@@ -36,6 +36,7 @@
   :config
   (setq org-directory (expand-file-name "org/" user-emacs-directory))
   (setq org-agenda-files `(,org-directory))
+  (setq org-use-sub-superscripts nil)
 
   ;; Create files and dirs if not exists
   (unless (file-directory-p org-directory)
