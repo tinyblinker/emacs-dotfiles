@@ -1,0 +1,8 @@
+:PROPERTIES:
+:ID:       488a4a62-1ebb-4c34-a312-622204a7d691
+:END:
+#+title: GNU_emacs_mannual笔记
+#+date: 2026-08-19 13:09
+#+filetags:
+* Test
+123

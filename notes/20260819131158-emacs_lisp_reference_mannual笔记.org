@@ -1,0 +1,7 @@
+:PROPERTIES:
+:ID:       6d8c61db-7486-498b-aaab-0274a0f0164d
+:END:
+#+title: Emacs_Lisp_Reference_Mannual笔记
+#+date: 2026-08-19 13:11
+#+filetags:
+

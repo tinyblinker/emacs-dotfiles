@@ -21,3 +21,4 @@ modules/.dir-locals.el
 /.org-id-locations
 /tramp
 /url/
+/tutorial/

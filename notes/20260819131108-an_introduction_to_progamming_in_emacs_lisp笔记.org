@@ -1,0 +1,7 @@
+:PROPERTIES:
+:ID:       55893be8-2840-45cb-bf91-e2cee0684230
+:END:
+#+title: An_Introduction_to_Progamming_in_Emacs_Lisp笔记
+#+date: 2026-08-19 13:11
+#+filetags:
+
