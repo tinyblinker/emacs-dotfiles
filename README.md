@@ -49,13 +49,12 @@ Package load strategy:
 ```
 eager (at startup)           lazy (on first use)         idle (1s after init)
 ─────────────────────        ─────────────────────       ─────────────────────
-corfu  cape  which-key       org (open .org file)        magit
-embark  consult  marginalia  org-roam (C-c n ...)        diff-hl
-embark-consult
-orderless
-electric-pair  so-long       treemacs (C-c t)            keycast
-exec-path-from-shell         rust-mode (open .rs file)
-editorconfig  eglot
+corfu  cape                  org (open .org file)        magit
+corfu-terminal (TTY only)    org-roam (C-c n ...)        diff-hl
+which-key                                               keycast
+eglot  editorconfig
+exec-path-from-shell
+rust-mode
 ```
 
 ## Quick Start
@@ -74,17 +73,18 @@ Launch Emacs. Packages install automatically on first run.
 
 | Category | Stack |
 |----------|-------|
-| Minibuffer | `orderless` + `consult` + `embark` + `marginalia` + `fido-vertical` + `completion-preview` — out-of-order fragment matching, live-preview commands, context actions, rich annotations, built-in vertical completion + inline preview |
-| In-buffer | `corfu` + `cape` — popup completion + extra backends (dabbrev, file, keyword) |
-| LSP | `eglot` — auto-starts rust-analyzer on `.rs` files, inlay hints, code actions |
+| Minibuffer | `fido-vertical` — built-in vertical completion with flex matching |
+| In-buffer | `corfu` + `cape` + `corfu-terminal` — popup completion, extra backends (dabbrev, file, keyword, elisp), terminal support |
+| LSP | `eglot` — auto-starts rust-analyzer on `.rs` files, code actions, rename, format |
 | Cargo | `rust-mode` — `cargo build/check/test/clippy/fmt` keybindings |
 | Git | `magit` + `diff-hl` — porcelain Git interface + inline gutter indicators |
 | Editing | `electric-pair` + `repeat` + `so-long` — auto-pairs, repeatable keys, long-line protection |
 | Shell | `exec-path-from-shell` + `eshell` — GUI env import, auto-scroll on input |
-| Notes | `org-roam` + `org-mode` — networked note-taking with backlinks, graph visualization, agenda, capture templates |
+| Notes | `org-roam` + `org-mode` + `ob-mermaid` + `ox-gfm` — networked note-taking with backlinks, graph visualization, agenda, capture templates, mermaid diagrams, GFM export |
 | Hints | `which-key` — popup keybinding discovery on prefix keys |
-| Project | `project.el` + `treemacs` + `treemacs-magit` — project navigation sidebar, file search, git-synced tree |
+| Project | `project.el` — project navigation, file search, shell/compile in root |
 | UI | `keycast` + `pixel-scroll-precision` — mode-line key display, smooth scrolling |
+| Theme | `modus-vivendi` — built-in dark high-contrast theme |
 
 ## Keybindings
 
@@ -114,42 +114,21 @@ Launch Emacs. Packages install automatically on first run.
 |------|---------|
 | `C-c a` | Open agenda |
 | `C-c c` | Quick capture |
-| `C-c n n` | Find or create Org-roam note |
+| `C-c n f` | Find or create Org-roam note |
 | `C-c n i` | Insert link to a note |
 | `C-c n l` | Toggle backlinks sidebar |
 | `C-c n g` | Show note graph |
 | `C-c n t` | Add tag to note |
 | `C-c n a` | Add alias to note |
 
-**Capture workflow:** `C-c c t` → `inbox.org` (todos) · `C-c c n` → `capture-notes.org` (scratch notes) → promote to `C-c n n` (org-roam permanent note)
-
-### Embark / Consult
-
-| Keys | Command |
-|------|---------|
-| `C-.` | Act on target at point (context menu) |
-| `C-;` | Run default action (open file, jump to symbol, etc.) |
-| `C-h B` | Describe all active keybindings |
-| `C-c h` | Search minibuffer history |
-| `C-c m` | Search man pages |
-| `C-c i` | Search Info manuals |
-| `M-g g` | Go to line (w/ preview) |
-| `M-g o` | Go to outline heading |
-| `M-g i` | Go to symbol in buffer (imenu) |
-| `M-g m` | Jump to mark (w/ preview) |
-| `M-s g` | Grep project (w/ preview) |
-| `M-s r` | Ripgrep project (w/ preview) |
-| `M-s l` | Search lines in buffer (w/ preview) |
-| `M-s d` | Find file by name (w/ preview) |
-| `M-s f` | Find file with fd (w/ preview) |
-| `M-y` | Enhanced yank-pop (w/ preview) |
+**Capture workflow:** `C-c c t` → `inbox.org` (todos) · `C-c c n` → `capture-notes.org` (scratch notes) → promote to `C-c n f` (org-roam permanent note)
 
 ### Editing
 
 | Keys | Command |
 |------|---------|
 | `C-x k` | Kill current buffer |
-| `M-n / M-p` | Cycle completion preview |
+| `M-n / M-p` | Cycle completion candidates (corfu popup) |
 
 ### Git (Magit)
 
@@ -185,55 +164,42 @@ Launch Emacs. Packages install automatically on first run.
 | `C-x p e` | Eshell in project root |
 | `C-x p c` | Compile in project root |
 
-### Treemacs
-
-| Keys | Command |
-|------|---------|
-| `C-c t` | Toggle treemacs sidebar |
-| `TAB` / `RET` | Expand/collapse or visit node |
-| `u` | Go to parent directory |
-| `M-n` / `M-p` | Jump to next/previous sibling |
-| `C-j` / `C-k` | Jump to next/previous project |
-| `?` | Show keybinding helper hydra |
-| `o` prefix | Open-file variants (split, ace-window, etc.) |
-| `C-c C-p` prefix | Project add/remove/rename commands |
-| `r` | Refresh the current tree |
-
 ## Structure
 
 ```
 ~/.config/emacs/
 ├── early-init.el             Package archives & init
-├── init.el                   Bootstrap (25 lines)
-├── org/                       Org-mode files
-│   ├── inbox.org              Capture target for todos (auto-created)
-│   └── capture-notes.org      Capture target for scratch notes (auto-created)
-├── notes/                     Org-roam knowledge base (automatically indexed)
-├── var/                       Auto-generated data
-│   ├── custom.el              Customize settings
-│   ├── backup/                Edit backups (file~)
-│   ├── auto-saves/            Auto-saves (#file#)
-│   ├── auto-save-list/        Crash recovery
-│   ├── recentf                Recent file list
-│   ├── eln-cache/              Native-compiled cache
-│   └── history                Minibuffer history
+├── init.el                   Bootstrap
+├── org/                      Org-mode files
+│   ├── inbox.org             Capture target for todos
+│   └── capture-notes.org     Capture target for scratch notes
+├── notes/                    Org-roam knowledge base (automatically indexed)
+├── themes/                   Custom themes
+│   └── dank-emacs-theme.el   Locally installed theme
+├── tree-sitter/              Compiled tree-sitter grammars
+│   └── libtree-sitter-rust.so
+├── var/                      Auto-generated data
+│   ├── custom.el             Customize settings
+│   ├── backup/               Edit backups (file~)
+│   ├── auto-save-list/       Auto-saves (#file#) & crash recovery
+│   ├── recentf               Recent file list
+│   ├── eln-cache/            Native-compiled cache
+│   └── history               Minibuffer history
 └── modules/
     ├── redirect-file-config.el File redirection (custom, backup, auto-save, recentf, savehist → var/)
-    ├── helper-config.el       Utility commands
-    ├── completion-config.el  Completion (corfu, cape, fido-vertical, completion-preview)
-    ├── embark-consult-config.el Embark context actions, Consult preview commands, integration
-    ├── marginalia-config.el  Rich completion annotations (file attributes, docstrings, etc.)
-    ├── orderless-config.el   Space-separated out-of-order completion matching
+    ├── helper-config.el      Utility commands
+    ├── completion-config.el  Completion (fido-vertical, corfu, cape, corfu-terminal)
     ├── editing-config.el     Editor defaults (electric-pair, repeat, so-long, bidi, indentation)
     ├── buffer-config.el      Buffers & windows (ibuffer, winner, windmove, recentf, savehist)
     ├── ui-config.el          Visual (font, bars, pixel-scroll, keycast)
-    ├── ide-config.el         LSP, projects, editorconfig (eglot, treemacs, project.el, editorconfig)
+    ├── ide-config.el         LSP, projects, editorconfig (eglot, project.el, editorconfig)
     ├── which-key-config.el   Keybinding hint popups
     ├── magit-config.el       Git porcelain interface
     ├── diff-hl-config.el     Inline git change indicators (gutter)
-    ├── org-config.el         Org-mode, capture, agenda
+    ├── org-config.el         Org-mode, capture, agenda, mermaid, GFM export
     ├── org-roam-config.el    Networked note-taking, backlinks, graph
-    └── rust-config.el        Cargo keybindings for rust-ts-mode
+    ├── rust-config.el        Cargo keybindings for rust-ts-mode
+    └── vterm-config.el       Vterm terminal emulator (not loaded by init.el)
 ```
 
 ## License
