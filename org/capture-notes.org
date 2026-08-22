@@ -9,3 +9,13 @@
 * 我认为我应该记录一些笔记
   [2026-08-11 Tue 13:30]
   [[file:~/.config/emacs/notes/20260811131548-测试节点.org]]
+* 学习英语小技巧
+understand what they said, what they write is the best way, never put
+presure on yourself, be confident to express myself, do not trap by exams,
+just read sth. you are really interested in,the more you read,the more you
+can read!打破应试教育传统思维
+  [2026-08-22 Sat 14:22]
+  [[file:~/Projects/mini_cava/src/main.rs::unimplemented!()]]
+* 尝试抱着电脑偶尔去周围的咖啡馆办公,一个人在家办公久了迟早得瘫痪,多接触一下公共场所的气场
+  [2026-08-22 Sat 14:26]
+  [[file:~/Projects/mini_cava/src/main.rs::unimplemented!()]]

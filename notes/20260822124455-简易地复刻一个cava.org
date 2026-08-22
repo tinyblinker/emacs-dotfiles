@@ -1,0 +1,12 @@
+:PROPERTIES:
+:ID:       eabc1693-8212-4006-81de-ffa60700eb41
+:END:
+#+title: 简易地复刻一个cava
+#+date: 2026-08-22 12:44
+#+filetags:
+* introduciton
+* 重点概念
+- PCM(Pulse-code modulation)
+-
+* 重点流程
+- audio(eg.mp3,wav..)->PCM->傅里叶变换->频谱->生成频谱可视化律动条
