@@ -9,6 +9,9 @@
 (setq default-frame-alist
       '((width . 100) (height . 40)))
 
+;; truncate line automatically without insert [enter]
+(global-visual-line-mode 1)
+
 ;; Clean up the UI: line numbers on, all chrome off, no startup screen
 (global-display-line-numbers-mode 1)
 (setq display-line-numbers-type 'relative)
