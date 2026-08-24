@@ -4,3 +4,6 @@
 * TODO test01
   [2026-08-10 Mon 15:13]
   [[file:~/.config/emacs/org]]
+* TODO pcm数据是什么?当前我这个symphonia解码出来的samples究竟属于什么类型的数据?力竭......
+  [2026-08-23 Sun 20:26]
+  [[file:~/Projects/mini_cava/src/main.rs::}]]
