@@ -52,7 +52,7 @@ $$X(f) = \int_{-\infty}^{\infty} x(t)\, e^{-j 2\pi f t}\, dt$$
 其中 $j = \sqrt{-1}$ 为虚数单位，$X(f)$ 为复数，同时包含幅度与相位信息。
 
 ** 离散傅里叶变换（DFT）
-计算机只能处理有限长的离散信号，因此使用 DFT。对长度为 $N$ 的序列 $x[n]$：
+计算机只能处理有限长的离散信号，因此使用 DFT。对长度为 $N$ 的序列 $x[n]$:
 
 $$X[k] = \sum_{n=0}^{N-1} x[n] \cdot e^{-j 2\pi k n / N}, \qquad k = 0, 1, \dots, N-1$$
 
@@ -64,8 +64,19 @@ $$X[k] = \sum_{n=0}^{N-1} x[n] \cdot e^{-j 2\pi k n / N}, \qquad k = 0, 1, \dots
 ** 快速傅里叶变换（FFT）
 DFT 直接计算的时间复杂度为 $O(N^2)$。FFT 利用指数因子的周期性与对称性，将其降为 $O(N \log N)$，是实际应用中唯一使用的算法。
 
-- 实现库：~rustfft~。
+- 本项目采用手写的基-2 Cooley-Tukey 算法，不依赖第三方库。
 - 输入长度 $N$ 通常取 $2$ 的幂（如 $1024$、$2048$），以配合基-2 算法。
+
+*** 基-2 Cooley-Tukey 算法
+其核心是"分治"：把长度为 $N$ 的 DFT 按下标奇偶拆成两个长度为 $N/2$ 的 DFT，递归（或迭代）求解。设旋转因子 $W_N = e^{-j 2\pi / N}$，则：
+
+$$X[k] = E[k] + W_N^k\, O[k], \qquad X[k + N/2] = E[k] - W_N^k\, O[k]$$
+
+其中 $E[k]$、$O[k]$ 分别为偶数、奇数下标子序列的 DFT，此式即蝶形运算（butterfly）。
+
+实现分为两步：
+1. 位反转置换（bit-reversal）：按二进制位反转后的下标重排输入。
+2. 蝶形运算：子变换长度从 $2$ 开始逐级翻倍，直至 $N$。
 
 * 频谱分析的关键概念
 
@@ -86,9 +97,6 @@ $$f_{Nyq} = \frac{f_s}{2}$$
 例如 $f_s = 44100\ \text{Hz}$ 时，$f_{Nyq} = 22050\ \text{Hz}$。
 
 ** 频谱泄漏与加窗
-:PROPERTIES:
-:CUSTOM_ID: 频谱泄漏
-:END:
 
 对信号进行有限长截断等价于乘以一个矩形窗，会使能量泄漏到邻近频点，导致频谱"展宽"。缓解方法是对帧数据乘以窗函数 $w[n]$：
 
@@ -131,44 +139,111 @@ $$X_{dB}[k] = 20 \log_{10}\left(|X[k]|\right)$$
 * Rust 实现路线
 
 ** 依赖
-在 =Cargo.toml= 中添加：
+手写 FFT 仅使用标准库，无需为频谱分析额外引入第三方库。复数运算由自定义的 =Complex= 结构体完成，=Cargo.toml= 中仅保留用于解码的 =symphonia=。
 
 #+begin_src toml
 [dependencies]
-rustfft = "6"
-num-complex = "0.4"
+symphonia = "0.6.1"
 #+end_src
 
 ** 处理流程
 1. 分帧：按窗口大小 $N$（$2$ 的幂，如 $1024$）从 PCM 切片。
 2. 加窗：$x_w[n] = x[n] \cdot w[n]$。
 3. 构造复数数组：实部为样本，虚部为 $0$。
-4. 执行 FFT（forward）。
+4. 执行 FFT（位反转置换 + 蝶形运算）。
 5. 求幅度谱并取 $k = 0 \dots N/2$。
 6. 聚合频点能量，映射到显示频段（cava 风格条形）。
 
 ** 代码骨架
 #+begin_src rust
-use num_complex::Complex;
-use rustfft::{FftPlanner, num_complex::Complex32};
+use std::f32::consts::PI;
+
+// 手写复数类型，避免引入外部依赖
+#[derive(Clone, Copy, Debug)]
+struct Complex {
+    re: f32,
+    im: f32,
+}
+
+impl Complex {
+    fn new(re: f32, im: f32) -> Self {
+        Complex { re, im }
+    }
+
+    fn add(self, other: Complex) -> Complex {
+        Complex::new(self.re + other.re, self.im + other.im)
+    }
+
+    fn sub(self, other: Complex) -> Complex {
+        Complex::new(self.re - other.re, self.im - other.im)
+    }
+
+    fn mul(self, other: Complex) -> Complex {
+        Complex::new(
+            self.re * other.re - self.im * other.im,
+            self.re * other.im + self.im * other.re,
+        )
+    }
+
+    fn norm(self) -> f32 {
+        (self.re * self.re + self.im * self.im).sqrt()
+    }
+}
+
+// 迭代式基-2 Cooley-Tukey FFT（原地计算，未归一化）
+fn fft(input: &mut [Complex]) {
+    let n = input.len();
+    assert!(n.is_power_of_two(), "N 必须是 2 的幂");
+
+    // 1. 位反转置换（bit-reversal permutation）
+    let mut j = 0usize;
+    for i in 1..n {
+        let mut bit = n >> 1;
+        while j & bit != 0 {
+            j ^= bit;
+            bit >>= 1;
+        }
+        j ^= bit;
+        if i < j {
+            input.swap(i, j);
+        }
+    }
+
+    // 2. 蝶形运算（butterfly），子变换长度从 2 逐级翻倍
+    let mut len = 2usize;
+    while len <= n {
+        let angle = -2.0 * PI / (len as f32);
+        let w_len = Complex::new(angle.cos(), angle.sin());
+        for i in (0..n).step_by(len) {
+            let mut w = Complex::new(1.0, 0.0);
+            for k in 0..len / 2 {
+                let u = input[i + k];
+                let v = input[i + k + len / 2].mul(w);
+                input[i + k] = u.add(v);
+                input[i + k + len / 2] = u.sub(v);
+                w = w.mul(w_len);
+            }
+        }
+        len <<= 1;
+    }
+}
 
 fn compute_spectrum(frame: &[f32], window: &[f32]) -> Vec<f32> {
     let n = frame.len();
     assert_eq!(frame.len(), window.len());
+    assert!(n.is_power_of_two(), "N 必须是 2 的幂");
 
-    // 1. 加窗
-    let mut buffer: Vec<Complex32> = frame
+    // 1. 加窗，构造复数数组（实部为样本，虚部为 0）
+    let mut buffer: Vec<Complex> = frame
         .iter()
         .zip(window.iter())
-        .map(|(&x, &w)| Complex32::new(x * w, 0.0))
+        .map(|(&x, &w)| Complex::new(x * w, 0.0))
         .collect();
 
-    // 2. 规划并执行 FFT
-    let mut planner = FftPlanner::<f32>::new();
-    let fft = planner.plan_fft_forward(n);
-    fft.process(&mut buffer);
+    // 2. 执行手写 FFT
+    fft(&mut buffer);
 
-    // 3. 求幅度谱，只取 0..=n/2
+    // 3. 求幅度谱，只取 0..=n/2（实信号频谱共轭对称）
     buffer[..=n / 2]
         .iter()
         .map(|c| c.norm())
@@ -177,13 +252,13 @@ fn compute_spectrum(frame: &[f32], window: &[f32]) -> Vec<f32> {
 #+end_src
 
 ** 注意事项
-- ~plan_fft_forward~ 执行的是未归一化 DFT，幅度需自行除以 $N$。
-- 多次处理同尺寸帧时，复用同一个 planner 以提升性能。
+- 手写 FFT 输出的是未归一化 DFT，幅度需自行除以 $N$。
+- 输入长度 $N$ 必须为 $2$ 的幂，代码中已用 =assert!(n.is_power_of_two())= 校验。
+- 蝶形运算在 $\log_2 N$ 层循环中原地完成，无需缓存 plan。
 - 多声道音频需先拆分为单声道再分别处理。
 
 * 参考资源
 
-- [[https://docs.rs/rustfft][rustfft 文档]]
+- [[https://en.wikipedia.org/wiki/Cooley%E2%80%93Tukey_FFT_algorithm][Cooley–Tukey FFT 算法（Wikipedia）]]
 - 3Blue1Brown 傅里叶变换可视化视频
 - 《数字信号处理》教材中 DFT/FFT 章节
-
