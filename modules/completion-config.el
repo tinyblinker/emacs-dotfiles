@@ -1,13 +1,10 @@
 ;;; -*- lexical-binding: t; -*-
 
-;; Completion defaults: flex matching, cycling, vertical display, detailed annotations
+;; Completion defaults: flex matching, vertical display
 (setq tab-always-indent 'complete   ;; Tab = indent if at indentation, else trigger completion
-      completion-cycle-threshold 3   ;; Cycle through candidates when fewer than 3
-      completions-detailed t         ;; Show extra annotations in completions list
       completions-format 'vertical   ;; Display completions in a vertical list
       xref-show-definitions-function #'xref-show-definitions-completing-read ;; Fuzzy choose definitions
       completion-styles '(flex basic) ;; Use flex (fuzzy) matching first, fall back to basic
-      completions-format 'vertical    ;; set completion format
       completion-category-overrides '((file (styles . (partial-completion))))) ;; Use partial-completion for file paths
 
 ;; Vertical minibuffer completion using built-in fido-vertical

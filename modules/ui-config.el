@@ -1,13 +1,11 @@
 ;;; -*- lexical-binding: t -*-
 
-;; Set default font family and size
+;; Set default font
 (set-face-attribute 'default nil
-                    :family "JetBrainsMono Nerd Font Mono"
-                    :height 160)
-
-;; Default frame size: 100 columns wide, 40 rows tall
-(setq default-frame-alist
-      '((width . 100) (height . 40)))
+                    :family "JetBrainsMono NF"
+                    :weight 'bold
+                    :slant 'italic
+                    :height 200)
 
 ;; truncate line automatically without insert [enter]
 (global-visual-line-mode 1)
@@ -41,13 +39,6 @@
   (keycast-mode-line-mode-remove-insert-after 'mode-line-misc-info)
   :config
   (keycast-mode-line-mode))
-
-;; Native smooth scrolling: disable vscroll slack, favor precise pixel scroll
-(setq auto-window-vscroll nil         ;; Let pixel-scroll handle vertical alignment
-      fast-but-imprecise-scrolling t  ;; Enable fast scrolling path for large jumps
-      scroll-conservatively 101        ;; Never recenter during scroll (value > 100)
-      scroll-margin 0                  ;; No extra padding around cursor when scrolling
-      scroll-preserve-screen-position t) ;; Keep cursor at same screen line on scroll
 
 (provide 'ui-config)
 ;;; ui-config.el ends here

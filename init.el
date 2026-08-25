@@ -6,17 +6,18 @@
 ;; Load all configuration modules
 (require 'helper-config)          ;; Utility commands
 (require 'redirect-file-config)   ;; Redirect cache/backup/save files into var/
-(require 'ui-config)              ;; Font, theme, scrolling, UI chrome
+(require 'ui-config)              ;; Font, scrolling, UI chrome
 (require 'which-key-config)       ;; Keybinding hint popups
 (require 'editing-config)         ;; Global editing defaults
 (require 'buffer-config)          ;; Buffer, window, dired, history
-(require 'completion-config)      ;; Corfu, cape, fido-vertical, completion-preview
+(require 'completion-config)      ;; Corfu, cape, fido-vertical
 (require 'ide-config)             ;; Eglot LSP, editorconfig, shell env
 (require 'org-config)             ;; Org-mode, capture, agenda
 (require 'org-roam-config)        ;; Networked note-taking, backlinks, graph visualization
 (require 'rust-config)            ;; Cargo keybindings for rust-ts-mode
 (require 'magit-config)           ;; Git integration with Magit
 (require 'diff-hl-config)         ;; Inline git change indicators
+(require 'vterm-config)           ;; Terminal emulator
 
 ;; Apply the dark high-contrast modus-vivendi theme
 (load-theme 'modus-vivendi t)

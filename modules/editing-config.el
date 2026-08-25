@@ -7,9 +7,6 @@
 ;; Scroll eshell to the bottom when typing input ('this = only when this window is selected)
 (setq eshell-scroll-to-bottom-on-input 'this)
 
-;; use winner-mode for better points' navigation
-(setq winner-mode t)
-
 ;; When switching buffers in a dedicated window, reuse or pop up another window
 (setq switch-to-buffer-in-dedicated-window 'pop ;; Pop up a new window instead of signaling an error
       switch-to-buffer-obey-display-actions t)  ;; Respect display-buffer-alist rules

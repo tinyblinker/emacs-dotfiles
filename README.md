@@ -52,7 +52,7 @@ eager (at startup)           lazy (on first use)         idle (1s after init)
 corfu  cape                  org (open .org file)        magit
 which-key                    org-roam (C-c n ...)        diff-hl
 eglot  editorconfig          rust-mode (rust-ts-mode)    keycast
-exec-path-from-shell
+exec-path-from-shell         vterm (M-x vterm)
 ```
 
 ## Quick Start
@@ -77,7 +77,7 @@ Launch Emacs. Packages install automatically on first run.
 | Cargo | `rust-mode` — `cargo build/check/test/clippy/fmt` keybindings |
 | Git | `magit` + `diff-hl` — porcelain Git interface + inline gutter indicators |
 | Editing | `electric-pair` + `repeat` + `so-long` — auto-pairs, repeatable keys, long-line protection |
-| Shell | `exec-path-from-shell` + `eshell` — GUI env import, auto-scroll on input |
+| Shell | `exec-path-from-shell` + `eshell` + `vterm` — GUI env import, auto-scroll on input, fast terminal |
 | Notes | `org-roam` + `org-mode` + `ob-mermaid` + `ox-gfm` — networked note-taking with backlinks, graph visualization, agenda, capture templates, mermaid diagrams, GFM export |
 | Hints | `which-key` — popup keybinding discovery on prefix keys |
 | Project | `project.el` — project navigation, file search, shell/compile in root |
@@ -194,7 +194,7 @@ Launch Emacs. Packages install automatically on first run.
     ├── org-config.el         Org-mode, capture, agenda, mermaid, GFM export
     ├── org-roam-config.el    Networked note-taking, backlinks, graph
     ├── rust-config.el        Cargo keybindings for rust-ts-mode
-    └── vterm-config.el       Vterm terminal emulator (not loaded by init.el)
+    └── vterm-config.el       Vterm terminal emulator
 ```
 
 ## License
