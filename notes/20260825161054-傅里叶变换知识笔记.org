@@ -1,0 +1,207 @@
+:PROPERTIES:
+:ID:       981b4b39-de4a-46ab-bf0b-cba2147640ee
+:END:
+#+title: 傅里叶变换知识笔记
+#+OPTIONS: toc:2 num:t
+#+LANGUAGE: zh
+#+date: 2026-08-25 16:10
+#+filetags:cava
+#+filetags:recreational programming
+
+* 介绍
+本文整理利用傅里叶变换将声音的时域信号转换为频域信号、实现频谱分析所需掌握的具体知识。理论公式与Rust实现并重，实现部分基于本项目（mini_cava）已有的 Symphonia 解码逻辑。
+
+* 声音信号的数字化基础
+:PROPERTIES:
+:ID: 1
+:END:
+
+** 采样率（Sample Rate）
+声音是连续的模拟信号，数字化时以固定频率进行采样。采样率 $f_s$ 表示每秒采集的样本点数，单位为 Hz。常见值为 $44100\ \text{Hz}$（CD 音质）、$48000\ \text{Hz}$ 等。
+
+- 采样率决定了可表示的最高频率，见 [[奈奎斯特频率]]。
+- 在 Symphonia 中，采样率可从 ~track.codec_params~ 中获取。
+
+** PCM 采样
+PCM（脉冲编码调制）得到的离散时间信号记作 $x[n]$，其中 $n$ 为整数索引。本项目中音频已被解码为 =Vec<f32>=（见 =src/main.rs=），每个元素即为一个采样点。
+
+** 声道与交织（Interleaved）
+多声道音频的样本以交织方式存储：
+
+$$[L_0, R_0, L_1, R_1, \dots, L_{N-1}, R_{N-1}]$$
+
+其中 $L_i$、$R_i$ 分别为左、右声道第 $i$ 个样本。做 FFT 前需按声道拆分，对每个声道分别进行变换。
+
+** 时域 vs 频域
+- 时域：描述振幅随时间的变化，即 $x[n]$。
+- 频域：描述信号中不同频率成分的能量分布。
+
+傅里叶变换的作用正是建立二者的桥梁。
+
+* 傅里叶变换的数学原理
+:PROPERTIES:
+:ID: 2
+:END:
+
+** 傅里叶级数
+任意周期为 $T$ 的信号可分解为不同频率的正弦波之和：
+
+$$x(t) = a_0 + \sum_{k=1}^{\infty} \left[ a_k \cos\left(\frac{2\pi k t}{T}\right) + b_k \sin\left(\frac{2\pi k t}{T}\right) \right]$$
+
+这揭示了"任何周期信号都是若干单频正弦波的叠加"这一核心思想。
+
+** 连续傅里叶变换（CTFT）
+对于非周期信号，傅里叶级数推广为连续傅里叶变换：
+
+$$X(f) = \int_{-\infty}^{\infty} x(t)\, e^{-j 2\pi f t}\, dt$$
+
+其中 $j = \sqrt{-1}$ 为虚数单位，$X(f)$ 为复数，同时包含幅度与相位信息。
+
+** 离散傅里叶变换（DFT）
+计算机只能处理有限长的离散信号，因此使用 DFT。对长度为 $N$ 的序列 $x[n]$：
+
+$$X[k] = \sum_{n=0}^{N-1} x[n] \cdot e^{-j 2\pi k n / N}, \qquad k = 0, 1, \dots, N-1$$
+
+其中：
+- $X[k]$ 为第 $k$ 个频点（bin）的复数频谱值。
+- $X[k]$ 对应的实际频率为 $f_k = \dfrac{k \cdot f_s}{N}$。
+- 逆变换（IDFT）为 $x[n] = \dfrac{1}{N} \sum_{k=0}^{N-1} X[k] \cdot e^{j 2\pi k n / N}$。
+
+** 快速傅里叶变换（FFT）
+DFT 直接计算的时间复杂度为 $O(N^2)$。FFT 利用指数因子的周期性与对称性，将其降为 $O(N \log N)$，是实际应用中唯一使用的算法。
+
+- 实现库：~rustfft~。
+- 输入长度 $N$ 通常取 $2$ 的幂（如 $1024$、$2048$），以配合基-2 算法。
+
+* 频谱分析的关键概念
+:PROPERTIES:
+:ID: 3
+:END:
+
+** 频率分辨率
+相邻频点之间的频率间隔：
+
+$$\Delta f = \frac{f_s}{N}$$
+
+- 由采样率 $f_s$ 与窗口长度 $N$ 共同决定。
+- $N$ 越大，$\Delta f$ 越小，频率分辨率越高。
+
+** 奈奎斯特频率
+:PROPERTIES:
+:CUSTOM_ID: 奈奎斯特频率
+:END:
+
+根据采样定理，可无失真分析的最高频率为采样率的一半：
+
+$$f_{Nyq} = \frac{f_s}{2}$$
+
+例如 $f_s = 44100\ \text{Hz}$ 时，$f_{Nyq} = 22050\ \text{Hz}$。
+
+** 频谱泄漏与加窗
+:PROPERTIES:
+:CUSTOM_ID: 频谱泄漏
+:END:
+
+对信号进行有限长截断等价于乘以一个矩形窗，会使能量泄漏到邻近频点，导致频谱"展宽"。缓解方法是对帧数据乘以窗函数 $w[n]$：
+
+$$x_w[n] = x[n] \cdot w[n]$$
+
+常用窗函数：
+- 汉宁窗（Hann）：
+
+$$w[n] = 0.5 \left[ 1 - \cos\left(\frac{2\pi n}{N-1}\right) \right]$$
+
+- 汉明窗（Hamming）：
+
+$$w[n] = 0.54 - 0.46 \cos\left(\frac{2\pi n}{N-1}\right)$$
+
+** 幅度谱与功率谱
+FFT 输出 $X[k]$ 为复数，取模得到幅度谱：
+
+$$|X[k]| = \sqrt{\operatorname{Re}(X[k])^2 + \operatorname{Im}(X[k])^2}$$
+
+功率谱为幅度的平方：
+
+$$P[k] = |X[k]|^2$$
+
+** 幅度归一化
+- FFT 输出幅度与 $N$ 成正比，需除以 $N$ 还原真实幅度。
+- 加窗会引入相干增益，除以窗函数之和 $\sum w[n]$ 可修正。
+- 实际频谱可视化中常只关心相对能量，归一化方式可灵活选择。
+
+** 对数缩放
+人耳对响度的感知近似对数，故通常将幅度转为分贝（dB）：
+
+$$X_{dB}[k] = 20 \log_{10}\left(|X[k]|\right)$$
+
+频率轴也常取对数刻度，以贴合人耳对音高的感知。
+
+** 直流分量与负频率
+- $X[0]$ 对应直流分量（DC），即信号的均值。
+- 实信号的频谱满足共轭对称：$X[N-k] = \overline{X[k]}$。因此只需保留 $k = 0, 1, \dots, \lfloor N/2 \rfloor$ 部分。
+
+* Rust 实现路线
+:PROPERTIES:
+:ID: 4
+:END:
+
+** 依赖
+在 =Cargo.toml= 中添加：
+
+#+begin_src toml
+[dependencies]
+rustfft = "6"
+num-complex = "0.4"
+#+end_src
+
+** 处理流程
+1. 分帧：按窗口大小 $N$（$2$ 的幂，如 $1024$）从 PCM 切片。
+2. 加窗：$x_w[n] = x[n] \cdot w[n]$。
+3. 构造复数数组：实部为样本，虚部为 $0$。
+4. 执行 FFT（forward）。
+5. 求幅度谱并取 $k = 0 \dots N/2$。
+6. 聚合频点能量，映射到显示频段（cava 风格条形）。
+
+** 代码骨架
+#+begin_src rust
+use num_complex::Complex;
+use rustfft::{FftPlanner, num_complex::Complex32};
+
+fn compute_spectrum(frame: &[f32], window: &[f32]) -> Vec<f32> {
+    let n = frame.len();
+    assert_eq!(frame.len(), window.len());
+
+    // 1. 加窗
+    let mut buffer: Vec<Complex32> = frame
+        .iter()
+        .zip(window.iter())
+        .map(|(&x, &w)| Complex32::new(x * w, 0.0))
+        .collect();
+
+    // 2. 规划并执行 FFT
+    let mut planner = FftPlanner::<f32>::new();
+    let fft = planner.plan_fft_forward(n);
+    fft.process(&mut buffer);
+
+    // 3. 求幅度谱，只取 0..=n/2
+    buffer[..=n / 2]
+        .iter()
+        .map(|c| c.norm())
+        .collect()
+}
+#+end_src
+
+** 注意事项
+- ~plan_fft_forward~ 执行的是未归一化 DFT，幅度需自行除以 $N$。
+- 多次处理同尺寸帧时，复用同一个 planner 以提升性能。
+- 多声道音频需先拆分为单声道再分别处理。
+
+* 参考资源
+:PROPERTIES:
+:ID: 5
+:END:
+
+- [[https://docs.rs/rustfft][rustfft 文档]]
+- 3Blue1Brown 傅里叶变换可视化视频
+- 《数字信号处理》教材中 DFT/FFT 章节
+
