@@ -36,13 +36,6 @@
   (corfu-echo-mode 1)       ;; Echo candidate info in the echo area
   (corfu-indexed-mode 1))   ;; Show index numbers for quick keyboard selection
 
-;; Make Corfu popup work in terminal (non-GUI) frames
-(use-package corfu-terminal
-  :ensure t
-  :if (not (display-graphic-p))
-  :after corfu
-  :config (corfu-terminal-mode +1))
-
 ;; Cape: extra completion-at-point backends for dabbrev, file names, keywords, elisp
 (use-package cape
   :ensure t
