@@ -1,0 +1,107 @@
+:PROPERTIES:
+:ID:       89b03cc2-6c95-46b5-b678-a6f66f52942b
+:END:
+#+title: emacs内置help系统的合理使用
+#+date: 2026-08-25 14:19
+#+filetags:
+* 一句话总纲
+  不靠外部工具,Emacs 自带三样东西就够用:
+  1. 帮助系统(~C-h~ 前缀 + ~describe-*~ + ~apropos~ + ~customize~)
+  2. 官方 Info 文档(Emacs 手册 / ELisp 手册 / ELisp 入门)
+  3. 源码本身(~find-function~ / ~find-variable~ / ~find-library~)
+
+  核心心法:*根据你手上已有的线索类型,选对入口;然后顺着文档链接往下钻.*
+
+* 第一部分:解决常见问题的思路
+** 线索分类(先问自己:我手里有什么？)
+   | 我手上有的东西  | 该用的入口                          | 说明                 |
+   |--------------+-----------------------------------+---------------------|
+   | 只有模糊关键词  | ~C-h a~ / ~C-h d~ (apropos)           | 按词搜命令/文档        |
+   | 正在某个模式里  | ~C-h m~ (describe-mode)             | 看当前模式所有键与变量  |
+   | 知道某个按键   | ~C-h k~ (describe-key)              | 反查键绑定的命令       |
+   | 知道函数/变量名 | ~C-h f~ / ~C-h v~                     | 精确确认 + 看源码位置  |
+   | 想改设置       | ~M-x customize-group~               | 领域内所有可配置项打包看 |
+   | 想懂原理/概念  | ~C-h r~ / ~C-h i~ (Info)              | 官方手册,讲分类和原理   |
+   | 文档讲不清     | ~M-x find-function~ / ~find-variable~ | 直接读源码,终极手段    |
+
+** 帮助入口速查表
+   | 快捷键   | 命令                   | 作用                            |
+   |---------+-----------------------+--------------------------------|
+   | ~C-h C-h~ | help-for-help     n   | 帮助系统总目录(先背这个)           |
+   | ~C-h f~   | describe-function     | 查函数:用途/签名/定义位置          |
+   | ~C-h v~   | describe-variable     | 查变量:用途/默认值/当前值          |
+   | ~C-h m~   | describe-mode         | 当前所有 mode 的说明页            |
+   | ~C-h k~   | describe-key          | 按键 -> 命令 + 文档              |
+   | ~C-h b~   | describe-bindings     | 当前所有键绑定列表                |
+   | ~C-h a~   | apropos-command       | 按关键词搜命令                    |
+   | ~C-h d~   | apropos-documentation | 按关键词搜文档(含变量)             |
+   | ~C-h r~   | info-emacs-manual     | Emacs 手册                      |
+   | ~C-h i~   | info                  | Info 浏览器(~m~ 菜单 ~i~ 索引 ~s~ 搜索) |
+   | ~C-h p~   | finder-by-keyword     | 按主题找包                       |
+   
+** 标准排查五步流程
+   1. *定线索*:我到底知道什么(词？键？模式？报错信息？)
+   2. *定位*:用对应入口搜出候选(apropos / describe-mode / describe-key)
+   3. *确认*:~C-h f~ / ~C-h v~ 逐个读文档,判断"这是不是我要的"
+   4. *改设*:文档底部的 ~customize~ 链接,或 ~M-x customize-group~ 可视化改
+   5. *持久*:决定写进 init.el 还是用 customize 保存(~customize~ 会生成 ~custom-set-variables~)
+
+** 报错时怎么做
+   - ~M-x toggle-debug-on-error~ 打开,再复现一次 -> 弹出 =*Backtrace*=
+   - 回溯最上面几行 = 出错源头(哪个函数、哪个变量)
+   - 对报错里的符号用 ~find-variable~ / ~find-function~ 查定义处
+   - 关键字就是报错里的符号名(如 ~void-variable~ 的变量名)
+
+* 第二部分:用内置帮助与官方文档写 ELisp
+** 三份官方文档(Info 里按这个优先级读)
+   | 优先级 | Info 入口          | 手册名                            | 用途                   |
+   |-------+-------------------+----------------------------------+-----------------------|
+   |     1 | ~C-h i m eintr RET~ | An Intro to Programming in ELisp | 入门:适合没系统学过 Lisp |
+   |     2 | ~C-h i m elisp RET~ | Emacs Lisp Reference Manual      | 权威参考:查函数/变量语义  |
+   |     3 | ~C-h r~             | Emacs Manual                     | 查"这个功能怎么用/怎么配" |
+
+   *写代码的顺序*:先 ~eintr~ 学基础语法 -> 需要具体函数时查 ~elisp~ -> 需要配某个功能时查 ~emacs~.
+
+** 写代码前:查函数的正确姿势
+   - ~C-h f 函数名 RET~ 读:签名(参数)、文档、*源码链接*
+   - 文档里带 ~info node~ 链接的,点进去读更详细的说明
+   - 没把握返回值/副作用 -> 看文档里的例子
+
+** 读源码(最靠谱的"官方示例库")
+   - ~M-x find-function~ 跳到函数定义
+   - ~M-x find-variable~ 跳到变量定义
+   - ~M-x find-library~ 打开整个包
+   - *心法*:Emacs 自带几万行现成的、写法规范的 Lisp,想实现某个功能,
+     先 ~apropos~ 找类似函数,再 ~find-function~ 看它怎么写,照着改.
+
+** 交互式实验(边写边验,别等全写完)
+   | 操作              | 命令                  | 作用                      |
+   |------------------+----------------------+--------------------------|
+   | ~*scratch*~ 缓冲区  | 直接进入               | 专门写临时 Lisp 的地方      |
+   | ~C-x C-e~          | eval-last-sexp       | 求值光标前的表达式          |
+   | ~C-j~              | eval-print-last-sexp | 求值并把结果打印到下一行      |
+   | ~C-M-x~            | eval-defun           | 求值光标所在的整个 defun    |
+   | ~M-x ielm~         | (REPL)               | 交互式 ELisp 终端,可多行输入 |
+   | ~M-x check-parens~ | -                    | 检查括号配平(写大段代码必用)  |
+
+** 写代码的完整流程(思路)
+   1. *找原型*: ~apropos~ 搜关键词,找有没有现成函数
+   2. *读原型*: ~C-h f~ 读签名和文档, ~find-function~ 读源码
+   3. *抄结构*:在 ~*scratch*~ 里写个最小例子, ~C-j~ 求值验证
+   4. *查语义*:不确定的宏/特殊形式(~let~ ~cond~ ~dolist~)查 ~elisp~ 手册
+   5. *组装*:拼成完整 defun, ~C-M-x~ 求值测试
+   6. *查错*: ~M-x check-parens~ ;若运行报错用 ~toggle-debug-on-error~ 看回溯
+   7. *落地*:确认无误后写进 init.el,重启或用 ~eval-buffer~ 加载验证
+
+** 查语法/语义的 Info 技巧
+   - 进 ~C-h i~ 后: ~m elisp RET~ 进 ELisp 手册
+   - ~i 关键字 RET~ 查索引(如 ~i let RET~ , ~i condition RET~)
+   - ~s 正则 RET~ 全文搜索
+   - ~C-h S~ (info-lookup-symbol):光标在符号上,直接跳该符号的文档
+
+* 总结口诀
+   #+BEGIN_QUOTE
+   有词用 apropos,有模式用 describe-mode,有键用 describe-key,
+   有名用 describe-*,改设置用 customize,懂原理用 Info,
+   查不清 find-function 读源码;写代码进 scratch 边写边 C-j.
+   #+END_QUOTE
