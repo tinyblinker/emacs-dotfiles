@@ -5,7 +5,7 @@
 
 <p align="center">
   <a href="https://www.gnu.org/software/emacs/">
-    <img src="https://img.shields.io/badge/Emacs-30.2-%237F5AB6?style=flat-square&logo=gnu-emacs&logoColor=white" alt="Emacs 30.2">
+    <img src="https://img.shields.io/badge/Emacs-31.1-%237F5AB6?style=flat-square&logo=gnu-emacs&logoColor=white" alt="Emacs 31.1">
   </a>
   <a href="https://github.com/tinyblinker/emacs-dotfiles/stargazers">
     <img src="https://img.shields.io/github/stars/tinyblinker/emacs-dotfiles?style=flat-square&color=D0BCFF" alt="Stars">
@@ -50,11 +50,9 @@ Package load strategy:
 eager (at startup)           lazy (on first use)         idle (1s after init)
 ─────────────────────        ─────────────────────       ─────────────────────
 corfu  cape                  org (open .org file)        magit
-corfu-terminal (TTY only)    org-roam (C-c n ...)        diff-hl
-which-key                                               keycast
-eglot  editorconfig
+which-key                    org-roam (C-c n ...)        diff-hl
+eglot  editorconfig          rust-mode (rust-ts-mode)    keycast
 exec-path-from-shell
-rust-mode
 ```
 
 ## Quick Start
@@ -74,7 +72,7 @@ Launch Emacs. Packages install automatically on first run.
 | Category | Stack |
 |----------|-------|
 | Minibuffer | `fido-vertical` — built-in vertical completion with flex matching |
-| In-buffer | `corfu` + `cape` + `corfu-terminal` — popup completion, extra backends (dabbrev, file, keyword, elisp), terminal support |
+| In-buffer | `corfu` + `cape` — popup completion, extra backends (dabbrev, file, keyword, elisp), plus popup-info / history / echo / indexed extensions |
 | LSP | `eglot` — auto-starts rust-analyzer on `.rs` files, code actions, rename, format |
 | Cargo | `rust-mode` — `cargo build/check/test/clippy/fmt` keybindings |
 | Git | `magit` + `diff-hl` — porcelain Git interface + inline gutter indicators |
@@ -174,21 +172,18 @@ Launch Emacs. Packages install automatically on first run.
 │   ├── inbox.org             Capture target for todos
 │   └── capture-notes.org     Capture target for scratch notes
 ├── notes/                    Org-roam knowledge base (automatically indexed)
-├── themes/                   Custom themes
-│   └── dank-emacs-theme.el   Locally installed theme
-├── tree-sitter/              Compiled tree-sitter grammars
-│   └── libtree-sitter-rust.so
 ├── var/                      Auto-generated data
 │   ├── custom.el             Customize settings
+│   ├── themes/               Custom themes
 │   ├── backup/               Edit backups (file~)
 │   ├── auto-save-list/       Auto-saves (#file#) & crash recovery
 │   ├── recentf               Recent file list
 │   ├── eln-cache/            Native-compiled cache
 │   └── history               Minibuffer history
 └── modules/
-    ├── redirect-file-config.el File redirection (custom, backup, auto-save, recentf, savehist → var/)
+    ├── redirect-file-config.el File redirection (custom, backup, auto-save, recentf, savehist, themes, eln-cache → var/)
     ├── helper-config.el      Utility commands
-    ├── completion-config.el  Completion (fido-vertical, corfu, cape, corfu-terminal)
+    ├── completion-config.el  Completion (fido-vertical, corfu, cape)
     ├── editing-config.el     Editor defaults (electric-pair, repeat, so-long, bidi, indentation)
     ├── buffer-config.el      Buffers & windows (ibuffer, winner, windmove, recentf, savehist)
     ├── ui-config.el          Visual (font, bars, pixel-scroll, keycast)
