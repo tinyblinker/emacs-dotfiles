@@ -1,0 +1,199 @@
+:PROPERTIES:
+:ID:       06ca8aec-6037-4969-8943-3d11edae9f63
+:END:
+#+title: 在emacs的org-mode中使用latex的折腾记录
+#+date: 2026-08-25 16:45
+#+filetags:
+
+* 目标与背景
+在 Emacs 的 Org 文件中，希望将 LaTeX 数学片段（~$...$~、~$$...$$~、~\begin{...}~ 环境）渲染为图片直接预览。Org 默认用 =dvipng= 作为后端，本笔记改用 =dvisvgm= 输出 SVG，并记录过程中遇到的三个报错及其解决过程。
+
+* 基本配置
+** 设置默认进程
+核心：把 =dvisvgm= 设为默认预览进程（Org 默认是 =dvipng=）。
+
+#+begin_src emacs-lisp
+  (setq org-preview-latex-default-process 'dvisvgm)
+#+end_src
+
+新版 Org（9.7+）变量已改前缀，旧名仍可作为别名：
+
+#+begin_src emacs-lisp
+  (setq org-latex-preview-default-process 'dvisvgm)
+#+end_src
+
+** =dvisvgm= 进程条目
+=org-preview-latex-process-alist= 中 =dvisvgm= 的默认条目：
+
+#+begin_src emacs-lisp
+  (dvisvgm :programs ("latex" "dvisvgm")
+           :description "dvi > svg"
+           :message "you need to install the programs: latex and dvisvgm."
+           :image-input-type "dvi" :image-output-type "svg"
+           :image-size-adjust (1.7 . 1.5) :latex-compiler
+           ("latex -interaction nonstopmode -output-directory %o %f")
+           :image-converter
+           ("dvisvgm %f --no-fonts --exact-bbox --scale=%S --output=%O"))
+#+end_src
+
+该条目本身基本可用，真正需要修改的是 =:latex-compiler=（例如用到 minted / tikz externalize 时需加 =-shell-escape=）。
+
+** 执行流程
+预览的实际执行链为：
+
+1. Org 生成临时 =/tmp/orgtexXXXX.tex= 文件。
+2. =:latex-compiler= 运行 =latex=，产出 =.dvi=。
+3. =:image-converter= 运行 =dvisvgm=，把 =.dvi= 转成 =.svg=。
+4. 图片以 overlay 覆盖在源码上。
+
+* 故障排查记录
+** 报错一：=File '*.dvi' wasn't produced=
+完整报错：
+
+#+begin_example
+File '/tmp/orgtexFigKxb.dvi' wasn't produced
+Please adjust 'dvisvgm' part of 'org-preview-latex-process-alist'
+#+end_example
+
+- *含义*：此报错具有误导性，实际与 =dvisvgm= 无关。=.dvi= 由 =latex=（编译步骤）产生，=dvisvgm= 只做 dvi→svg 转换；=.dvi= 未生成时 =dvisvgm= 根本不会运行。
+- *根源*：=org-compile-file= 运行完 =latex= 后检查源文件同目录下 =.dvi= 是否存在，不存在则抛出这条通用错误（见 =org-macs.el=）。
+- *排查方法*：切换到 buffer =*Org Preview LaTeX Output*=，其中保存了 =latex= 的真实报错，是定位问题的关键。
+
+** 报错二：=I can't find the format file 'latex.fmt'!=
+完整日志（=*Org Preview LaTeX Output*= buffer）：
+
+#+begin_example
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=latex)
+ restricted \write18 enabled.
+
+kpathsea: Running mktexfmt latex.fmt
+mktexfmt: mktexfmt is using the following fmtutil.cnf files (in precedence order):
+mktexfmt:   /etc/texmf/web2c/fmtutil.cnf
+mktexfmt: mktexfmt is using the following fmtutil.cnf file for writing changes:
+mktexfmt:   /home/shyweeds/.texlive/texmf-config/web2c/fmtutil.cnf
+mktexfmt [INFO]: writing formats under /home/shyweeds/.texlive/texmf-var/web2c
+mktexfmt [INFO]: Did not find entry for byfmt=latex skipped
+mktexfmt [INFO]: not selected formats: 8
+mktexfmt [INFO]: total formats: 8
+mktexfmt [INFO]: executable location: /usr/bin/mktexfmt
+mktexfmt [INFO]: exiting with status 0
+I can't find the format file `latex.fmt'!
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=latex)
+ restricted \write18 enabled.
+
+kpathsea: Running mktexfmt latex.fmt
+mktexfmt: mktexfmt is using the following fmtutil.cnf files (in precedence order):
+mktexfmt:   /etc/texmf/web2c/fmtutil.cnf
+mktexfmt: mktexfmt is using the following fmtutil.cnf file for writing changes:
+mktexfmt:   /home/shyweeds/.texlive/texmf-config/web2c/fmtutil.cnf
+mktexfmt [INFO]: writing formats under /home/shyweeds/.texlive/texmf-var/web2c
+mktexfmt [INFO]: Did not find entry for byfmt=latex skipped
+mktexfmt [INFO]: not selected formats: 8
+mktexfmt [INFO]: total formats: 8
+mktexfmt [INFO]: executable location: /usr/bin/mktexfmt
+mktexfmt [INFO]: exiting with status 0
+I can't find the format file `latex.fmt'!
+#+end_example
+
+- *含义*：=latex= 二进制启动时需加载预编译的格式文件 =latex.fmt=，找不到则直接退出，导致 =.dvi= 未生成。
+- *根源*：TeX Live 安装不完整。只装了 =texlive-bin= 和 =texlive-basic=，其中 =latex= 格式并未注册（=fmtutil.cnf= 里只有 8 个基础格式）。=latex= 格式及 LaTeX 基础宏包由 =texlive-latex= 提供。
+- *验证*：
+  #+begin_src shell
+    pacman -Qs texlive        # 查看已安装的 texlive 包
+    kpsewhich latex.fmt       # 查找格式文件（未安装时无输出）
+  #+end_src
+- *修复*：
+  #+begin_src shell
+    sudo pacman -S texlive-latex texlive-latexrecommended
+  #+end_src
+  =texlive-latex= 提供 =latex.fmt= 与基础宏包；=texlive-latexrecommended= 提供 =amsmath=、=amssymb= 等（Org 默认导言区会用到）。
+
+** 报错三：=! LaTeX Error: File 'ulem.sty' not found.=
+完整日志（=*Org Preview LaTeX Output*= buffer）：
+
+#+begin_example
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=latex)
+ restricted \write18 enabled.
+entering extended mode
+(../../../../../tmp//../../../../../tmp/orgtexMOAmRm.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2026-01-19>
+(/usr/share/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
+(/usr/share/texmf-dist/tex/latex/base/size10.clo))
+(/usr/share/texmf-dist/tex/latex/graphics/color.sty
+(/usr/share/texmf-dist/tex/latex/graphics-cfg/color.cfg)
+(/usr/share/texmf-dist/tex/latex/graphics-def/dvips.def)
+(/usr/share/texmf-dist/tex/latex/graphics/dvipsnam.def)
+(/usr/share/texmf-dist/tex/latex/graphics/mathcolor.ltx))
+(/usr/share/texmf-dist/tex/latex/base/inputenc.sty)
+(/usr/share/texmf-dist/tex/latex/base/fontenc.sty)
+(/usr/share/texmf-dist/tex/latex/graphics/graphicx.sty
+(/usr/share/texmf-dist/tex/latex/graphics/keyval.sty)
+(/usr/share/texmf-dist/tex/latex/graphics/graphics.sty
+(/usr/share/texmf-dist/tex/latex/graphics/trig.sty)
+(/usr/share/texmf-dist/tex/latex/graphics-cfg/graphics.cfg)))
+
+! LaTeX Error: File `ulem.sty' not found.
+
+Type X to quit or <RETURN> to proceed,
+or enter new name. (Default extension: sty)
+
+Enter file name: 
+! Emergency stop.
+<read *> 
+         
+l.10 \usepackage
+                {amsmath}^^M
+No pages of output.
+Transcript written on ../../../../../tmp//orgtexMOAmRm.log.
+#+end_example
+
+- *含义*：LaTeX 编译能跑通格式与基础宏包了，但缺宏包 =ulem=。
+- *根源*：=ulem= 是 Org *默认导言区*就会加载的宏包（=org.el= 中 =org-latex-default-packages-alist=，用于下划线/删除线）。它是「通用」宏包，Arch 将其归在 =texlive-plaingeneric= 中，不属于任何 =texlive-latex*= 组，因此单独缺失。
+- *修复*：
+  #+begin_src shell
+    sudo pacman -S texlive-plaingeneric
+  #+end_src
+
+** 定位缺包通用方法
+若后续再报其他 =*.sty= 缺失，用 =pacman -F= 即可查到该文件属于哪个包：
+
+#+begin_src shell
+  pacman -F ulem.sty
+#+end_src
+
+* 最终配置与使用
+** 配置清单
+#+begin_src emacs-lisp
+  ;; 1. 默认进程设为 dvisvgm
+  (setq org-preview-latex-default-process 'dvisvgm)
+
+  ;; 2. （可选）需要 shell-escape 时调整 latex-compiler
+  (with-eval-after-load 'org
+    (let ((cell (assoc 'dvisvgm org-preview-latex-process-alist)))
+      (when cell
+        (setcdr cell
+                (plist-put (cdr cell) :latex-compiler
+                           '("latex -interaction nonstopmode -shell-escape -output-directory %o %f"))))))
+#+end_src
+
+** 快捷键
+~C-c C-x C-l~ 绑定 ~org-latex-preview~，前缀参数语义：
+
+| 按键 | 作用 |
+|------|------|
+| =C-c C-x C-l= | 切换光标处片段；否则渲染当前 section |
+| 选中区域 + =C-c C-x C-l= | 渲染区域内片段 |
+| =C-u C-c C-x C-l= | 清除当前 section 预览 |
+| =C-u C-u C-c C-x C-l= | 渲染整个 buffer 全部片段 |
+| =C-u C-u C-u C-c C-x C-l= | 清除整个 buffer 预览 |
+
+* 排查方法论总结
+1. *看真实报错*：切换到 =*Org Preview LaTeX Output*= buffer，获取 =latex= 失败的具体原因。
+2. *手动复现*：用最小 =.tex= 手动执行 =latex -interaction nonstopmode ...= 并读 =.log=。
+3. *区分范围*：预览一个最简单的 ~$x$~，成功则问题在具体片段/导言区；失败则问题在环境。
+4. *定位缺包*：=pacman -F <文件名>= 查归属包，逐个补齐 texlive 组件。
+
+核心结论：=dvisvgm= 的报错往往只是表象，真正的失败在 =latex= 编译步骤；先看 =*Org Preview LaTeX Output*= 即可快速定位。
+
