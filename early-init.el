@@ -41,5 +41,3 @@
 ;; a single pass instead of scanning every package directory one by one.
 (setq package-quickstart t)
 
-(unless package-archive-contents
-  (package-refresh-contents))
