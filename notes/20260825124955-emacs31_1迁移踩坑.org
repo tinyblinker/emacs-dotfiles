@@ -1,0 +1,26 @@
+:PROPERTIES:
+:ID:       2a9a7588-3f54-4d13-a328-3f35b716989c
+:END:
+#+title: emacs31.1迁移踩坑
+#+date: 2026-08-25 12:49
+#+filetags:
+* 背景简介
+一大早,就当我正常打开archlinux执行"sudo pacman -Syu"时发现了archlinux更新了emacs31.1
+然而,当我进入emacs时,发现当我使用find-file等命令时,出现报错:
+"Symbol's value as variable is void: diff-hl-mode--set-explicitly";
+本来想用ai直接解决问题的,于是打开opencode,输入:
+"分析当前emacs31.1配置,阅读emacs上游文档,给出文档原文,
+分析:为什么我在执行"find-file"时会有报错:
+'Symbol's value as variable is void: diff-hl-mode--set-explicitly'"
+结果ai又是读源码,又是用高带宽高智商的优势拉取文档一同分析,知道耗费了我快1元的api费用;
+然而,当我仔细分析之后,发现这本就不过是一个因为emacs版本迁移而elisp packages版本过时的小问题,
+直接重新刷新软件包缓存即可,所以用ai作为辅助的度还需慎重考量
+* 分析
+"Symbol's value as variable is void: diff-hl-mode--set-explicitly"
+这是一个variable-void的错误;
+其中"diff-hl-mode--set-explicitly"是一个diff-hl-mode的"internal variable"
+因为"--"即代表内部变量;结合当前情况:刚刚更新emacs31.1,各个插件已经好几天没更新,
+所以可以知道,很可能是diff-hl插件版本太老导致的elisp不兼容问题?所以我重新eval了一遍所有配置,成功解决;
+这个过程中我借助了ai,但是只是让它解释这个报错的原因,辅助我自己进行分析,拒绝ai加入分析(因为它会借助自己的
+高带宽优势,做出各种不符合人类认知逻辑的分析,能解决问题,但不适合学习知识)
+
