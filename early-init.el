@@ -41,8 +41,5 @@
 ;; a single pass instead of scanning every package directory one by one.
 (setq package-quickstart t)
 
-;; Bootstrap: initialize package system and refresh on first run
-(package-initialize)
-
 (unless package-archive-contents
   (package-refresh-contents))
