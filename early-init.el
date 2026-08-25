@@ -41,3 +41,9 @@
 ;; a single pass instead of scanning every package directory one by one.
 (setq package-quickstart t)
 
+;; initialize the packages
+(package-initialize)
+
+;; if there is no archives, refresh the package-archives!
+(unless package-archive-contents
+  (package-refresh-contents))

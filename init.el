@@ -19,9 +19,5 @@
 (require 'diff-hl-config)         ;; Inline git change indicators
 (require 'vterm-config)           ;; Terminal emulator
 
-;; if there is no archives, refresh the package-archives!
-(unless package-archive-contents
-  (package-refresh-contents))
-
 ;; Apply the dark high-contrast modus-vivendi theme
 (load-theme 'modus-vivendi t)
