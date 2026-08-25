@@ -4,10 +4,10 @@
 (use-package org
   :defer t
   :custom
-  (org-hide-emphasis-markers t)         ;; Hide */_~= markup, show styled text only
-  (org-startup-indented t)              ;; Turn on org-indent-mode at startup
-  (org-log-into-drawer t)               ;; File state change notes into LOGBOOK drawer
-  (org-pretty-entities t)               ;; Display \alpha etc. as Unicode characters
+  (org-hide-emphasis-markers t) ;; Hide */_~= markup, show styled text only
+  (org-startup-indented t)      ;; Turn on org-indent-mode at startup
+  (org-log-into-drawer t) ;; File state change notes into LOGBOOK drawer
+  (org-pretty-entities t) ;; Display \alpha etc. as Unicode characters
   ;; Global keybindings for agenda and capture
   :bind (("C-c a" . org-agenda)
          ("C-c c" . org-capture))
@@ -38,7 +38,12 @@
 
   ;; Enable org-id for stable cross-reference links; create an ID when inserting a link interactively
   (require 'org-id)
-  (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id))
+  (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
+
+  ;; adjust Latex backend and latex's picture's scale
+  (setq org-preview-latex-default-process 'dvisvgm)
+  (setq org-format-latex-options
+        (plist-put org-format-latex-options :scale 1.5)))
 
 ;; add mermaid support for org-mode
 (use-package ob-mermaid
