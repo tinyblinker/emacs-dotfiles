@@ -1,0 +1,95 @@
+:PROPERTIES:
+:ID:       b019ee0c-29e2-45af-9014-6bb6ae54a32f
+:END:
+#+title: emacs中被overwrite-mode恶心到了
+#+date: 2026-08-26 19:40
+#+filetags:
+
+
+* 一句话总纲
+  光标停在句子中间输入文字时,新字符会吞掉光标后的字符——这是 Emacs 的
+  ~overwrite-mode~ (覆盖模式,mode-line 显示 ~Ovwrt~),和 org 无关,是全局行为。
+  它默认就绑定在 Insert 键上(~<insertchar>~ 和 ~<insert>~ 两个事件名),误按
+  Insert 就会触发。删掉这两个默认绑定即可根治。
+
+* 问题现象
+  - Point 在句子中间,输入文字会 *覆盖* (吃掉)Point 后的字符,而不是插入。
+  - 一开始误以为是 org 的"默认覆盖行为",又误以为是 ~delete-selection-mode~.
+  - 关键区分手段:看 mode-line 是否显示 ~Ovwrt~.
+
+  | 现象                               | 对应 mode              | 触发条件      |
+  |-----------------------------------+-----------------------+--------------|
+  | 选中文本被替换                      | ~delete-selection-mode~ | 存在活动选区   |
+  | 无选区也覆盖光标后字符(每按一下吃一个) | ~overwrite-mode~        | 模式开启即生效 |
+
+* 排查过程
+  1. 先问"org 写笔记默认覆盖" → 实际与 org 无关,是全局行为。
+  2. 查配置 ~/.config/emacs/~ : ~init.el~ / ~early-init.el~ / ~modules~ / 笔记文件里
+     *没有任何地方开启 ~overwrite-mode~*;倒是 ~editing-config.el:41~ 开了
+     ~delete-selection-mode~.
+  3. 用 ~emacs --batch -Q~ 实测默认绑定:
+     #+begin_src emacs-lisp
+     (where-is-internal 'overwrite-mode global-map)
+     ;; => ([insertchar] [insert])
+     #+end_src
+     证实它 *默认就绑在 Insert 键上* (之前"默认没绑定"的推断是错的)。
+  4. 之前还试过若干错误写法,报"不合法",详见下文"解决方案"里的坑。
+
+* 根因
+  Insert 键默认绑定 ~overwrite-mode~;误按 Insert 就会 toggle ~overwrite-mode~,于是输入时
+  光标后的字符被逐个替换。
+
+* 解决方案
+  删掉 Insert 键的默认绑定(两个事件名都要删,终端/GUI 下各有报法)。
+
+  坑:新 API 和 ~kbd~ 都解析不了 ~insertchar~ / ~insert~ 这种函数键名。
+
+  错误写法(报 ~key-valid-p~ "不合法"):
+  #+begin_src emacs-lisp
+  (keymap-global-unset (kbd "<insertchar>"))  ; kbd 不认 insertchar
+  (keymap-global-unset [insertchar])          ; 只接受字符串键,不接向量
+  #+end_src
+
+  老 API 写法(向量,直接调 define-key):
+  #+begin_src elisp
+  (global-unset-key [insertchar])
+  (global-unset-key [insert])
+  #+end_src
+
+  新 API 写法(直接传字符串,不要包 kbd):
+  #+begin_src elisp
+  (keymap-global-unset "<insertchar>")
+  (keymap-global-unset "<insert>")
+  #+end_src
+
+  验证:
+  #+begin_src sh
+  emacs --batch -Q --eval "(princ (where-is-internal 'overwrite-mode global-map))"
+  ;; => nil
+  #+end_src
+
+* 学到的知识点
+  - ~overwrite-mode~ 是 buffer-local 的 minor mode;想全局禁用可用
+    ~after-change-major-mode-hook~ 挂钩,但更彻底的是删掉触发它的键绑定。
+  - ~kbd~ 能解析的函数键名有限, ~insertchar~ / ~insert~ 不在其列;而
+    ~keymap-global-unset~ 内部走的是 ~key-parse~,所以 *直接传字符串* 即可,不必包 ~kbd~.
+  - ~keymap-global-unset~ 从 Lisp 调用时, ~KEY~ 必须是满足 ~key-valid-p~ 的字符串;
+    传向量要用老 API ~global-unset-key~.
+  - ~&optional~ 表示可选参数,省略时取默认值 ~nil~;它之前的参数是必需参数。
+  - Emacs Lisp *没有严格布尔类型*,约定"~nil~ 为假、任何非 ~nil~ 为真";所以文档里
+    的 BOOL / REMOVE 都是二值语义,类型签名里显示为 ~t~ (任意类型)。
+  - ~REMOVE~ 参数: ~nil~ 是 unset(把键标为未定义),非 ~nil~ 是 remove(彻底删除键条目).
+* 结果和参考资料
+- emacs-lisp配置片段
+  #+begin_src emacs-lisp
+    ;; disable overwrite-mode when enter new Major-mode
+    ;; and unbind the functions
+    (add-hook 'after-change-major-mode-hook
+              (lambda()(when(overwrite-mode)(overwrite-mode -1))))
+    (keymap-global-unset "<insert>")
+    (keymap-global-unset "<insertchar>")
+  #+end_src
+- 参考的小手册
+  ~C-h f keymap-global-unset~
+  原Help文档链接:[[help:keymap-global-unset][keymap-global-set]]
+- [[id:89b03cc2-6c95-46b5-b678-a6f66f52942b][emacs内置help系统的合理使用]]

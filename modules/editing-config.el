@@ -1,5 +1,12 @@
 ;;; -*- lexical-binding: t -*-
 
+;; disable overwrite-mode when enter new Major-mode
+;; and unbind the functions
+(add-hook 'after-change-major-mode-hook
+          (lambda()(when(overwrite-mode)(overwrite-mode -1))))
+(keymap-global-unset "<insert>")
+(keymap-global-unset "<insertchar>")
+
 ;; Auto-revert buffers when their files change on disk
 (setq global-auto-revert-non-file-buffers t)
 (global-auto-revert-mode 1)
