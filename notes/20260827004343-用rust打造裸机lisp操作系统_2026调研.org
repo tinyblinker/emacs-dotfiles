@@ -1,0 +1,492 @@
+:PROPERTIES:
+:ID:       6f35b4cb-fcc3-461c-94d2-659e4c08b1a6
+:END:
+#+title: 用Rust打造裸机lisp操作系统_2026调研
+#+date: 2026-08-27 00:43
+#+filetags:
+
+* 摘要与目标
+本项目要回答一个问题：2026 年，用 Rust 编写一个裸机（bare-metal）运行时，
+能否再造一个遵循 **Lisp Machine 哲学** 与 **Emacs 哲学** 的操作系统？
+"Lisp Machine 哲学"指：语言运行时即操作系统、单一地址空间、增量式垃圾回收、
+交互式自举开发环境（Everything is a process，Everything 可内省）。
+"Emacs 哲学"指：编辑器即外壳（editor as shell）、一切皆 buffer、键位驱动、
+lisp 可实时修改运行中的系统（extensible at runtime）。
+
+本文件包含：
+1. 现有 Lisp Machine 与 "Emacs 式操作系统" 的完整调研与链接；
+2. 技术路线的多种架构方案及优劣对比（引用成熟项目）；
+3. 推荐架构与系统实现结构（crate 划分、模块职责）；
+4. 面向"白天做编程开发自媒体、利用业余时间推进"人群的落地开发计划。
+
+** 一句话愿景
+做一个能启动到 QEMU/真机、带帧缓冲终端与 REPL、所有系统服务都可用
+Lisp 表达式（REPL/buffer 求值）驱动和热修改的微型 OS —— 本质是一个
+"可运行 Emacs" 和 "微型 Symbolics Genera" 的合体。
+
+* 现状调研：所有 Lisp Machine 与 Emacs 操作系统
+** 历史的 Lisp Machine（1980s 硬件时代）
+- 维基百科总览：[[https://en.wikipedia.org/wiki/Lisp_machine][Lisp machine (Wikipedia)]]
+  核心知识：CONS 机器（Knight machine）→ CADR → 商业化（Symbolics / LMI / TI / Xerox）；
+  36/40-bit 字长、tagged architecture、CDR coding、硬件级类型检查、增量 GC；
+  操作系统全部用 Lisp 写成。
+- **MIT 系**：MIT CADR 源码已于 2005 年开源
+  - Lisp Machine 手册（Chinual）HTML 版：[[https://hanshuebner.github.io/lmman/frontpage.html][Lisp Machine Manual 6th ed (HTML)]]
+  - MIT 论文/备忘：[[https://dspace.mit.edu/handle/1721.1/5751][LISP Machine Progress Report (1977)]]
+- **Symbolics**（1980-1996）：[[https://en.wikipedia.org/wiki/Symbolics][Symbolics (Wikipedia)]]
+  - 产品线：LM-2 → 3600 系列 → Ivory 单芯片；OS = Genera（1984 命名），
+    从微码到系统全部 Lisp；编辑环境 = Zmacs（基于 ZWEI 文本包）。
+  - 现任公司仍在卖 Open Genera：[[http://www.symbolics-dks.com/][symbolics-dks.com]]
+  - Symbolics 文档归档：[[http://www.bitsavers.org/pdf/symbolics/][bitsavers: Symbolics]]
+  - 博物馆：[[http://www.ifis.uni-luebeck.de/~moeller/symbolics-info/symbolics.html][Ralf Möller's Symbolics Lisp Machine Museum]]
+- **LMI**（Lisp Machines Inc.）与 **TI Explorer**：
+  - [[https://en.wikipedia.org/wiki/Lisp_Machines][Lisp Machines, Inc. (Wikipedia)]]
+  - [[https://en.wikipedia.org/wiki/TI_Explorer][TI Explorer (Wikipedia)]]
+- **Xerox / Interlisp-D**：硬件（Dolphin/Dorado/Dandelion/Daybreak）与软件
+  - [[https://en.wikipedia.org/wiki/Interlisp][Interlisp (Wikipedia)]]
+  - ROOMS 窗口管理器、NoteCards 超文本、图形界面先驱。
+- 相关语言：[[https://en.wikipedia.org/wiki/Lisp_Machine_Lisp][Lisp Machine Lisp]]、[[https://en.wikipedia.org/wiki/ZetaLisp][ZetaLisp]]、[[https://en.wikipedia.org/wiki/CLIM][CLIM]]。
+- 网络：[[https://en.wikipedia.org/wiki/Chaosnet][Chaosnet]]（Lisp Machine 发明，先于以太网商用）。
+
+** 今天还能跑起来的 "Lisp Machine"（仿真/软件化）
+- **Open Genera + Virtual Lisp Machine（VLM）**：Ivory 指令集被软件仿真到 Alpha，
+  整包卖作 Open Genera。现在跑在现代 Linux 上的便捷方案：
+  - [[https://github.com/ynniv/vagrant-opengenera][ynniv/vagrant-opengenera]]（在 macOS/Linux 上跑 Open Genera 的脚本，~300 star）
+  - 源码存档：[[https://github.com/abcdlsj/opengenera_archive][opengenera_archive]]
+  - 一键建模拟器 VM：[[https://github.com/lassik/ansible-genera][lassik/ansible-genera]]
+  - 背景：[[https://en.wikipedia.org/wiki/Open_Genera][Open Genera (Wikipedia)]]
+- **Medley Interlisp**：Xerox Lisp Machine 的完整软件栈被移植到虚拟机（Maiko，C 写的 VM），
+  是活着的、可在网页/桌面跑的完整 Lisp Machine 软件环境。
+  - 官网：[[https://interlisp.org/][interlisp.org]]
+  - 主仓：[[https://github.com/Interlisp/medley][Interlisp/medley]]（环境+wiki+issue，~455 star）
+  - 虚拟机实现：[[https://github.com/Interlisp/maiko][Interlisp/maiko]]（C 写的 Medley VM）
+- **开源仿真器**：
+  - CADR 仿真：[[http://www.unlambda.com/cadr/][CADR Emulation (unlambda)]]
+  - Symbolics L-machine 仿真：[[http://www.unlambda.com/l-machine/][Symbolics L Lisp Machine Emulation]]
+  - TI Explorer 仿真（Meroko / Nevermore）：[[http://www.unlambda.com/lisp/meroko.page][Meroko]]、[[http://www.unlambda.com/lisp/nevermore.page][Nevermore]]
+  - Explorer-II E3 项目：[[http://www.unlambda.com/lisp/e3.page][E3 Project]]
+  - TI Explorer 仿真器移植到 macOS：[[https://github.com/sethk/meroko][sethk/meroko]]
+  - Ivory 分析/仿真研究：[[https://github.com/unya/ivory][unya/ivory]]
+- **现代人自制的 LISP machine（软核/仿真）**：
+  - [[https://github.com/caar-machine/caar][caar-machine/caar]]："the modern LISP machine"，一个以 Lisp/Scheme 风格指令集的栈机仿真器（C/Meson）。
+
+** 现代从零写的 Lisp 操作系统
+- **Mezzano** —— 这是最关键的参考项目：一个用 Common Lisp 从头写的、直接跑在
+  x86-64 裸机上的操作系统（微内核+驱动+窗口+编译器全部 CL，自带 GC、FASL、
+  用自身引导）。等于"2020 年代版 Genera"。
+  - [[https://github.com/froggey/Mezzano][froggey/Mezzano]]（~3.9k star）
+  - 上面还跑过 Emacs 风格编辑器：[[https://github.com/burtonsamograd/med][med（Mezzano 上的 Emacs-like 编辑器）]]
+- **Blastoff**（John Cowan 的 Common Lisp x86 内核实验）：原仓库 github.com/johnwcowan/blastoff
+  目前返回 404（可能已下架/迁移），网上仍可搜到旧记录；列为"参考过的失败/低维护案例"。
+- 其他历史：PicoLisp 硬件实现 PilMCU（[[http://www.mail-archive.com/picolisp@software-lab.de/msg04823.html][公告]]）；
+  日本的 FACOM-alpha / NTT ELIS / NEC LIME 等（见维基 Lisp machine 词条的参考资料）。
+
+** Emacs 操作系统方向
+Emacs 自 Stallman 起就有"Emacs 就是一个操作系统"的说法，它与 Lisp Machine 是同一血脉：
+- **Zmacs / ZWEI** —— 真正的 Lisp Machine 上的 Emacs：
+  - [[https://en.wikipedia.org/wiki/Zmacs][Zmacs (Wikipedia)]]；Symbolics 页面上"Zwei was Eine initially" 的递归缩写故事。
+  - Stallman 自述在 Lisp Machine 上开发 GNU Emacs 的经历：
+    [[https://www.gnu.org/gnu/rms-lisp.html][My Lisp Experiences and the Development of GNU Emacs (RMS)]]
+- **EXWM**（Emacs X Window Manager）：Emacs 当桌面环境/窗口管理器用，
+  "键盘驱动的操作系统外壳"的现代最佳实践：
+  - [[https://github.com/emacs-exwm/exwm][emacs-exwm/exwm]]（~660 star）
+- **StumpWM**：Common Lisp 写的窗口管理器，理念同 EXWM：
+  - [[https://github.com/stumpwm/stumpwm][StumpWM]]（Lisp 驱动整个桌面）
+- **Guix System**：GNU 的 GNU/Linux 发行版，系统级用 Guile（Scheme）描述，
+  是"Lisp 哲学作用于整个系统配置"的现代例子：
+  - [[https://guix.gnu.org/][guix.gnu.org]]
+- **EmacsLispOS**：一个把 Emacs Lisp 解释器直接跑在裸机 x86 上的概念验证项目
+  （历史上由 Jim Whitbeck 发起，一度位于 github.com/jwhitbeck/emacslispos）。
+  该仓库目前（2026 调研时）返回 404，网上仍可找到旧讨论与镜像；作为"Emacs 上裸机"
+  的直接先例值得在写背景文章时引用，但不要依赖其代码。
+- 相关讨论/文章：Emacs 哲学一手材料是 GNU 手册
+  [[https://www.gnu.org/software/emacs/manual/html_mono/elisp.html][GNU Emacs Lisp Reference Manual]]。
+
+** Rust 裸机/操作系统生态（可作为地基）
+- **Redox OS**：Rust 写的 Unix-like 微内核 OS，驱动全用户态、scheme 抽象资源，
+  是最完整可借鉴的 Rust 微内核参考。
+  - [[https://www.redox-os.org/][redox-os.org]]；[[https://gitlab.redox-os.org/redox-os/redox/][GitLab 主仓]]；[[https://doc.redox-os.org/book/][Redox Book]]
+- **Theseus OS**：耶鲁的研究型 OS，"intralingual design"——把资源管理推进编译期，
+  与"运行时即一切"的 Lisp 哲学有异曲同工之妙。
+  - [[https://github.com/theseus-os/Theseus][theseus-os/Theseus]]（~3.2k star）；[[https://theseus-os.github.io/Theseus/book/index.html][Theseus Book]]
+- **Tock**：Cortex-M/RISC-V 上的安全嵌入式 OS，Rust 内核 + 基于 memory protection
+  的应用隔离 + capability 驱动模型，是小内存/无 MMU 场景的参考：
+  - [[https://github.com/tock/tock][tock/tock]]（~6.4k star）；[[https://book.tockos.org/][Tock Book]]
+- **写作 OS in Rust 系列教程（起步必读）**：[[https://os.phil-opp.com/][os.phil-opp.com]]
+- 核心 crate：
+  - [[https://github.com/rust-osdev/x86_64][rust-osdev/x86_64]]（x86_64 硬件编程库，~940 star）
+  - [[https://github.com/rust-osdev/bootloader][rust-osdev/bootloader]]（纯 Rust BIOS/UEFI 引导器，~1.7k star）
+  - [[https://github.com/rust-osdev/uefi-rs][rust-osdev/uefi-rs]]（UEFI 接口）
+  - 更多工具在 [[https://github.com/rust-osdev][rust-osdev org]]
+- 裸机运行时生态：[[https://github.com/rust-embedded/embedded-hal][embedded-hal]]、[[https://github.com/embassy-rs/embassy][Embassy（异步裸机）]]、[[https://wiki.osdev.org/][OSDev Wiki]]
+
+** Rust 里的 Lisp/Scheme 运行时（语言运行时选型的关键）
+- **Stak** —— 最关键的依赖候选：R7RS Scheme 的迷你实现，完全 no_std + no_alloc，
+  专为嵌入式/裸机设计，可嵌入 Rust 内核。支持 portable/continuation 等。
+  - [[https://github.com/raviqqe/stak][raviqqe/stak]]（~135 star）
+- Rust 实现的 Lisp VM 参考：[[https://github.com/Emmanuel-R8/Rust-Machine][Emmanuel-R8/Rust-Machine]]
+  （"Rust implementation of a Virtual Lisp Machine"）。
+- 若不用现成解释器而是自己写一个，可参考 [[https://en.wikipedia.org/wiki/Scheme_(programming_language)][Scheme (Wikipedia)]] 标准族
+  （R7RS/R5RS）来缩小范围。
+
+* 为什么 Lisp Machine 不流行了：硬件之死与思想之困
+写这份调研前必须先回答两个"为什么"：一是为什么当年的 Lisp Machine 硬件凉了，
+二是为什么连 Lisp Machine 的"操作系统思想"也没有成为主流。
+两者结论不同——前者是商业/技术经济学的失败，后者是核心假设与现代计算环境的冲突。
+理解这些，才能论证本项目方案（尤其是方案 E 的折中）为什么存在。
+
+** 为什么 Lisp Machine 硬件不流行了
+1. AI 寒冬砸碎市场：Lisp Machine 主要客户是 AI 研究/商用（专家系统），
+   1980s 末 AI 泡沫破裂，需求骤减，养不起高成本硬件公司
+   （见 [[https://en.wikipedia.org/wiki/Lisp_machine][Lisp machine]] 词条 "End of the Lisp machines" 章节）。
+2. 摩尔定律 + 微处理器革命：普通 PC/工作站（Intel、Sun、MIPS RISC）性能几年内
+   反超专用 Lisp 芯片（3600 约 5MHz，Ivory 时代的优势也被追平），
+   "为 Lisp 造硬件"的溢价消失。
+3. 编译器进步：通用机上 Common Lisp 编译器（Lucid 等）优化后跑得足够快，
+   不再需要硬件微码辅助——语言从"硬件特性"变回"软件特性"。
+4. 经济模型脆弱：单用户高价工作站、批量小、毛利依赖专利硬件；
+   Symbolics 内部内斗与地产失败、LMI 破产（K-Machine 未上市）直接出局。
+5. 生态被锁定：软件与硬件深度耦合、价格昂贵，而通用平台生态
+   （Unix、C、PC 软件）快速扩大，人才和资本都流向那里。
+
+   结局很说明问题：硬件死了，软件活了——Genera 被仿真成 Open Genera、
+   Xerox 栈变 Medley、现代 Mezzano 在 x86 裸机上重造 Genera。
+   这正是本项目切入的叙事角度：用 Rust 做"软件化的 Lisp Machine"，
+   恰好绕开了当年杀死它的三个因素（专用硬件、高价、封闭生态）。
+
+** 为什么 Lisp Machine 思想的操作系统不流行
+注意：这个"思想"并没有消亡，它被主流语言运行时分层吸收了，
+**唯独在"内核层"被 Unix 模型彻底排除**。不流行的原因是几条深层假设冲突：
+1. 单地址空间 vs 现代安全模型：Lisp Machine 的默认假设是"全系统可信、
+   单用户、联网前时代"；现代 OS 的头号职责是防御不可信代码（浏览器、
+   多租户云、恶意程序），靠进程隔离、ring 保护、capability。
+   单地址空间 + 全 Lisp 等于放弃这条防线，与时代逆流——Mezzano 至今
+   也不得不承认它没有真正的进程边界。
+2. 运行时即内核 vs 分层信任：主流是"小内核 + 不可信用户程序 +
+   语言运行时当应用"（Unix/Windows）；Lisp Machine 是"运行时即一切，
+   安全靠运行时错误检查"。前者每层都小、可形式化验证
+   （seL4、Rust 安全内核是这条路的顶点），后者要求整条自举链都可信，
+   无法分层审计。
+3. 思想被"稀释继承"了，所以没人觉得缺：
+   - GC、JIT、运行时管理、REPL/交互式开发 → 被 JVM、JS/V8、.NET 全盘吸收；
+   - 容错、热更新、live 系统 → 被 Erlang/OTP、Smalltalk（Pharo/Squeak）继承；
+   - "软件即环境、一切皆可扩展" → 被 Emacs 本身继承
+     （GNU Emacs 就是"Lisp Machine 思想 + C 内核"的妥协产物）。
+   换句话说：思想在运行时层大获成功，只是不再叫"操作系统"。
+4. Unix 的生态锁定 vs 自洽封闭：Lisp Machine 是"整体环境"，自洽但封闭；
+   Unix 是"丑但开放的壳 + 小工具"。POSIX/ABI/文件系统/编译器生态最终让
+   任何非 Unix 思想的 OS 都失去人才与库。加上全 Lisp 系统需要一支懂
+   自举链的精英团队（历史上只有 MIT/Symbolics 那批人），Genera 开源后
+   至今几乎无人能大幅演进，证明了这个技能池不可再生。
+5. 单用户交互式假设 vs 服务器时代：Lisp Machine 假设"一台昂贵的交互式
+   图形工作站 + 一人专用"；1990s 后主流是分布式多租户服务器，强调批处理、
+   可运维、隔离；REPL 驱动的管理直到 Erlang/OTP 才被"翻译"到服务器端。
+
+   一句话总结：Lisp Machine 的 OS 思想输给了"隔离 + 安全 + 生态"三个时代的
+   默认假设，但它的核心技术（GC、运行时、热更、REPL）早被主流世界拆散并采纳了。
+
+** 对本项目设计的意义（引向方案 E）
+以上分析直接决定了本项目不该做"原教旨的单地址空间全 Lisp 内核"：
+- 现代假设（可调试、可重启、崩溃不扩散）必须保留 → 由 Rust 平台层承担；
+- 原教旨体验（共享世界、热修改、REPL 即一切）在 Lisp 层内部实现 →
+  单地址空间只存在于 Lisp VM 之内。
+这正是方案 E"Rust 骨架 + 单地址空间 Lisp 世界"存在的原因：
+用一条清晰的信任边界，同时拿到哲学纯度与现代安全性的部分收益。
+若在对外内容里补上本节的分析，还能顺带解释清楚这个折中设计为什么长这样。
+
+* 技术路线：架构选型方案与优劣对比
+** 关键设计决策维度
+写"Lisp Machine 哲学"的 OS，必须先想清楚几个与普通 OS 不同的决策：
+1. 地址空间模型：单地址空间（Lisp machine 原教旨，全系统共享 GC 堆）vs 多进程隔离；
+2. 语言运行时位置：在内核内（运行时即内核）vs 用户态服务；
+3. 内核语言：全 Rust vs 全 Lisp vs 混合（Rust 骨架 + Lisp 逻辑）；
+4. 并发模型：进程/线程 vs 栈式协程 vs continuation（Lisp machine 的 process）；
+5. 存储与持久化：文件系统 vs 单一镜像（sysout/世界镜像，Genera 与 Medley 的做法）；
+6. 交互入口：REPL / 编辑器即外壳 / 演示框架。
+
+** 方案 A：Rust 微内核 + 用户态 Lisp 运行时（"Redox + Stak"）
+- 参考：Redox 微内核 + 在其上跑一个 Rust 实现的 Scheme（Stak）作为首个用户程序/Shell。
+- 结构：内核（Rust, 调度/内存/IPC/驱动）→ 用户态进程 → Lisp 解释器进程作为 1 号进程。
+- 优点：内核安全性好（Rust 内存安全）；进程隔离；社区成熟（Redox 全部开源可抄）；
+  与主流 OS 概念对齐，教学/内容产出容易；Lisp 进程崩溃不至于死机。
+- 缺点：进程边界 + 序列化/拷贝的 IPC 破坏"单地址空间、全系统共享对象"的 Lisp 原教旨；
+  GC 跨进程难做；每进程一个解释器堆，对象共享受限；Lisp machine 的"Everything
+  is an object in one space" 体验打折。
+- 适合：想稳妥起步、重视隔离与可维护性、内容上强调"OS + 语言运行时"双线的人。
+
+** 方案 B：Rust 单体内核 + Lisp 作为超级 Shell/桌面（"Linux + EXWM" 路线）
+- 参考：常规 Rust 单体内核（phil-opp 风格）+ 用户态 Lisp 运行时当桌面/Shell，
+  窗口与进程管理由 Lisp 控制（EXWM 在 Linux 上的角色搬到自己的内核上）。
+- 优点：开发路径最平坦（phil-opp 教程 + EXWM 思路都可抄）；Rust 内核只管传统 OS 职责；
+  Lisp 只负责"外壳体验"，风险隔离好。
+- 缺点：Lisp 仍旧是"应用"而非"系统"，哲学上最不纯；热修改系统服务依然受限；
+  两个世界（Rust 内核服务 vs Lisp 服务）之间的桥接代码多。
+- 适合：以"做出能用的桌面型微型 OS"为首要目标，哲学纯度次之。
+
+** 方案 C：全 Lisp（Mezzano 路线），Rust 只做引导
+- 参考：Mezzano —— 内核、驱动、编译器、窗口全部 Common Lisp，x86-64 裸机。
+  若走这条路，Lisp 需要从引导扇区一路写到底层。
+- 优点：哲学最纯正（真正的现代 Genera）；无进程/语言边界，GC 覆盖全系统；
+  热修改、单镜像持久化天然成立；内容是"我在 2026 年重写 Genera"。
+- 缺点：等于把 Mezzano 重做一遍——工程量巨大（Mezzano 是多年全职+社区积累）；
+  Common Lisp 在裸机上需要自举编译器和汇编器；Rust 在这里几乎没有戏份（用户要求用 Rust，
+  此方案与题意冲突）；裸机驱动调试极痛苦。
+- 适合：只作为"最终愿景"和内容叙事（讲 Mezzano 是如何做到的），不建议真刀真枪。
+
+** 方案 D：运行时即内核 / 单地址空间语言 OS（Theseus/Tock 的"语言即系统"思路 + Lisp VM 内嵌内核）
+- 参考：Theseus（把资源管理推进语言/编译器）+ Tock（capability 模型）+ Lisp machine
+  （单地址空间 tagged 对象）。
+- 结构：Rust 内核 = 引导 + 最小硬件抽象（IDT/GDT/分页/驱动框架）+ 内嵌 Lisp VM；
+  内核里跑一个解释器作为"系统进程 0"，所有系统服务用 Lisp 表达；Rust 只提供
+  原语（syscall 的 Lisp 绑定、帧缓冲 blit、键盘事件队列）。
+- 优点：语言运行时即操作系统，哲学纯度接近方案 C；但安全边界由 Rust 层保留
+  （Lisp 代码经 Rust 提供的 capability 接口访问硬件）；单地址空间共享对象、
+  全系统 GC 可实现；Rust 承担全部"不安全"硬件活，Lisp 承担全部逻辑 —— 分工清晰，
+  是"Rust 写裸机运行时"叙事的最强版本。
+- 缺点：内核态解释器崩溃 = 整机挂（可用看门狗/重启缓解）；GC 的 stop-the-world
+  在中断/驱动上下文的处理是硬骨头；Lisp 代码与 Rust 层的 FFI 桥需要精心设计；
+  调试困难（需要 QEMU + GDB 全栈）。
+- 适合：追求哲学纯度、敢啃硬骨头、愿意把"单地址空间语言 OS"做成长期项目的人。
+
+** 方案 E：混合分层（推荐路线）：Rust 微内核骨架 + 单地址空间 Lisp 世界
+- 结构：启动用 Rust（bootloader crate + x86_64 crate），内核 = 两层：
+  1. Rust 层：引导、分页（初始建一张扁平映射）、中断、时钟、串口/键盘、
+     帧缓冲驱动、分配器——一个"最小硬件平台"；
+  2. Lisp 层（内嵌 Stak 或自写 VM）：进程调度、窗口/buffer 管理、文件/镜像、
+     所有应用逻辑。Lisp 世界是一个"被 Rust 平台承载的虚拟机"，
+     但 Lisp 层内部是单地址空间、共享对象、增量 GC。
+- 它把方案 A 的"隔离边界"换成方案 D 的"解释器即 1 号进程"，
+  并保留 Rust 的安全原语层——是工程可行性与哲学纯度之间的最佳折中。
+- 优点：Rust 只写最难的、可测试的硬件部分；Lisp 层用现成解释器起步（Stak no_std），
+  之后可自写解释器；演示效果好（开机 → 帧缓冲打印 → REPL → 热改系统）；内容可分成
+  "Rust 平台篇"与"Lisp 世界篇"两条线。
+- 缺点：仍要处理解释器与中断/异步事件（键盘）的桥接；增量 GC 与并发调度是难点；
+  规模仍需克制（否则时间失控）。
+- 适合：大多数想兼顾"能跑出来"与"哲学正确"的人。
+
+** 方案对比总表
+| 方案 | 内核语言   | 运行时位置 | 哲学纯度 | 工程难度 | 崩溃影响     | 参考项目             | 叙事性 |
+|-----+-----------+-----------+---------+---------+-------------+---------------------+-------|
+| A   | Rust      | 用户态     | 中      | 中      | 低(可重启)   | Redox, Stak         | 强    |
+| B   | Rust      | 用户态     | 低      | 低      | 低          | phil-opp, EXWM      | 中    |
+| C   | Lisp      | 内核       | 最高     | 极高     | 高          | Mezzano             | 极强   |
+| D   | Rust+Lisp | 内核       | 高      | 高      | 高(可看门狗) | Theseus, Tock, Stak | 强    |
+| E   | Rust+Lisp | 内核(VM)   | 高      | 中高     | 中          | Redox+Stak+Mezzano  | 强    |
+
+** 推荐结论
+推荐 **方案 E** 起步，第一版按"单地址空间、单一 VM、1 号进程即 REPL"落地；
+后续若需要，再把驱动/子系统逐步从 Rust 层"下沉"到 Lisp 层。
+备选：若时间非常紧张，先做 **方案 B** 的最小内核 + 串口/帧缓冲 REPL，
+再逐步向 E 演进——两者代码结构可兼容（E 只是把 B 里的 Lisp 用户进程搬进内核）。
+
+* 系统实现结构（推荐方案 E 的落地细节）
+** 仓库/Crate 布局（workspace）
+#+begin_src text
+  lisp-machine-os/
+  ├── Cargo.toml                # workspace
+  ├── rust-toolchain.toml       # nightly + x86_64-unknown-none + llvm-tools
+  ├── boot/                     # 引导配置（bootloader crate 的配置 / limine）
+  ├── os/                       # 造镜像的宿主工具（build.rs 用 bootloader 生成 ISO/磁盘镜像）
+  ├── kernel/                   # Rust 平台层（no_std）
+  │   ├── src/
+  │   │   ├── main.rs           # entry_point，调用各模块 init
+  │   │   ├── arch/x86_64/      # IDT/GDT/分页/中断/时钟（APIC、PIT）
+  │   │   ├── memory.rs         # 物理/虚拟内存分配（bump -> frame allocator）
+  │   │   ├── serial.rs         # 串口输出（调试日志）
+  │   │   ├── keyboard.rs       # PS/2 键盘驱动 -> 事件队列
+  │   │   ├── framebuffer.rs    # bootloader 给的帧缓冲 -> 字符/位图绘制
+  │   │   └── lisp/             # 内嵌 Lisp 运行时桥接层
+  │   │       ├── vm.rs         # Stak 或自写 VM 的初始化
+  │   │       ├── primitives.rs # 暴露给 Lisp 的内建函数（keyboard/display/clock）
+  │   │       └── scheduler.rs  # Lisp 侧 process 与 Rust 侧事件循环的桥
+  ├── lisp/                     # 系统用 Lisp 源码（随镜像打包）
+  │   ├── kernel.scm            # 引导脚本：建 REPL、建窗口
+  │   ├── buffer.scm            # 编辑器内核（buffer/point/mark/kill-ring）
+  │   ├── minibuffer.scm
+  │   ├── modes.scm             # 编辑模式（lisp-mode / text-mode 等）
+  │   └── commands.scm          # 命令表（键位 -> 命令）
+  └── docs/                     # 设计文档 + 内容选题
+#+end_src
+
+** 各模块职责与接口
+| 模块         | 语言  | 职责                                     | 对外接口                      |
+|-------------+------+-----------------------------------------+------------------------------|
+| boot        | Rust | 引导到 64 位长模式，交 kernel              | BootInfo（内存图/帧缓冲/栈）    |
+| arch        | Rust | IDT/GDT/分页、时钟、中断转发               | 事件队列 API                  |
+| framebuffer | Rust | 帧缓冲绘制（字符字形 + 矩形填充 + 光标）     | (draw-text x y str color) 等 |
+| keyboard    | Rust | PS/2 扫描码 -> 键位事件队列（含 modifier） | (read-key) / 事件回调         |
+| lisp vm     | Rust | 解释器初始化、对象堆、GC 钩子               | 求值 + REPL                   |
+| primitives  | Rust | 把硬件能力绑定成 Lisp 内建函数             | 一组 (foo ...) 内建           |
+| lisp 层     | Lisp | 调度/窗口/编辑器/命令/镜像——全部系统逻辑     | REPL、eval、热加载            |
+
+** 关键设计要点（直接映射两条哲学）
+- 单地址空间：Lisp VM 用一个自管堆（C 数组或整段分配的内存），
+  所有对象带 tag；不做进程隔离，做 "world / save-image" 持久化
+  （对齐 Genera 的 sysout 与 Medley 的 lisp.virtualmem）。
+- 运行时热修改：提供 (reload 'module) 与 (eval-buffer) 原语，让任何运行中的
+  buffer/文件被求值即生效（对齐 Emacs 的 M-x eval-buffer / load-file）。
+- 编辑器即外壳：开机直接进入一个全屏 buffer（*scratch* 的 OS 版），
+  命令循环 = 键位驱动的 minibuffer + 命令表（对齐 Emacs 架构，参考 ZWEI）。
+- Buffer 即一切：窗口、日志、REPL、文件都抽象成 buffer（对齐 Emacs 哲学）。
+- Process = 轻量续延/协程：Lisp 侧用 VM 的 continuation 实现进程，
+  由 Rust 的时钟中断驱动时间片（对齐 Genera process 模型）。
+- 增量/分代 GC：第一阶段先做简单的 mark & sweep（在 REPL 空闲时触发），
+  第二阶段升级为分代（对齐 Symbolics 的分代 scavenging 创新点）。
+
+** 最小可用依赖清单
+- rust-toolchain：nightly，target = x86_64-unknown-none（+ UEFI target 若走 UEFI）
+- 依赖：bootloader / bootloader_api、x86_64、uart_16550（串口）、
+  linked_list_allocator / spin、bitflags、volatile
+- Lisp：stak（no_std + no_alloc）或自写 mini-Scheme（~2-4k 行即可跑通核心）
+- 工具：qemu-system-x86_64、make、cargo-make/just（可选）
+  
+* 开发计划（面向"白天做编程开发自媒体"的作息）
+** 作息与方法论假设
+- 白天：写代码 + 做内容（公众号/B 站/YouTube/X/博客）；
+- 可自由支配时间约每周 10-15 小时（晚上 + 周末）；
+- 内容策略：把"开发这个 OS"本身做成系列（标题可蹭热点，如
+  "我用 Rust 和 Lisp 造了一个操作系统"、"2026 年重写 Genera"）；
+- 铁律：每个里程碑都必须**可演示、可录屏**，防止项目烂尾，素材即内容。
+
+** 阶段 0：选题与预热（约 1-2 周）
+- 目标：完成本文档的调研消化 + 发布 1-2 期"背景科普"内容。
+- 产出：
+  - 一篇"Lisp Machine 简史 + 为什么我要用 Rust 重造"的文章/视频
+    （引用本文件调研部分，天然有料）；
+  - 一篇"Mezzano / Redox / Theseus / Stak 横向对比"。
+- 技术动作：装好 rustup nightly、qemu、克隆 phil-opp 教程跑通 hello world 内核。
+- 风险：无（纯调研，不写系统代码）。
+
+** 阶段 1：最小可启动内核（约 2-4 周）
+- 目标：QEMU 里启动，串口打印 "LISP> "，能按键回显。
+- 里程碑：
+  1. bootloader + entry_point，打印到串口（参考 os.phil-opp.com 前三章）；
+  2. x86_64 crate 建 IDT + 键盘 IRQ，事件队列；
+  3. 帧缓冲初始化 + 简单字符输出 + 光标；
+  4. PS/2 键盘事件 -> 屏幕上回显一行。
+- 内容产出：每完成一小步发一条演示（启动瞬间是天然的"名场面"）。
+- 风险：IDT/APIC 初始化 bug —— 用 QEMU + GDB 模板，先抄 phil-opp 代码。
+
+** 阶段 2：内嵌 Lisp 运行时 + REPL（约 4-8 周）
+- 目标：Rust 内核里跑起 Stak（或自写 mini-Scheme），开机即进 LISP> REPL，
+  能求值 (+ 1 2)、能调用 (draw-text ...) 在帧缓冲上画字。
+- 里程碑：
+  1. 把 Stak 嵌入 kernel（no_std 编译、分配器对接）；
+  2. 定义 primitives 桥（display/serial/clock）；
+  3. Lisp 层引导脚本 kernel.scm：初始化 REPL；
+  4. 串口/帧缓冲双通道交互（串口调试、屏幕展示）。
+- 内容产出："我在裸机上跑起了 Scheme"视频；讲解"语言运行时 = 你的第一个服务"。
+- 风险：Stak 的 no_alloc 模型与"想要一个堆"的冲突——
+  若 Stak 受限，则换自写解释器（先写好 R5RS 子集的 spec）。
+
+** 阶段 3：编辑器内核（buffer/命令/minibuffer）（约 4-8 周）
+- 目标：做出"Emacs 最小内核"：buffer、point/mark、kill-ring、
+  键位 -> 命令表、minibuffer 求值、C-x C-s 语义（保存到内存镜像）。
+- 里程碑：
+  1. buffer 抽象 + 光标移动（C-f/C-b/C-n/C-p/M-f...）;
+  2. 命令表注册机制（Emacs 的 define-key / command 模式）;
+  3. minibuffer + eval-buffer：在 buffer 里敲 Lisp，C-x C-e 立即执行；
+  4. 在屏幕底部做 mode line（显示 buffer 名/位置）;
+  5. 写一个 lisp-mode 高亮（最低限度）。
+- 内容产出：整个阶段就是天然系列："我用 Emacs 的架构写了个 OS 编辑器"。
+- 风险：多 buffer 的渲染/滚动 —— 先固定单 buffer 全屏，再开窗口。
+
+** 阶段 4：窗口系统与并发（约 4-8 周）
+- 目标：帧缓冲上做多窗口（对齐 Zmacs 的 stacked windows / EXWM 的 tiling），
+  Lisp 层做轻量进程（continuation 时间片）。
+- 里程碑：
+  1. 窗口树数据结构（buffer 列表 -> 窗格 -> 屏幕分区）；
+  2. Lisp 层 scheduler：进程 = 可保存/恢复的执行点，时钟中断驱动切换；
+  3. 让 REPL、编辑器、一个 demo 进程（如时钟）三窗口共存；
+  4. (save-world) 把整个 Lisp 世界 dump 进内存/镜像文件，重启恢复。
+- 内容产出："让 OS 里跑三个并发 Lisp 进程"演示；
+  "单镜像持久化：Lisp machine 的 sysout 体验"。
+- 风险：进程切换与 GC 的交互（GC 时不能切进程）——先做成全局 stop-the-world GC。
+
+** 阶段 5：持久化、硬件与社区化（长期，3-6 个月+）
+- 目标：把"世界镜像"落到磁盘（ATA/IDE 驱动或简单块设备驱动）、
+  支持 UEFI 启动、在真实 ThinkPad/树莓派（若走 ARM）上点亮。
+- 里程碑（任选子集）：
+  1. IDE/AHCI 驱动 -> 保存/加载 world image；
+  2. 网络（e1000 驱动，Ne2000 或 virtio 起步）做 telnet/chaosnet 式演示；
+  3. 把项目开源，写 CONTRIBUTING，开 issue 路线图；
+  4. 英文站 + 中文内容的同步运营。
+- 内容产出：开源日 + 演讲投稿（Lisp meetup / Rust meetup / OS dev 社区）。
+
+** 里程碑甘特（粗）
+| 阶段 | 时间预算 | 可演示产出               | 内容选题            |
+|-----+---------+-------------------------+--------------------|
+|   0 | 1-2 周  | 调研文档 + 环境就绪       | 科普两篇            |
+|   1 | 2-4 周  | 启动到 LISP> 可回显       | 名场面视频 + 起步文章 |
+|   2 | 4-8 周  | 裸机 Scheme REPL         | 系列：运行时内嵌     |
+|   3 | 4-8 周  | 最小 Emacs（buffer+命令） | 系列：编辑器即外壳    |
+|   4 | 4-8 周  | 多窗口多进程 + 世界镜像    | 系列：并发与持久化    |
+|   5 | 长期     | 真机/磁盘/网络            | 开源与演讲          |
+
+** 时间管理的具体建议
+- 每周固定 2-3 个"开发块"（每次 1.5-2 小时），一个"内容块"；
+- 每个开发块只做一件事（写一个内建函数、修一个渲染 bug），结束前 commit；
+- 每个里程碑先写"验收脚本"（如 shell 里自动跑 qemu + 截图），保证可复现；
+- 内容产能 = 里程碑/演示记录，优先录"从无到有"的过程，而非成品讲解；
+- 预留 20% 时间做"踩坑记录"，这类内容（QEMU 调试、Stak 集成坑）往往最火。
+
+* 风险与对策
+| 风险                         | 影响 | 对策                                                 |
+|-----------------------------+-----+-----------------------------------------------------|
+| 项目过大烂尾                  | 高  | 强制小里程碑 + 每阶段可演示；砍特性优先级                |
+| 解释器集成困难（Stak 限制）    | 中  | 预案：自写 mini-Scheme（4-8 周）；先定义最小语义 spec    |
+| GC 与并发交互 bug            | 高  | 先全局 STW GC；调度只在安全点切换；QEMU + GDB + 单元测试 |
+| 内核调试耗时                  | 高  | 串口日志 + 断言全开；先跑 QEMU，最后才碰真机             |
+| 内容与开发抢时间              | 中  | 内容即开发副产品（录屏 + 截图），不额外加产               |
+| 版权/历史名称（Genera 商标等） | 低  | 项目自命名，别用 Symbolics/Genera 商标做产品名          |
+
+* 附录：链接总表
+- Lisp Machine 历史：[[https://en.wikipedia.org/wiki/Lisp_machine][Wikipedia: Lisp machine]]、
+  [[https://en.wikipedia.org/wiki/Symbolics][Wikipedia: Symbolics]]、
+  [[https://en.wikipedia.org/wiki/TI_Explorer][Wikipedia: TI Explorer]]、
+  [[https://en.wikipedia.org/wiki/Interlisp][Wikipedia: Interlisp]]、
+  [[https://en.wikipedia.org/wiki/Lisp_Machine_Lisp][Wikipedia: Lisp Machine Lisp]]、
+  [[https://en.wikipedia.org/wiki/ZetaLisp][Wikipedia: ZetaLisp]]、
+  [[https://en.wikipedia.org/wiki/Open_Genera][Wikipedia: Open Genera]]、
+  [[https://en.wikipedia.org/wiki/Zmacs][Wikipedia: Zmacs]]、
+  [[https://en.wikipedia.org/wiki/Chaosnet][Wikipedia: Chaosnet]]
+- 文档与博物馆：[[https://hanshuebner.github.io/lmman/frontpage.html][Lisp Machine Manual]]、
+  [[http://www.bitsavers.org/pdf/symbolics/][bitsavers: Symbolics]]、
+  [[http://www.ifis.uni-luebeck.de/~moeller/symbolics-info/symbolics.html][Lisp Machine Museum]]、
+  [[http://www.lispmachine.net/][LISPMachine.net]]、
+  [[http://fare.tunes.org/LispM.html][fare.tunes.org LispM]]
+- 可运行的现代 Lisp Machine 软件：
+  [[https://github.com/ynniv/vagrant-opengenera][vagrant-opengenera]]、
+  [[https://github.com/Interlisp/medley][Medley]]、
+  [[https://github.com/Interlisp/maiko][Maiko]]、
+  [[https://interlisp.org/][interlisp.org]]、
+  [[https://github.com/lassik/ansible-genera][ansible-genera]]
+- 仿真器：[[http://www.unlambda.com/cadr/][CADR emulation]]、
+  [[http://www.unlambda.com/l-machine/][L-machine emulation]]、
+  [[https://github.com/caar-machine/caar][caar-machine]]、
+  [[https://github.com/sethk/meroko][sethk/meroko]]、
+  [[https://github.com/unya/ivory][unya/ivory]]
+- 现代 Lisp 操作系统：[[https://github.com/froggey/Mezzano][Mezzano]]、
+  [[https://github.com/burtonsamograd/med][Mezzano 的 med 编辑器]]
+- Emacs 方向：[[https://www.gnu.org/gnu/rms-lisp.html][RMS: Lisp 与 GNU Emacs 的由来]]、
+  [[https://github.com/emacs-exwm/exwm][EXWM]]、
+  [[https://github.com/stumpwm/stumpwm][StumpWM]]、
+  [[https://guix.gnu.org/][GNU Guix]]
+- Rust OS 生态：[[https://www.redox-os.org/][Redox]]、
+  [[https://github.com/theseus-os/Theseus][Theseus]]、
+  [[https://github.com/tock/tock][Tock]]、
+  [[https://os.phil-opp.com/][Writing an OS in Rust]]、
+  [[https://github.com/rust-osdev/x86_64][x86_64 crate]]、
+  [[https://github.com/rust-osdev/bootloader][bootloader crate]]、
+  [[https://github.com/rust-osdev/uefi-rs][uefi-rs]]、
+  [[https://wiki.osdev.org/][OSDev Wiki]]
+- Rust 里的 Lisp/Scheme 运行时：[[https://github.com/raviqqe/stak][Stak]]、
+  [[https://github.com/Emmanuel-R8/Rust-Machine][Rust-Machine]]
+
+* TODO 下一步动作
+- [ ] 完成 phil-opp 教程前三章，跑通 hello world 内核（阶段 1 前置）
+- [ ] 评估 Stak 的 no_alloc 模型能否直接嵌入内核（阶段 2 前置，写个 spike）
+- [ ] 确定项目代号与 Git 仓库初始化（避免使用受保护商标名）
+- [ ] 发布调研文章第一篇（Lisp Machine 简史 + 为什么用 Rust 重造）
+- [ ] 起草 kernel.scm 的引导脚本 spec（REPL -> 编辑器内核）
+

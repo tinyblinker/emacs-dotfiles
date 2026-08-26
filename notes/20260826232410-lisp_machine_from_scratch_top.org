@@ -1,0 +1,12 @@
+:PROPERTIES:
+:ID:       2c59a2ba-5b21-48b9-80e0-614af85eb43a
+:END:
+#+title: Lisp-machine-from-scratch-Top
+#+date: 2026-08-26 23:24
+#+filetags:
+
+* !!!完全是娱乐的东西,有个想法写在这里而已,请勿当真
+* Intro
+我想做一个emacs哲学,lisp machine哲学的操作系统,初步设想是common lisp等,底层直接裸机运行lisp运行时,全系统只有lisp
+* 调研
+[[id:6f35b4cb-fcc3-461c-94d2-659e4c08b1a6][用Rust打造裸机lisp操作系统_2026调研]]
