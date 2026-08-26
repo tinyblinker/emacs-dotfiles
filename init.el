@@ -20,4 +20,4 @@
 (require 'vterm-config)           ;; Terminal emulator
 
 ;; Apply the dark high-contrast modus-vivendi theme
-(load-theme 'modus-vivendi t)
+(load-theme 'modus-vivendi-tinted t)
