@@ -76,13 +76,13 @@ Launch Emacs. Packages install automatically on first run.
 | LSP | `eglot` — auto-starts rust-analyzer on `.rs` files, code actions, rename, format |
 | Cargo | `rust-mode` — `cargo build/check/test/clippy/fmt` keybindings |
 | Git | `magit` + `diff-hl` — porcelain Git interface + inline gutter indicators |
-| Editing | `electric-pair` + `repeat` + `so-long` — auto-pairs, repeatable keys, long-line protection |
+| Editing | `electric-pair` + `delete-selection` + `repeat` + `so-long` — auto-pairs, typed-over selection, repeatable keys, long-line protection; `global-auto-revert` keeps buffers in sync with disk |
 | Shell | `exec-path-from-shell` + `eshell` + `vterm` — GUI env import, auto-scroll on input, fast terminal |
 | Notes | `org-roam` + `org-mode` + `ob-mermaid` + `ox-gfm` — networked note-taking with backlinks, graph visualization, agenda, capture templates, mermaid diagrams, GFM export |
 | Hints | `which-key` — popup keybinding discovery on prefix keys |
 | Project | `project.el` — project navigation, file search, shell/compile in root |
-| UI | `keycast` + `pixel-scroll-precision` — mode-line key display, smooth scrolling |
-| Theme | `modus-vivendi` — built-in dark high-contrast theme |
+| UI | `keycast` + `pixel-scroll-precision` — mode-line key display, smooth scrolling; relative line numbers, visual-line wrapping, JetBrainsMono NF font, clean frame (no menu/tool/scroll bars) |
+| Theme | `modus-vivendi-tinted` — built-in dark high-contrast theme |
 
 ## Keybindings
 
@@ -121,18 +121,18 @@ Launch Emacs. Packages install automatically on first run.
 
 **Capture workflow:** `C-c c t` → `inbox.org` (todos) · `C-c c n` → `capture-notes.org` (scratch notes) → promote to `C-c n f` (org-roam permanent note)
 
-### Editing
+### Buffers & Windows
 
 | Keys | Command |
 |------|---------|
-| `C-x k` | Kill current buffer |
-| `M-n / M-p` | Cycle completion candidates (corfu popup) |
+| `M-x list-buffers` / `C-x C-b` | `ibuffer` — filterable, grouped buffer list (replaces `list-buffers`) |
+| `C-c w n/p/b/f` | Move focus (down/up/left/right) |
+| `C-c w u` / `C-c w r` | Undo/redo window layout |
 
 ### Git (Magit)
 
 | Keys | Command |
 |------|---------|
-| `C-x g` | Open magit status |
 | `C-c g` | Git command menu (dispatch) |
 | `C-c f` | File-level git commands |
 | `s` | Stage change at point |
@@ -142,13 +142,6 @@ Launch Emacs. Packages install automatically on first run.
 | `P p` | Push to remote |
 | `M-n / M-p` | Jump to next/previous hunk |
 | `C-c v d` | Show diff of hunk at point |
-
-### Window
-
-| Keys | Command |
-|------|---------|
-| `C-c w n/p/b/f` | Move focus | 
-| `C-c w u` / `C-c w r` | Undo/redo layout |
 
 ### Project (project.el)
 
