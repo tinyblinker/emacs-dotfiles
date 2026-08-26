@@ -1,0 +1,16 @@
+:PROPERTIES:
+:ID:       51f26b39-98b0-4f87-929c-f4f6024e5cd9
+:END:
+#+title: 我的日常博客Top
+#+date: 2026-08-13 16:05
+#+filetags:
+
+#+begin_src quote
+  "追逐影子的人,自己就是影子"
+#+end_src
+tinyblinker的日常博客记录:
+2026-08-13:[[id:d609461c-c718-47e9-b41b-6aa49a91e362][archlinux的旁路由配置]]
+2026-08-16:[[id:a8ecce4c-7858-48cc-a761-5b10d2b188aa][自制康威生命游戏(高斯帕机枪)]]
+2026-08-22:[[id:eabc1693-8212-4006-81de-ffa60700eb41][简易地复刻一个cava]]
+2026-08-25:[[id:2a9a7588-3f54-4d13-a328-3f35b716989c][emacs31.1迁移踩坑]]
+2026-08-25:[[id:06ca8aec-6037-4969-8943-3d11edae9f63][在emacs的org-mode中使用latex的折腾记录]]

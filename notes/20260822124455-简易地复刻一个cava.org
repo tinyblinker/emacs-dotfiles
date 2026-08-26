@@ -7,10 +7,11 @@
 * introduciton
 * 重点概念
 - PCM(Pulse-code modulation)
--
+- 傅里叶变换?
+- 汉宁窗?
 * 重点流程
 - audio(eg.mp3,wav..)->PCM->傅里叶变换->频谱->生成频谱可视化律动条
-* 傅里叶分析
+* DONE 傅里叶分析(尝试学习?)
 ** 傅里叶变换
 - B站"漫士沉思录"视频链接:[[https://www.bilibili.com/video/BV1eUHjzgEAd/?spm_id_from=333.337.search-card.all.click][傅里叶变换]]
 - 什么是音色？
@@ -19,3 +20,6 @@
 - 坐标系和基底分解？(引入?
   本质就是在寻找基底?(基底本质是不同频率的正弦波)
 ** 傅里叶级数
+- 失败,啥也不懂
+* 来自ai的傅里叶变换与mini_cava实现的参考资料
+- [[id:981b4b39-de4a-46ab-bf0b-cba2147640ee][傅里叶变换知识笔记]]

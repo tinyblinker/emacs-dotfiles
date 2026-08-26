@@ -14,30 +14,30 @@
 
 * 第一部分:解决常见问题的思路
 ** 线索分类(先问自己:我手里有什么？)
-   | 我手上有的东西  | 该用的入口                          | 说明                 |
-   |--------------+-----------------------------------+---------------------|
-   | 只有模糊关键词  | ~C-h a~ / ~C-h d~ (apropos)           | 按词搜命令/文档        |
-   | 正在某个模式里  | ~C-h m~ (describe-mode)             | 看当前模式所有键与变量  |
-   | 知道某个按键   | ~C-h k~ (describe-key)              | 反查键绑定的命令       |
-   | 知道函数/变量名 | ~C-h f~ / ~C-h v~                     | 精确确认 + 看源码位置  |
+   | 我手上有的东西  | 该用的入口                         | 说明                   |
+   |---------------+-----------------------------------+-----------------------|
+   | 只有模糊关键词  | ~C-h a~ / ~C-h d~ (apropos)           | 按词搜命令/文档         |
+   | 正在某个模式里  | ~C-h m~ (describe-mode)             | 看当前模式所有键与变量   |
+   | 知道某个按键    | ~C-h k~ (describe-key)              | 反查键绑定的命令        |
+   | 知道函数/变量名 | ~C-h f~ / ~C-h v~                     | 精确确认 + 看源码位置    |
    | 想改设置       | ~M-x customize-group~               | 领域内所有可配置项打包看 |
-   | 想懂原理/概念  | ~C-h r~ / ~C-h i~ (Info)              | 官方手册,讲分类和原理   |
-   | 文档讲不清     | ~M-x find-function~ / ~find-variable~ | 直接读源码,终极手段    |
+   | 想懂原理/概念   | ~C-h r~ / ~C-h i~ (Info)              | 官方手册,讲分类和原理    |
+   | 文档讲不清     | ~M-x find-function~ / ~find-variable~ | 直接读源码,终极手段      |
 
 ** 帮助入口速查表
    | 快捷键   | 命令                   | 作用                            |
    |---------+-----------------------+--------------------------------|
-   | ~C-h C-h~ | help-for-help     n   | 帮助系统总目录(先背这个)           |
-   | ~C-h f~   | describe-function     | 查函数:用途/签名/定义位置          |
-   | ~C-h v~   | describe-variable     | 查变量:用途/默认值/当前值          |
-   | ~C-h m~   | describe-mode         | 当前所有 mode 的说明页            |
+   | ~C-h C-h~ | help-for-help     n   | 帮助系统总目录(先背这个)          |
+   | ~C-h f~   | describe-function     | 查函数:用途/签名/定义位置         |
+   | ~C-h v~   | describe-variable     | 查变量:用途/默认值/当前值         |
+   | ~C-h m~   | describe-mode         | 当前所有 mode 的说明页           |
    | ~C-h k~   | describe-key          | 按键 -> 命令 + 文档              |
    | ~C-h b~   | describe-bindings     | 当前所有键绑定列表                |
-   | ~C-h a~   | apropos-command       | 按关键词搜命令                    |
-   | ~C-h d~   | apropos-documentation | 按关键词搜文档(含变量)             |
+   | ~C-h a~   | apropos-command       | 按关键词搜命令                   |
+   | ~C-h d~   | apropos-documentation | 按关键词搜文档(含变量)            |
    | ~C-h r~   | info-emacs-manual     | Emacs 手册                      |
    | ~C-h i~   | info                  | Info 浏览器(~m~ 菜单 ~i~ 索引 ~s~ 搜索) |
-   | ~C-h p~   | finder-by-keyword     | 按主题找包                       |
+   | ~C-h p~   | finder-by-keyword     | 按主题找包                      |
    
 ** 标准排查五步流程
    1. *定线索*:我到底知道什么(词？键？模式？报错信息？)
@@ -54,9 +54,9 @@
 
 * 第二部分:用内置帮助与官方文档写 ELisp
 ** 三份官方文档(Info 里按这个优先级读)
-   | 优先级 | Info 入口          | 手册名                            | 用途                   |
-   |-------+-------------------+----------------------------------+-----------------------|
-   |     1 | ~C-h i m eintr RET~ | An Intro to Programming in ELisp | 入门:适合没系统学过 Lisp |
+   | 优先级 | Info 入口          | 手册名                            | 用途                    |
+   |-------+-------------------+----------------------------------+------------------------|
+   |     1 | ~C-h i m eintr RET~ | An Intro to Programming in ELisp | 入门:适合没系统学过 Lisp  |
    |     2 | ~C-h i m elisp RET~ | Emacs Lisp Reference Manual      | 权威参考:查函数/变量语义  |
    |     3 | ~C-h r~             | Emacs Manual                     | 查"这个功能怎么用/怎么配" |
 

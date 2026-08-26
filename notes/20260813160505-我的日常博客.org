@@ -1,9 +1,0 @@
-:PROPERTIES:
-:ID:       51f26b39-98b0-4f87-929c-f4f6024e5cd9
-:END:
-#+title: 我的日常博客
-#+date: 2026-08-13 16:05
-#+filetags:
-
-tinyblinker的日常博客记录:
-2026-08-13:[[id:d609461c-c718-47e9-b41b-6aa49a91e362][archlinux的旁路由配置]]

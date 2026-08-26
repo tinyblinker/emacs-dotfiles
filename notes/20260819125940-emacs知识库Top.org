@@ -1,0 +1,20 @@
+:PROPERTIES:
+:ID:       b4078ab7-15b1-420a-b23a-287673570b18
+:END:
+#+title: emacs知识库Top
+#+date: 2026-08-19 12:59
+#+filetags:
+* emacs introduction
+An extensible, customizable, free/libre text editor — and more.
+* 参考资料
+- [[https://www.gnu.org/software/emacs/manual/html_node/emacs/index.html][GNU emacs mannual(Online)]]
+  ref:[[info:emacs][GNU emacs mannual(Local)]]
+    GNU官方对emacs的所有基本概念的介绍
+- [[https://www.gnu.org/software/emacs/manual/html_node/eintr/index.html][An Introduction to Programming in Emacs Lisp(Online)]]
+  ref:[[info:eintr][An Introduction to Programming in Emacs Lisp(Local)]]
+  Emacs Lisp编程语言入门教程,包括本体语法和与eamcs结合的用法
+- [[https://www.gnu.org/software/emacs/manual/html_node/elisp/index.html][Emacs Lisp Reference Manua(Online)]]
+  ref:[[info:elisp][Emacs Lisp Reference Mannual(Local)]]
+  Emacs Lisp的字典级参考手册,包括Emacs Lisp的所有functions,hooks,variables...
+* 如何正确地使用emacs内置的参考资料
+- [[id:89b03cc2-6c95-46b5-b678-a6f66f52942b][emacs内置help系统的合理使用]]
