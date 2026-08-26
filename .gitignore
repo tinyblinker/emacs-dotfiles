@@ -25,3 +25,4 @@ modules/.dir-locals.el
 /bookmarks.eld
 /notes/ltximg/
 /eln-cache/
+/site-lisp/
