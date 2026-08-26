@@ -5,7 +5,7 @@
                     :family "JetBrainsMono NF"
                     :weight 'bold
                     :slant 'italic
-                    :height 200)
+                    :height 180)
 
 ;; truncate line automatically without insert [enter]
 (global-visual-line-mode 1)
