@@ -1,5 +1,8 @@
 ;;; -*- lexical-binding: t -*-
 
+;; Redirect org-roam files
+(setq org-roam-db-location (expand-file-name "var/org-roam.db" user-emacs-directory))
+
 ;; Redirect eww-bookmarks
 (setq eww-bookmarks-directory (expand-file-name "var/" user-emacs-directory))
 

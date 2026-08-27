@@ -47,3 +47,6 @@
 ;; if there is no archives, refresh the package-archives!
 (unless package-archive-contents
   (package-refresh-contents))
+
+;; set variables to redirect unwanted confusing massing files
+(require 'redirect-file-config)

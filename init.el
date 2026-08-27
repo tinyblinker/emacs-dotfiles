@@ -5,7 +5,6 @@
 
 ;; Load all configuration modules
 (require 'helper-config)          ;; Utility commands
-(require 'redirect-file-config)   ;; Redirect cache/backup/save files into var/
 (require 'ui-config)              ;; Font, scrolling, UI chrome
 (require 'which-key-config)       ;; Keybinding hint popups
 (require 'editing-config)         ;; Global editing defaults
