@@ -1,8 +1,11 @@
 ;;; -*- lexical-binding: t -*-
 
+;; Redirect native-compile cache into var/ to keep the config directory clean
+(when (featurep 'native-compile)
+  (startup-redirect-eln-cache
+   (expand-file-name "var/eln-cache/" user-emacs-directory)))
+
 ;; Disable garbage collection and file-name-handlers during init.
-;; This avoids hundreds of tiny GC pauses and lets Emacs load files
-;; without checking for remote/compressed paths on every I/O call.
 ;; Both are restored in emacs-startup-hook after init finishes.
 (setq gc-cons-threshold most-positive-fixnum
       gc-cons-percentage 0.6)
