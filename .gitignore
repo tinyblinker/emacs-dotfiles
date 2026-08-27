@@ -26,3 +26,4 @@ modules/.dir-locals.el
 /notes/ltximg/
 /eln-cache/
 /site-lisp/
+/auto-save-list/

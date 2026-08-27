@@ -26,6 +26,8 @@
   :config
   ;; Keep the SQLite database in sync with notes files automatically.
   (org-roam-db-autosync-mode)
+  ;; redirect org-roam db files
+  (setq org-roam-db-location (expand-file-name "var/org-roam.db" user-emacs-directory))
   ;; Create the notes directory if it does not exist yet
   (unless (file-directory-p org-roam-directory)
     (make-directory org-roam-directory t)))

@@ -17,6 +17,7 @@
 (require 'magit-config)           ;; Git integration with Magit
 (require 'diff-hl-config)         ;; Inline git change indicators
 (require 'vterm-config)           ;; Terminal emulator
+(require 'redirect-file-config)   ;; set variables to redirect unwanted confusing massing files
 
 ;; Apply the dark high-contrast modus-vivendi theme
 (load-theme 'modus-vivendi-tinted t)
