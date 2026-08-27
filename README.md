@@ -76,12 +76,12 @@ Launch Emacs. Packages install automatically on first run.
 | LSP | `eglot` — auto-starts rust-analyzer on `.rs` files, code actions, rename, format |
 | Cargo | `rust-mode` — `cargo build/check/test/clippy/fmt` keybindings |
 | Git | `magit` + `diff-hl` — porcelain Git interface + inline gutter indicators |
-| Editing | `electric-pair` + `delete-selection` + `repeat` + `so-long` — auto-pairs, typed-over selection, repeatable keys, long-line protection; `global-auto-revert` keeps buffers in sync with disk |
+| Editing | `electric-pair` + `delete-selection` + `repeat` + `so-long` — auto-pairs, typed-over selection, repeatable keys, long-line protection; `global-auto-revert` keeps buffers in sync with disk; auto-disable `overwrite-mode`, make shebang scripts executable on save |
 | Shell | `exec-path-from-shell` + `eshell` + `vterm` — GUI env import, auto-scroll on input, fast terminal |
-| Notes | `org-roam` + `org-mode` + `ob-mermaid` + `ox-gfm` — networked note-taking with backlinks, graph visualization, agenda, capture templates, mermaid diagrams, GFM export |
+| Notes | `org-roam` + `org-mode` + `ob-mermaid` + `ox-gfm` — networked note-taking with backlinks, graph visualization, agenda, capture templates, TODO workflow (`TODO → NEXT → DONE`), structure templates, mermaid diagrams, GFM export, LaTeX preview (`dvisvgm`) |
 | Hints | `which-key` — popup keybinding discovery on prefix keys |
 | Project | `project.el` — project navigation, file search, shell/compile in root |
-| UI | `keycast` + `pixel-scroll-precision` — mode-line key display, smooth scrolling; relative line numbers, visual-line wrapping, JetBrainsMono NF font, clean frame (no menu/tool/scroll bars) |
+| UI | `keycast` + `pixel-scroll-precision` + `show-paren` — mode-line key display, smooth scrolling, matching-paren highlight; relative line numbers, visual-line wrapping, JetBrainsMono NF font, clean frame (no menu/tool/scroll bars) |
 | Theme | `modus-vivendi-tinted` — built-in dark high-contrast theme |
 
 ## Keybindings
@@ -171,10 +171,13 @@ Launch Emacs. Packages install automatically on first run.
 │   ├── backup/               Edit backups (file~)
 │   ├── auto-save-list/       Auto-saves (#file#) & crash recovery
 │   ├── recentf               Recent file list
-│   ├── eln-cache/            Native-compiled cache
-│   └── history               Minibuffer history
+│   ├── history               Minibuffer history
+│   ├── bookmarks.eld         Bookmarks
+│   ├── org-roam.db           Org-roam SQLite database
+│   ├── transient/            Transient (magit) state files
+│   └── eln-cache/            Native-compiled cache
 └── modules/
-    ├── redirect-file-config.el File redirection (custom, backup, auto-save, recentf, savehist, themes, eln-cache → var/)
+    ├── redirect-file-config.el File redirection (custom, backup, auto-save, recentf, savehist, themes, eln-cache, bookmarks, eww-bookmarks, transient, org-roam.db → var/)
     ├── helper-config.el      Utility commands
     ├── completion-config.el  Completion (fido-vertical, corfu, cape)
     ├── editing-config.el     Editor defaults (electric-pair, repeat, so-long, bidi, indentation)
