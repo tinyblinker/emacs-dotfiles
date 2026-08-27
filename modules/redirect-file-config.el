@@ -1,5 +1,8 @@
 ;;; -*- lexical-binding: t -*-
 
+;; redirect org-roam db files
+(setq org-roam-db-location (expand-file-name "var/org-roam.db" user-emacs-directory))
+
 ;; Redirect tramp files
 (setq tramp-persistency-file-name (expand-file-name "var/tramp" user-emacs-directory))
 
