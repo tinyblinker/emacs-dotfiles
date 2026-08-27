@@ -28,3 +28,9 @@ can read!打破应试教育传统思维
 more interested thing, interacting with each other
   [2026-08-27 Thu 19:43]
   [[file:~/.config/emacs/notes/20260827173653-rust大学习top.org::*用法][用法]]
+* Guix系统的极限Bootstrap,用汇编编译汇编器件,一步步自举出编译器,最终自举基本系统,可用于极限情况的防反制?
+  [2026-08-27 Thu 23:31]
+  [[file:~/.config/emacs/notes/20260827130313-调研中文文本转语音的方案.org::*推荐速览][推荐速览]]
+* 要不直接把选文字转语音模型的过程整理出来
+  [2026-08-28 Fri 00:06]
+  [[file:~/.config/emacs/notes/20260827130313-调研中文文本转语音的方案.org::*方案1: CosyVoice (阿里通义, 首选, 零样本免训练)][方案1: CosyVoice (阿里通义, 首选, 零样本免训练)]]

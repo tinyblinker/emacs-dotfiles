@@ -13,3 +13,6 @@
 * TODO The more you read,the better you read,just this,fit with speak
   [2026-08-27 Thu 19:42]
   [[file:~/.config/emacs/notes/20260827173653-rust大学习top.org::*用法][用法]]
+* TODO 要不直接把折腾cava的结果梳理出来?
+  [2026-08-28 Fri 00:05]
+  [[file:~/.config/emacs/notes/20260827130313-调研中文文本转语音的方案.org::*方案1: CosyVoice (阿里通义, 首选, 零样本免训练)][方案1: CosyVoice (阿里通义, 首选, 零样本免训练)]]
