@@ -6,6 +6,7 @@
 #+filetags:
 
 #+begin_src quote
+  "世界上最令人向往的是,忠实于自己的自由,即诚实"
   "追逐影子的人,自己就是影子"
 #+end_src
 tinyblinker的日常博客记录:
