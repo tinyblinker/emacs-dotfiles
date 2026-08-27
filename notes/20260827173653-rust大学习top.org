@@ -1,0 +1,12 @@
+:PROPERTIES:
+:ID:       8f7008de-96ff-4059-9324-7f1324755952
+:END:
+#+title: Rust大学习Top
+#+date: 2026-08-27 17:36
+#+filetags:
+
+* 参考资料
+** [[https://doc.rust-lang.org/book/title-page.html][RustBook]]
+
+* owership
+** [[id:c2318e32-76aa-4724-9c8c-1da1a69ba75f][rust-ownership]]

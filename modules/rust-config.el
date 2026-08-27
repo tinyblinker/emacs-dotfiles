@@ -1,9 +1,8 @@
 ;;; -*- lexical-binding: t -*-
 
 ;; Cargo commands: build/check/test/clippy/format bound under C-c C-c and C-c C-f
-(use-package rust-mode
+(use-package rust-ts-mode
   :ensure t
-  :after rust-ts-mode
   :bind (:map rust-ts-mode-map
               ("C-c C-c C-u" . #'rust-compile)
               ("C-c C-c C-k" . #'rust-check)

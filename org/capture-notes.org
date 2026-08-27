@@ -24,3 +24,7 @@ can read!打破应试教育传统思维
 * 让ai总结生成org笔记,总结中国大学高等数学知识大全和高中数学知识大全用于备份数据库
   [2026-08-23 Sun 16:52]
   [[file:~/.config/emacs/notes/20260822124455-简易地复刻一个cava.org::*傅里叶变换][傅里叶变换]]
+* english not for test,but for understand what other said,write to express ourselves and read
+more interested thing, interacting with each other
+  [2026-08-27 Thu 19:43]
+  [[file:~/.config/emacs/notes/20260827173653-rust大学习top.org::*用法][用法]]

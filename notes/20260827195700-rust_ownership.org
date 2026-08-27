@@ -1,0 +1,286 @@
+:PROPERTIES:
+:ID:       c2318e32-76aa-4724-9c8c-1da1a69ba75f
+:END:
+#+title: rust-ownership
+#+date: 2026-08-27 19:57
+#+filetags:
+
+* ownership
+** what is ownership?
+  Memory is managed through a system of ownership with a set of rules that the compiler checks.
+*** *owenership rules*
+- Each value in Rust has an owner.
+- There can only be one owner at a time.
+- When the owner goes out of scope, the value will be dropped.
+*** Variable Scope
+#+begin_src rust
+  {                      // s is not valid here, since it's not yet declared
+      let s = "hello";   // s is valid from this point forward
+
+      // do stuff with s
+  }                      // this scope is now over, and s is no longer valid
+#+end_src
+- When s comes into scope, it is valid.
+- It remains valid until it goes out of scope.
+*** Resource Acquisition Is Initialization (RAII)
+#+begin_src rust
+  {
+      let s = String::from("hello"); // s is valid from this point forward
+      
+      // do stuff with s
+      // drop(s) automatically called
+  }                                  // this scope is now over, and s is no
+  // longer valid
+#+end_src
+*** Variables and Data Interacting with "Move"
+#+begin_src rust
+  let s1 = String::from("hello");
+  let s2 = s1;
+
+  println!("{s1}, world!");
+#+end_src
+#+begin_src rust
+  $ cargo run
+     Compiling ownership v0.1.0 (file:///projects/ownership)
+  error[E0382]: borrow of moved value: `s1`
+   --> src/main.rs:5:16
+    |
+  2 |     let s1 = String::from("hello");
+    |         -- move occurs because `s1` has type `String`, which does not implement the `Copy` trait
+  3 |     let s2 = s1;
+    |              -- value moved here
+  4 |
+  5 |     println!("{s1}, world!");
+    |                ^^ value borrowed here after move
+    |
+    = note: this error originates in the macro `$crate::format_args_nl` which comes from the expansion of the macro `println` (in Nightly builds, run with -Z macro-backtrace for more info)
+  help: consider cloning the value if the performance cost is acceptable
+    |
+  3 |     let s2 = s1.clone();
+    |                ++++++++
+
+  For more information about this error, try `rustc --explain E0382`.
+  error: could not compile `ownership` (bin "ownership") due to 1 previous error
+#+end_src
+*** Scope and Assignment
+#+begin_src rust
+  let mut s = String::from("hello");
+  s = String::from("ahoy");
+
+  println!("{s}, world!");
+#+end_src
+drop() the s immediately when assign s with "ahoy"
+*** Copy trait and owership "Move"
+String类型未实现Copy trait,且为Heap数据类型,只能手动.clone()实现"deep clone",否则只是"shallow clone",会"Move ownership"
+#+begin_src rust
+  let s1 = String::from("hello");
+  let s2 = s1.clone();
+
+  println!("s1 = {s1}, s2 = {s2}");
+#+end_src
+Stack-Only的数据类型比如i32,bool,默认实现了Copy trait,默认assign(赋值)过程自动"deep clone",不会"Move ownership"
+#+begin_src rust
+  let x = 5;
+  let y = x;
+
+  println!("x = {x}, y = {y}");
+#+end_src
+*** Owership in function
+~Passing a variable to a function will "move or copy", just as assignment does.~
+#+begin_src rust
+  fn main() {
+      let s = String::from("hello");  // s comes into scope
+      
+      takes_ownership(s);             // s's value moves into the function...
+                                      // ... and so is no longer valid here
+
+      let x = 5;                      // x comes into scope
+
+      makes_copy(x);                  // Because i32 implements the Copy trait,
+                                      // x does NOT move into the function,
+                                      // so it's okay to use x afterward.
+
+  } // Here, x goes out of scope, then s. However, because s's value was moved,
+    // nothing special happens.
+
+  fn takes_ownership(some_string: String) { // some_string comes into scope
+      println!("{some_string}");
+  } // Here, some_string goes out of scope and `drop` is called. The backing
+    // memory is freed.
+
+  fn makes_copy(some_integer: i32) { // some_integer comes into scope
+      println!("{some_integer}");
+  } // Here, some_integer goes out of scope. Nothing special happens.
+#+end_src
+*** Ownership about function's return value
+#+begin_src rust
+    fn main() {
+      let s1 = gives_ownership();        // gives_ownership moves its return
+                                         // value into s1
+
+      let s2 = String::from("hello");    // s2 comes into scope
+
+      let s3 = takes_and_gives_back(s2); // s2 is moved into
+                                         // takes_and_gives_back, which also
+                                         // moves its return value into s3
+  } // Here, s3 goes out of scope and is dropped. s2 was moved, so nothing
+    // happens. s1 goes out of scope and is dropped.
+
+  fn gives_ownership() -> String {       // gives_ownership will move its
+                                         // return value into the function
+                                         // that calls it
+
+      let some_string = String::from("yours"); // some_string comes into scope
+
+      some_string                        // some_string is returned and
+                                         // moves out to the calling
+                                         // function
+  }
+
+  // This function takes a String and returns a String.
+  fn takes_and_gives_back(a_string: String) -> String {
+      // a_string comes into
+      // scope
+
+      a_string  // a_string is returned and moves out to the calling function
+  }
+#+end_src
+~While this works, taking ownership and then returning ownership with every function is a bit tedious.
+What if we want to let a function use a value but not take ownership?~
+所以引出了"Reference"
+~Rust has a feature for using a value without transferring ownership: references.~
+** Reference and borrowing
+*** Reference特点
+~allow you to refer to some value without taking ownership of it~
+*** Immutable Reference
+Immutable ref不能被修改
+#+begin_src rust
+  fn main() {
+      let s = String::from("hello");
+
+      change(&s);
+  }
+
+  fn change(some_string: &String) {
+      some_string.push_str(", world");
+  }
+#+end_src
+*** Mutable Reference
+Mutable Reference可以被修改
+#+begin_src rust
+    fn main() {
+      let mut s = String::from("hello");
+
+      change(&mut s);
+  }
+
+  fn change(some_string: &mut String) {
+      some_string.push_str(", world");
+  }
+#+end_src
+*** (error!!!)Only one Mutable Reference at A time
+p#+begin_src rust
+  // error code!!!!!!!
+  let mut s = String::from("hello");
+
+  let r1 = &mut s;// one mutable at once!
+  let r2 = &mut s;
+
+  println!("{r1}, {r2}");
+#+end_src
+应当做如下修正,必须mutable reference走完其Scope才能再次用mutable reference
+#+begin_src rust
+  let mut s = String::from("hello");
+
+  {
+      let r1 = &mut s;
+  } // r1 goes out of scope here, so we can make a new reference with no problems.
+
+  let r2 = &mut s;
+#+end_src
+*** (error!!)mutable & immutable reference cannot exist at one time
+可以一个可变引用Scope或者多个不可变引用Scope
+#+begin_src rust
+  let mut s = String::from("hello");
+
+  let r1 = &s; // no problem
+  let r2 = &s; // no problem
+  let r3 = &mut s; // BIG PROBLEM
+
+  println!("{r1}, {r2}, and {r3}");
+#+end_src
+*** 如何认定Reference的Scope
+~a reference’s scope starts from where it is introduced and continues through the last time that reference is used.~
+比如以下这种写法是合法的
+#+begin_src rust
+  let mut s = String::from("hello");
+
+  let r1 = &s; // no problem
+  let r2 = &s; // no problem
+  println!("{r1} and {r2}");
+  // Variables r1 and r2 will not be used after this point.
+
+  let r3 = &mut s; // no problem
+  println!("{r3}");
+#+end_src
+*** 关于rust中的悬空引用
+~If you have a reference to some data, the compiler will ensure that the data
+will not go out of scope before the reference to the data does.~
+#+begin_src rust
+  fn dangle() -> &String { // dangle returns a reference to a String
+
+      let s = String::from("hello"); // s is a new String
+
+      &s // we return a reference to the String, s
+  } // Here, s goes out of scope and is dropped, so its memory goes away.
+  // Danger!
+#+end_src
+以下是详细的报错信息,这里会有关于"lifetime"的一些知识,后面遇到再说
+#+begin_src rust
+  $ cargo run
+     Compiling ownership v0.1.0 (file:///projects/ownership)
+  error[E0106]: missing lifetime specifier
+   --> src/main.rs:5:16
+    |
+  5 | fn dangle() -> &String {
+    |                ^ expected named lifetime parameter
+    |
+    = help: this function's return type contains a borrowed value, but there is no value for it to be borrowed from
+  help: consider using the `'static` lifetime, but this is uncommon unless you're returning a borrowed value from a `const` or a `static`
+    |
+  5 | fn dangle() -> &'static String {
+    |                 +++++++
+  help: instead, you are more likely to want to return an owned value
+    |
+  5 - fn dangle() -> &String {
+  5 + fn dangle() -> String {
+    |
+
+  For more information about this error, try `rustc --explain E0106`.
+  error: could not compile `ownership` (bin "ownership") due to 1 previous error
+#+end_src
+*** 小结
+~1.At any given time, you can have either one mutable reference or any number of immutable references.
+2.References must always be valid.~
+** slices
+~Slices let you reference a contiguous sequence of elements in a collection.
+A slice is a kind of reference, so it does not have ownership.~
+*** why?为什么引入
+因为需要一种方式能保证对String读取时,String是不会被销毁的,所以引入了这种
+immutable引用:Slice
+*** 用法
+同样适用于任何"~collections~"数据结构(Vector,String,Hashmap)
+#+begin_src rust
+  let s = String::from("hello world");
+
+  let hello = &s[0..5];
+  let world = &s[6..11];
+#+end_src
+*** string字面量即是&str(string slice)
+** how rust lay datas out in memory?
+Stack:fixed size
+Heap:dynamic size
+** QA:
+*** "No GC"的核心原因？
+*** "str"和"String"有什么区别?????
+

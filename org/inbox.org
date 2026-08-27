@@ -10,3 +10,6 @@
 * TODO 记录一个org笔记,关于中文声音克隆语音转文字的选择
   [2026-08-27 Thu 12:22]
   [[file:~/.local]]
+* TODO The more you read,the better you read,just this,fit with speak
+  [2026-08-27 Thu 19:42]
+  [[file:~/.config/emacs/notes/20260827173653-rust大学习top.org::*用法][用法]]
