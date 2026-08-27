@@ -1,0 +1,273 @@
+:PROPERTIES:
+:ID:       037d79c2-a79e-4ae0-b59a-5b196c1fb8b5
+:END:
+#+title: 调研中文文本转语音的方案
+#+date: 2026-08-27 13:03
+#+filetags:
+
+* 需求与硬件约束
+
+** 需求
+- 中文 文本转语音 (TTS), 用于配音(非实时, 允许慢速批量生成)
+- 支持中文 声音克隆 (voice cloning)
+- 本地部署, 倾向低折腾 (低配置难度)
+
+** 系统环境
+- 操作系统: *Arch Linux x86-64* (两台主机均如此)
+- 这意味着: 不能直接用 Windows 一键整合包, 但可以用 pacman/AUR + conda/pip。
+
+** 硬件
+| 主机  | CPU              | GPU | 内存              | 备注                 |
+|------+------------------+-----+------------------+---------------------|
+| 主机1 | Intel i5-7400    | 核显 | DDR4 16G 2133MHz | 4核4线程, 性能偏弱    |
+| 主机2 | AMD 锐龙 7 (H255) | 核显 | DDR5 32G 5600MHz | 多核强, 推荐主力部署机 |
+
+** 关键结论 (影响所有方案)
+- 两台主机都只有 *核显*, 没有 NVIDIA 独立显卡 => *无 CUDA 加速*。
+  - AMD 核显虽理论上可用 ROCm (Linux), 但 iGPU 版 ROCm 驱动/内核/gfx 版本匹配
+    非常折腾, 不符合"低折腾"诉求, 本笔记默认 *纯 CPU 推理*。
+  - 仅在下文"可选加速"小节给一句 ROCm 提示, 不展开。
+- *推荐在主机2 上部署*: 32G 大内存 + DDR5 高带宽 + 多核 CPU, 更适合 CPU 推理。
+  主机1 (i5-7400) 内存小、CPU 老, 只能跑轻量/小批量。
+- CPU 推理慢是正常的 (非实时可接受)。参考: 主流模型在普通 CPU 上
+  RTF 约 0.5~2.0 (生成 1 秒音频需 0.5~2 秒), 一次配音几十秒到几分钟。
+
+* Arch Linux 通用准备 (所有方案都建议先做)
+
+** 为什么不用系统 Python
+- Arch 的 /usr/bin/python 是滚动更新的最新版 (当前 3.13+), 而几乎所有 TTS 项目
+  都锁 Python 3.9~3.11, 直接用系统 Python 装依赖会大面积失败。
+- => 强烈建议用 *Miniconda / Mamba* 建立隔离环境 (固定 Python 3.10/3.11)。
+
+** 安装基础工具
+#+BEGIN_SRC bash
+# 1. 系统依赖 (pacman)
+sudo pacman -S --needed ffmpeg sox base-devel git
+# 2. 装 miniconda (任选其一)
+#    A: 官方安装脚本
+#    B: AUR 的 miniconda3 包 (用 yay/paru)
+yay -S miniconda3        # 或 paru -S miniconda3
+# 3. (推荐) 用 mamba 替代 conda, 求解依赖快很多
+conda install -n base -c conda-forge mamba
+#+END_SRC
+
+** 国内加速 (可选)
+- pip 镜像: =pip install xxx -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host=mirrors.aliyun.com=
+- 模型权重: 优先用 ModelScope 或 HF 镜像 =export HF_ENDPOINT=https://hf-mirror.com=
+
+* 推荐速览
+
+| 排名 | 方案                   | 克隆方式                | 中文克隆质量 | CPU 可行性   | 折腾度            | 一句话点评                                 |
+|-----+-----------------------+------------------------+------------+-------------+------------------+-------------------------------------------|
+| ⭐1 | CosyVoice (阿里)       | 零样本(3~10s 参考音)     | 强         | 好          | 低               | 免训练、CPU 直跑, Arch 上最省心的零样本克隆    |
+| ⭐2 | GPT-SoVITS            | 零样本 + 微调(few-shot) | 最强        | 好          | 中               | 中文克隆质量天花板, 但需 conda 手装 + 微调较慢 |
+|   3 | F5-TTS                | 零样本                  | 中上        | 中          | 低 (pip/AUR 一键) | 安装最简单, 有 AUR 包                       |
+|   4 | Fish Speech (旧版 1.5) | 零样本 + 微调           | 强         | 中          | 中               | 中/英/日多语, 新版 S2 太重不适合核显          |
+|   5 | Index-TTS (B站)       | 零样本                  | 强         | 中(模型较大) | 中               | 情感控制强, 模型大、CPU 偏慢                 |
+|   6 | XTTS-v2 (Coqui)       | 零样本                  | 中         | 中          | 低 (pip)         | 中文质量一般, 项目半停滞                     |
+|   7 | ChatTTS               | 不支持克隆              | 仅随机说话人 | 好          | 低               | 中文对话自然, 但 *不能克隆指定音色*             |
+
+* 各方案详解
+
+** 方案1: CosyVoice (阿里通义, 首选, 零样本免训练)
+- 定位: 阿里 FunAudioLLM 的多语言大语音生成模型 (22k+ star), 零样本克隆。
+- 克隆方式: *零样本* —— 给一段 3~10 秒参考音频即可克隆, 无需训练。
+- 语言: 中文 + 18 种方言 + 英/日/韩等 9 语 (Fun-CosyVoice3)。
+- CPU 可行性: 官方支持 CPU 推理, WebUI/Python 均可。
+- 安装 + 克隆 + TTS 步骤 (conda 环境, CPU):
+#+BEGIN_SRC bash
+# 1. 建环境 (固定 python 3.10)
+conda create -n cosyvoice python=3.10 -y
+conda activate cosyvoice
+# 2. 装 CPU 版 torch (关键: 不要装 CUDA 版)
+pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+# 3. 装 CosyVoice
+git clone --recursive https://github.com/FunAudioLLM/CosyVoice.git
+cd CosyVoice
+pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host=mirrors.aliyun.com
+# 4. 下载模型 (CosyVoice2-0.5B, 约 1.5G)
+python -c "from modelscope import snapshot_download; snapshot_download('iic/CosyVoice2-0.5B', local_dir='pretrained_models/CosyVoice2-0.5B')"
+# 5. 启动 WebUI (无 GPU 会自动落到 CPU)
+python webui.py --port 50000 --model_dir pretrained_models/CosyVoice2-0.5B
+#    浏览器打开 http://127.0.0.1:50000, 上传参考音频 + 输中文文本 -> 合成
+#+END_SRC
+  - 纯脚本零样本克隆 + TTS:
+#+BEGIN_SRC python
+from cosyvoice.cli.cosyvoice import CosyVoice2
+from cosyvoice.utils.file_utils import load_wav
+import torchaudio
+cosyvoice = CosyVoice2('pretrained_models/CosyVoice2-0.5B')
+prompt = lnoad_wav('参考音频.wav', 16000)
+for i, j in enumerate(cosyvoice.inference_zero_shot('你好, 这是声音克隆测试', '参考文本', prompt)):
+    torchaudio.save(f'out_{i}.wav', j['tts_speech'], cosyvoice.sample_rate)
+#+END_SRC
+- 链接:
+  - 项目: [[https://github.com/FunAudioLLM/CosyVoice][github.com/FunAudioLLM/CosyVoice]]
+  - 模型: [[https://huggingface.co/FunAudioLLM/CosyVoice2-0.5B][CosyVoice2-0.5B (HF)]] / [[https://www.modelscope.cn/models/iic/CosyVoice2-0.5B][ModelScope]]
+
+** 方案2: GPT-SoVITS (中文克隆最强, 支持 few-shot 微调)
+- 定位: 专门面向中文的 few-shot 语音克隆 TTS (61k+ star), 社区最活跃。
+- 克隆方式:
+  - 零样本 (zero-shot): 5 秒声音样本即可 TTS;
+  - 微调 (few-shot): 用 1 分钟干净语音微调, 相似度/自然度大幅提升。
+- 语言: 中/英/日/韩/粤。
+- 注意: Arch 上 *无整合包*, 需 conda + install.sh 手装; CPU 微调比 GPU 慢很多,
+  但非实时可用。官方 README 明确支持 =--device CPU=。
+- 安装 (conda 环境, CPU):
+#+BEGIN_SRC bash
+conda create -n GPTSoVits python=3.10 -y
+conda activate GPTSoVits
+git clone https://github.com/RVC-Boss/GPT-SoVITS.git
+cd GPT-SoVITS
+# CPU 方式安装 (自动装 CPU 版 torch 并下载预训练模型)
+bash install.sh --device CPU --source HF-Mirror   # 国内可换 ModelScope
+# 启动 WebUI
+python webui.py
+#+END_SRC
+- 微调克隆操作步骤 (WebUI):
+  1. "0-前置数据准备" 页: 填参考音频路径 -> 自动切片 -> 降噪(可选) -> ASR 打标 -> 校对字幕。
+  2. "1-GPT-SoVITS-TTS/1B-微调训练": 用默认轮数训练 SoVITS 与 GPT (CPU 上需数十分钟到数小时)。
+  3. "1C-推理": 刷新模型列表, 选训练好的模型 + 参考音频, 输中文文本 -> 合成。
+- 纯 TTS (免训练, 零样本):
+  1. 启动 =python webui.py=, 直接进 "1C-推理", 载入官方预训练模型。
+  2. 上传 5 秒以上参考音频 + 输入中文文本 -> 合成。
+- 命令行/批量: 提供 =api.py= / =api_v2.py= 供脚本调用。
+- CPU 优化版: [[https://github.com/baicai-1145/GPT-SoVITS-CPUFast][GPT-SoVITS-CPUFast]] (针对 CPU 推理加速)。
+- 链接:
+  - 项目: [[https://github.com/RVC-Boss/GPT-SoVITS][github.com/RVC-Boss/GPT-SoVITS]]
+  - 预训练模型: [[https://huggingface.co/lj1995/GPT-SoVITS][lj1995/GPT-SoVITS (HF)]]
+  - 中文教程: [[https://www.yuque.com/baicaigongchang1145haoyuangong/ib3g1e][语雀用户指南]]
+
+** 方案3: F5-TTS (安装最简单, 免训练, 有 AUR 包)
+- 定位: 基于流匹配的零样本 TTS (15k+ star), 中 + 英。
+- 克隆方式: 零样本 (一段参考音频 + 其文字转录)。
+- 低折腾点: =pip install f5-tts= 一行装好, 或直接用 AUR 包 =f5-tts=。
+- 安装 + 克隆 + TTS 步骤 (CPU):
+#+BEGIN_SRC bash
+# 方式A: AUR (最简单)
+yay -S f5-tts        # 或 paru -S f5-tts  (另有 f5-tts-rocm 可选)
+
+# 方式B: conda + pip (更可控)
+conda create -n f5tts python=3.11 -y && conda activate f5tts
+pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+pip install f5-tts
+
+# 启动网页 (默认 http://127.0.0.1:7860)
+f5-tts_infer-gradio --port 7860
+# 或命令行:
+f5-tts_infer-cli --model F5TTS_v1_Base \
+  --ref_audio "参考音频.wav" \
+  --ref_text "参考音频的文字内容" \
+  --gen_text "你好, 这是要合成的中文文本。"
+#+END_SRC
+- 链接:
+  - 项目: [[https://github.com/SWivid/F5-TTS][github.com/SWivid/F5-TTS]]
+  - 模型: [[https://huggingface.co/SWivid/F5-TTS][SWivid/F5-TTS (HF)]] / [[https://www.modelscope.cn/models/SWivid/F5-TTS_Emilia-ZH-EN][ModelScope]]
+  - AUR: [[https://aur.archlinux.org/packages/f5-tts][f5-tts]]
+
+** 方案4: Fish Speech / OpenAudio S1
+- 定位: Fish Audio 的开源 TTS, 中/英/日三语, 零样本+微调克隆 (32k+ star)。
+- 注意: 最新版 *S2 Pro 是 4B 大模型, 需 GPU, 不适合核显/CPU*。
+  请在 CPU 机器上使用旧版 (0.5B, 即 1.x / OpenAudio S1)。
+- 安装 + 克隆 + TTS 步骤 (旧版 1.5, CPU):
+#+BEGIN_SRC bash
+conda create -n fish python=3.11 -y && conda activate fish
+pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+git clone https://github.com/fishaudio/fish-speech.git && cd fish-speech
+pip install -e .
+# 下载 0.5B 模型 (约 1.3G)
+huggingface-cli download fishaudio/fish-speech-1.5 --local-dir checkpoints/fish-speech-1.5
+# 启动 WebUI (CPU)
+python tools/webui.py --device cpu
+# 零样本克隆 + TTS (命令行):
+python tools/api_client.py --text "你好, 这是克隆测试" \
+  --reference_audio "参考音频.wav" --reference_text "参考音频对应文本" \
+  --streaming false
+#+END_SRC
+- 链接:
+  - 项目: [[https://github.com/fishaudio/fish-speech][github.com/fishaudio/fish-speech]]
+  - 旧版模型: [[https://huggingface.co/fishaudio/fish-speech-1.5][fish-speech-1.5 (HF)]]
+  - 文档: [[https://speech.fish.audio/][官方文档]]
+
+** 方案5: Index-TTS (B站, 情感控制强)
+- 定位: B站 IndexTeam 的工业级零样本 TTS (23k+ star)。
+- 克隆方式: 零样本 (单条参考音频即可), 支持情感参考音/情感向量、语速控制。
+- 语言: IndexTTS-2.5 支持中/英/日/西/阿。
+- 注意: 模型较大 (2.5 约 0.8B), CPU 推理偏慢; *CPU 上禁用 bf16/fp16* 用 fp32。
+- 安装 + 克隆 + TTS 步骤 (uv 管理, 国内换镜像):
+#+BEGIN_SRC bash
+git clone https://github.com/index-tts/index-tts.git && cd index-tts
+pip install -U uv
+uv sync --extra webui --default-index "https://mirrors.aliyun.com/pypi/simple"
+# 下载模型 (国内走 modelscope)
+uv tool install modelscope
+modelscope download --model IndexTeam/IndexTTS-2.5 --local_dir checkpoints
+# 启动 WebUI (http://127.0.0.1:7860)
+uv run webui.py
+#+END_SRC
+  - Python 克隆示例 (CPU, 关闭半精度):
+#+BEGIN_SRC python
+from indextts.infer_v2_5 import IndexTTS2
+tts = IndexTTS2(cfg_path="checkpoints/config.yaml", model_dir="checkpoints", use_bf16=False)
+tts.infer(spk_audio_prompt='examples/voice_01.wav', text='大家好, 这是声音克隆测试', lang="ZH", output_path="gen.wav", verbose=True)
+#+END_SRC
+- 链接:
+  - 项目: [[https://github.com/index-tts/index-tts][github.com/index-tts/index-tts]]
+  - 模型: [[https://www.modelscope.cn/models/IndexTeam/IndexTTS-2.5][IndexTTS-2.5 (ModelScope)]]
+
+** 方案6: XTTS-v2 (Coqui TTS)
+- 定位: Coqui 的多语言(16语)语音克隆模型, 零样本, 含中文。
+- 注意: Coqui 项目已半停滞, 中文克隆质量一般, 作为备选; 需 Python <3.12 (用 conda)。
+- 安装 + 克隆 + TTS 步骤:
+#+BEGIN_SRC bash
+conda create -n xtts python=3.11 -y && conda activate xtts
+pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+pip install TTS
+# 命令行克隆 + TTS:
+tts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \
+    --text "你好, 这是克隆测试" \
+    --speaker_wav "参考音频.wav" \
+    --language_idx zh-cn \
+    --out_path out.wav
+#+END_SRC
+- 链接: [[https://github.com/coqui-ai/TTS][github.com/coqui-ai/TTS]]
+
+** 方案7: ChatTTS (仅 TTS, 不能指定音色克隆)
+- 定位: 专为对话场景设计的生成式 TTS (39k+ star), 中文极自然。
+- 限制: 官方版本 *只支持随机采样说话人*, 不支持用参考音频克隆指定音色,
+  因此不满足"声音克隆"需求; 若要指定音色需用第三方 fork (折腾)。
+- 安装 + TTS 步骤:
+#+BEGIN_SRC bash
+conda create -n chattts python=3.11 -y && conda activate chattts
+pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+pip install ChatTTS
+python examples/cmd/run.py "今天天气不错, 我们去公园走走吧。"
+#+END_SRC
+- 链接: [[https://github.com/2noise/ChatTTS][github.com/2noise/ChatTTS]]
+
+* 部署建议 (按低折腾 + 质量排序)
+
+1. *首选 CosyVoice*: 不想训练、要"上传参考音频 + 输文本"即用 => 装 CosyVoice2-0.5B,
+   CPU 直跑, Arch 上配置最顺畅、最稳。
+2. *要最高中文克隆相似度 => GPT-SoVITS*: 用 conda + =install.sh --device CPU=,
+   再拿 1 分钟干净语音做 few-shot 微调 (CPU 慢但可接受)。
+3. *最快上手 => F5-TTS*: =yay -S f5-tts= 或 =pip install f5-tts= 即用。
+4. *配音有情感/语速控制需求 => Index-TTS* (模型大, 建议主机2 跑)。
+5. 部署机器: 优先 *主机2* (32G DDR5 + 多核); 主机1 只建议跑 ChatTTS 等轻量或小批量。
+
+* 可选: 核显加速 (进阶, 非必需)
+- AMD RDNA 核显理论上可走 ROCm (Arch 有 =rocm= / =pytorch-rocm= 等包), 但需要匹配
+  gfx 版本、内核模块与 PyTorch 版本, 折腾度高, 与"低折腾"目标冲突, 此处不展开。
+- 结论: *先用纯 CPU 跑通*, 若后续嫌慢再研究 ROCm。
+
+* 通用注意事项
+- 克隆素材: 参考音频建议 5~15 秒、干净无背景音乐/噪声、单说话人、16k 以上采样率。
+- 版权/合规: 仅对本人或已获授权的声音做克隆, 勿用于诈骗/仿冒/违法用途。
+- 模型来源: 国内网络优先用 ModelScope / hf-mirror 下载权重 (HF 直连可能慢)。
+- 环境隔离: 每个项目建议独立 conda 环境, 避免依赖冲突; 用 mamba 求解更快。
+- 内存: CPU 推理主要吃内存, 主机2 32G 足够; 主机1 16G 跑 0.5B 模型较吃力。
+
+* 附: 备选/参考资源
+- OpenVoice (MyShell): 音色迁移, 需搭配 MeloTTS 等基础 TTS 使用。
+  [[https://github.com/myshell-ai/OpenVoice][OpenVoice]] / [[https://github.com/myshell-ai/MeloTTS][MeloTTS]]
+- 一键整合类 UI (自部署, 支持 Linux): EasyVoice 等第三方打包, 可自行搜索。
