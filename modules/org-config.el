@@ -43,7 +43,7 @@
   ;; adjust Latex backend and latex's picture's scale
   (setq org-preview-latex-default-process 'dvisvgm)
   (setq org-format-latex-options
-        (plist-put org-format-latex-options :scale 1.7)))
+        (plist-put org-format-latex-options :scale 1.5)))
 
 ;; add mermaid support for org-mode
 (use-package ob-mermaid
