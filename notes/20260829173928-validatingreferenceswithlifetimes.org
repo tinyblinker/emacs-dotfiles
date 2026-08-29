@@ -1,0 +1,173 @@
+:PROPERTIES:
+:ID:       a4bbcdb8-2434-4c8d-a0a8-0aec8473fe67
+:END:
+#+title: ValidatingReferencesWithLifetimes
+#+date: 2026-08-29 17:39
+#+filetags:
+
+* (GenerialExplanation)Intro
+- ~You learned how to use lifetime annotations to ensure that this flexible code won’t have any dangling references~
+- lifetime annotation不会改变lifetime,只是给borrow checker一些hints,方便在编译期发现错误;核心为防止"Dangling Reference"(悬空引用,data not live longer than it's reference)
+** Dangling References
+println!()调用r时,r = &x中,x已run out of scope,被drop()
+此时borrow checker报错;
+#+begin_src rust
+  fn main() {
+      let r;
+
+      {
+          let x = 5;
+          r = &x;
+      }
+
+      println!("r: {r}");
+  }
+#+end_src
+有如下报错
+#+begin_src rust
+  $ cargo run
+     Compiling chapter10 v0.1.0 (file:///projects/chapter10)
+  error[E0597]: `x` does not live long enough
+   --> src/main.rs:6:13
+    |
+  5 |         let x = 5;
+    |             - binding `x` declared here
+  6 |         r = &x;
+    |             ^^ borrowed value does not live long enough
+  7 |     }
+    |     - `x` dropped here while still borrowed
+  8 |
+  9 |     println!("r: {r}");
+    |                   - borrow later used here
+
+  For more information about this error, try `rustc --explain E0597`.
+  error: could not compile `chapter10` (bin "chapter10") due to 1 previous error
+#+end_src
+* The Borrow Checker
+代码错误,因为data(x) not live longer than reference(r=&x)
+#+begin_src rust
+  fn main() {
+      let r;                // ---------+-- 'a
+                            //          |
+      {                     //          |
+          let x = 5;        // -+-- 'b  |
+          r = &x;           //  |       |
+      }                     // -+       |
+                            //          |
+      println!("r: {r}");   //          |
+  }                         // ---------+
+#+end_src
+代码错误,因为data(x) live longer than reference(r=&x)
+#+begin_src rust
+  fn main() {
+      let x = 5;            // ----------+-- 'b
+                            //           |
+      let r = &x;           // --+-- 'a  |
+                            //   |       |
+      println!("r: {r}");   //   |       |
+                            // --+       |
+  }                         // ----------+
+#+end_src
+* (引入)Generic Lifetimes in Functions
+~函数形参x,y和返回值的lifetime关系未知,编译器报错,需要手动
+写lifetime annotation,为了让borrow checker判断~
+#+begin_src rust
+  fn longest(x: &str, y: &str) -> &str {
+      if x.len() > y.len() { x } else { y }
+  }
+  fn main() {
+      let string1 = String::from("abcd");
+      let string2 = "xyz";
+      
+      let result = longest(string1.as_str(), string2);
+      println!("The longest string is {result}");
+  }
+  //---------------------------------------------
+  //有如下报错
+  $ cargo run
+     Compiling chapter10 v0.1.0 (file:///projects/chapter10)
+  error[E0106]: missing lifetime specifier
+   --> src/main.rs:9:33
+    |
+  9 | fn longest(x: &str, y: &str) -> &str {
+    |               ----     ----     ^ expected named lifetime parameter
+    |
+    = help: this function's return type contains a borrowed value, but the signature does not say whether it is borrowed from `x` or `y`
+  help: consider introducing a named lifetime parameter
+    |
+  9 | fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
+    |           ++++     ++          ++          ++
+
+  For more information about this error, try `rustc --explain E0106`.
+  error: could not compile `chapter10` (bin "chapter10") due to 1 previous error
+#+end_src
+* Lifetime annotation syntax
+#+begin_src rust
+  &i32          // a reference
+  &'a i32       // a reference with an explicit lifetime
+  &'a mut i32   // a mutablt reference with an explicit lifetime
+#+end_src
+** In function signature
+就下面这样写的
+#+begin_src rust
+  fn longest<'a>(x: &'a str, y: &'a str)-> &'a str{
+      if x.len() > y.len() { x } else { y }
+  }
+#+end_src
+** In Struct Definition
+~A struct that holds a reference, requiring a lifetime annotation~
+#+begin_src rust
+  struct ImportantExcerpt<'a> {
+      part: &'a str,
+  }
+
+  fn main() {
+      let novel = String::from("Call me Ishmael. Some years ago...");
+      let first_sentence = novel.split('.').next().unwrap();
+      let i = ImportantExcerpt {
+          part: first_sentence,
+      };
+  }
+#+end_src
+** In Method Definitions
+以下是合法的示例写法,下部的methods省略了lifetime annotation,为Lifetime Elision的自动推导的结果
+#+begin_src rust
+  impl<'a> ImportantExcerpt<'a> {
+      fn level(&self) -> i32 {
+          3
+      }
+  }
+  impl<'a> ImportantExcerpt<'a> {
+      fn announce_and_return_part(&self, announcement: &str) -> &str {
+          println!("Attention please: {announcement}");
+          self.part
+      }
+  }
+#+end_src
+* (思想)Relationship
+~Ultimately, lifetime syntax is about connecting the lifetimes
+of various parameters and return values of functions.~
+所以写对了lifetime annotations后,paras和rets的relationship被建立
+于是borrow checker能根据这些信息在complication process中断绝错误
+* (特例)Lifetime Elision
+Three Rules For Lifetime Elision
+#+begin_src rust
+  The first rule is that the compiler assigns a lifetime parameter to each parameter that’s a reference. In other words, a function with one parameter gets one lifetime parameter: fn foo<'a>(x: &'a i32); a function with two parameters gets two separate lifetime parameters: fn foo<'a, 'b>(x: &'a i32, y: &'b i32); and so on.
+
+  The second rule is that, if there is exactly one input lifetime parameter, that lifetime is assigned to all output lifetime parameters: fn foo<'a>(x: &'a i32) -> &'a i32.
+
+  The third rule is that, if there are multiple input lifetime parameters, but one of them is &self or &mut self because this is a method, the lifetime of self is assigned to all output lifetime parameters. This third rule makes methods much nicer to read and write because fewer symbols are necessary.
+#+end_src
+以下两种写法等价,因为根据上面的三个Elision rules,能推导出来output lifetime和input lifetime,
+所以不用为此处的reference显式指定lifetime annotation
+#+begin_src rust
+  fn first_word(s: &str) -> &str {
+      unimplemented!()
+  }
+  fn first_word<'a>(s: &'a str) -> &'a str {
+      unimplemented!()
+  }
+#+end_src
+* (特例)The Static Lifetime
+能存活整个程序的数据,可以用'static标注,比如字符串字面量
+
