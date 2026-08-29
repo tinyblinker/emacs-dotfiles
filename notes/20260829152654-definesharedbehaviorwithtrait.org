@@ -1,0 +1,277 @@
+:PROPERTIES:
+:ID:       fbb856c7-d8d7-4849-a196-25200f1e1278
+:END:
+#+title: DefineSharedBehaviorWithTrait
+#+date: 2026-08-29 15:26
+#+filetags:
+
+* Defining a Trait
+定义一个名叫Summary的trait并声明为"pub"(暴露给外部,可在引用该create的creates中实现)
+#+begin_src rust
+  pub trait Summary {
+      fn summarize(&self) -> String;
+  }
+#+end_src
+* Implementing a Trait on a Type
+给NewsArticles和SocialPost结构体数据类型实现Summary traits
+在后文中调用这个Summary traits以使用各自不同的实现
+#+begin_src rust
+  pub struct NewsArticle {
+      pub headline: String,
+      pub location: String,
+      pub author: String,
+      pub content: String,
+  }
+
+  impl Summary for NewsArticle {
+      fn summarize(&self) -> String {
+          format!("{}, by {} ({})", self.headline, self.author, self.location)
+      }
+  }
+
+  pub struct SocialPost {
+      pub username: String,
+      pub content: String,
+      pub reply: bool,
+      pub repost: bool,
+  }
+
+  impl Summary for SocialPost {
+      fn summarize(&self) -> String {
+          format!("{}: {}", self.username, self.content)
+      }
+  }
+
+  fn main() {
+      let post = SocialPost {
+          username: String::from("horse_ebooks"),
+          content: String::from(
+              "of course, as you probably already know, people",
+          ),
+          reply: false,
+          repost: false,
+      };
+        
+      println!("1 new post: {}", post.summarize());
+  }
+#+end_src
+* Using Default Implementations
+为NewsArticles使用Summary的默认实现,即调用summarize时输出"(Read more...)"
+#+begin_src rust
+  pub trait Summary {
+      fn summarize(&self) -> String {
+          String::from("(Read more...)")
+      }
+  }
+  impl Summary for NewsArticle {}
+#+end_src
+traits内部可以调用内部的函数,而此时实现traits只用实现最基本的那个方法就行了
+,因为其他的methods可以由最基本的methods自举出来
+#+begin_src rust
+  pub trait Summary {
+      fn summarize_author(&self) -> String;
+
+      fn summarize(&self) -> String {
+          format!("(Read more from {}...)", self.summarize_author())
+      }
+  }
+  impl Summary for SocialPost {
+    fn summarize_author(&self) -> String {
+        format!("@{}", self.username)
+    }
+  }
+  #+end_src
+* Using Traits as Parameters
+作为函数形参:两个函数等价,上面的是Syntax Sugar;
+本质行为是限制实现了特定traits的dataType才能被接受
+#+begin_src rust
+  pub fn notify(item: &impl Summary)
+      println!("Breaking news! {}", item.summarize());
+  }
+  pub fn notify<T: Summary>(item: &T) {
+      println!("Breaking news! {}", item.summarize());
+  }
+#+end_src
+更多例子:("+"的使用,"where"的使用)
+#+begin_src rust
+  // 多个函数形参限制使用不同的traits
+  pub fn notify(item1: &impl Summary, item2: &impl Summary) {
+      unimplemented!();
+  }
+  pub fn notify<T: Summary>(item1: &T, item2: &T) {
+      unimplemented!();
+  }
+  // 某个函数形参限制实现多个traits(用"+")
+  pub fn notify(item: &(impl Summary + Display)) {
+      unimplemented!();
+  }
+  pub fn notify<T: Summary + Display>(item: &T) {
+      unimplemented!();
+  }
+  // 用where配合GenericTypes简化函数签名,更好看地restrict traits
+  fn some_function<T: Display + Clone, U: Clone + Debug>(t: &T, u: &U) -> i32 {
+      unimplemented!();
+  }
+  fn some_function<T, U>(t: &T, u: &U) -> i32
+  where
+      T: Display + Clone,
+      U: Clone + Debug,
+  {
+      implemented!();
+  }
+  #+end_src
+* Returning Types That Implement Traits
+1.执行正确,限定返回值必须实现~Summary Traits~
+#+begin_src rust
+  fn returns_summarizable() -> impl Summary {
+      SocialPost {
+          username: String::from("horse_ebooks"),
+          content: String::from(
+              "of course, as you probably already know, people",
+          ),
+          reply: false,
+          repost: false,
+      }
+  }
+#+end_src
+2.执行错误,因为返回值类型无法在编译阶段推导
+#+begin_src rust
+  fn returns_summarizable(switch: bool) -> impl Summary {
+      if switch {
+          NewsArticle {
+              headline: String::from(
+                  "Penguins win the Stanley Cup Championship!",
+              ),
+              location: String::from("Pittsburgh, PA, USA"),
+              author: String::from("Iceburgh"),
+              content: String::from(
+                  "The Pittsburgh Penguins once again are the best \
+                   hockey team in the NHL.",
+              ),
+          }
+      } else {
+          SocialPost {
+              username: String::from("horse_ebooks"),
+              content: String::from(
+                  "of course, as you probably already know, people",
+              ),
+              reply: false,
+              repost: false,
+          }
+      }
+  }
+#+end_src
+错误信息:
+#+begin_src rust
+  -*- mode: compilation; default-directory: "~/Projects/test_rust/" -*-
+  Compilation started at Sat Aug 29 17:13:07
+
+  cargo check 
+      Checking test_rust v0.1.0 (/home/shyweeds/Projects/test_rust)
+  error[E0308]: `if` and `else` have incompatible types
+    --> src/main.rs:43:9
+     |
+  32 | /       if switch {
+  33 | | /         NewsArticle {
+  34 | | |             headline: String::from("Penguins win the Stanley Cup Championship!"),
+  35 | | |             location: String::from("Pittsburgh, PA, USA"),
+  36 | | |             author: String::from("Iceburgh"),
+  ...  | |
+  40 | | |             ),
+  41 | | |         }
+     | | |_________- expected because of this
+  42 | |       } else {
+  43 | | /         SocialPost {
+  44 | | |             username: String::from("horse_ebooks"),
+  45 | | |             content: String::from("of course, as you probably already know, people"),
+  46 | | |             reply: false,
+  47 | | |             repost: false,
+  48 | | |         }
+     | | |_________^ expected `NewsArticle`, found `SocialPost`
+  49 | |       }
+     | |_______- `if` and `else` have incompatible types
+     |
+  help: you could change the return type to be a boxed trait object
+     |
+  31 - fn return_summarizable(switch: bool) -> impl Summary {
+  31 + fn return_summarizable(switch: bool) -> Box<dyn Summary> {
+     |
+  help: if you change the return type to expect trait objects, box the returned expressions
+     |
+  33 ~         Box::new(NewsArticle {
+  34 |             headline: String::from("Penguins win the Stanley Cup Championship!"),
+  ...
+  40 |             ),
+  41 ~         })
+  42 |     } else {
+  43 ~         Box::new(SocialPost {
+  44 |             username: String::from("horse_ebooks"),
+  ...
+  47 |             repost: false,
+  48 ~         })
+     |
+
+  For more information about this error, try `rustc --explain E0308`.
+  error: could not compile `test_rust` (bin "test_rust") due to 1 previous error
+
+  Compilation exited abnormally with code 101 at Sat Aug 29 17:13:07, duration 0.05 s
+#+end_src
+修正方法:
+#+begin_src rust
+  fn return_summarizable(switch: bool) -> Box<dyn Summary> {
+      if switch {
+          let a = NewsArticle {
+              headline: String::from("Penguins win the Stanley Cup Championship!"),
+              location: String::from("Pittsburgh, PA, USA"),
+              author: String::from("Iceburgh"),
+              content: String::from(
+                  "The Pittsburgh Penguins once again are the best \
+                   hockey team in the NHL.",
+              ),
+          };
+          Box::new(a)
+      } else {
+          let b = SocialPost {
+              username: String::from("horse_ebooks"),
+              content: String::from("of course, as you probably already know, people"),
+              reply: false,
+              repost: false,
+          };
+          Box::new(b)
+      }
+  }
+#+end_src
+* Using Trait Bounds to Conditionally Implement Methods
+如果Pait中的T实现了Display和PartialOrd,那么就比较(PartialOrd Traits)
+,并打印(Display Traits)较大值
+#+begin_src rust
+  use std::fmt::Display;
+
+  struct Pair<T> {
+      x: T,
+      y: T,
+  }
+
+  impl<T> Pair<T> {
+      fn new(x: T, y: T) -> Self {
+          Self { x, y }
+      }
+  }
+
+  impl<T: Display + PartialOrd> Pair<T> {
+      fn cmp_display(&self) {
+          if self.x >= self.y {
+              println!("The largest member is x = {}", self.x);
+          } else {
+              println!("The largest member is y = {}", self.y);
+          }
+      }
+  }
+#+end_src
+标准库中常见代码:当某个T(Type)实现了Display traits时,
+即可基于"Display Traits"实现"ToString Traits"
+#+begin_src rust
+  impl<T: Display> ToString for T {
+      // --snip--
+  }
+#+end_src

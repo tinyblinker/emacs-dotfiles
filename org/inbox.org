@@ -16,3 +16,12 @@
 * TODO 要不直接把折腾cava的结果梳理出来?
   [2026-08-28 Fri 00:05]
   [[file:~/.config/emacs/notes/20260827130313-调研中文文本转语音的方案.org::*方案1: CosyVoice (阿里通义, 首选, 零样本免训练)][方案1: CosyVoice (阿里通义, 首选, 零样本免训练)]]
+* TODO 视频选题:为什么我放弃了neovim,转而使用emacs
+  [2026-08-29 Sat 14:05]
+  [[file:~/.config/emacs/notes/20260827173653-rust大学习top.org::*]]
+* TODO 视频选题:我做了一个让声音可见的小程序
+  [2026-08-29 Sat 14:06]
+  [[file:~/.config/emacs/notes/20260827173653-rust大学习top.org::*]]
+* TODO 视频idea:emacs相比neovim的强大org-mode笔记系统,文学编程
+  [2026-08-29 Sat 14:57]
+  [[file:~/.config/emacs/notes/20260829141000-generictypes.org::*In Struct Definition][In Struct Definition]]

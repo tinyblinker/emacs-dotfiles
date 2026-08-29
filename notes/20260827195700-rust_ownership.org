@@ -5,14 +5,13 @@
 #+date: 2026-08-27 19:57
 #+filetags:
 
-* ownership
-** what is ownership?
+* what is ownership?
   Memory is managed through a system of ownership with a set of rules that the compiler checks.
-*** *owenership rules*
-- Each value in Rust has an owner.
+** *owenership rules*
+p- Each value in Rust has an owner.
 - There can only be one owner at a time.
 - When the owner goes out of scope, the value will be dropped.
-*** Variable Scope
+** Variable Scope
 #+begin_src rust
   {                      // s is not valid here, since it's not yet declared
       let s = "hello";   // s is valid from this point forward
@@ -22,7 +21,7 @@
 #+end_src
 - When s comes into scope, it is valid.
 - It remains valid until it goes out of scope.
-*** Resource Acquisition Is Initialization (RAII)
+** Resource Acquisition Is Initialization (RAII)
 #+begin_src rust
   {
       let s = String::from("hello"); // s is valid from this point forward
@@ -32,7 +31,7 @@
   }                                  // this scope is now over, and s is no
   // longer valid
 #+end_src
-*** Variables and Data Interacting with "Move"
+** Variables and Data Interacting with "Move"
 #+begin_src rust
   let s1 = String::from("hello");
   let s2 = s1;
@@ -62,15 +61,15 @@
   For more information about this error, try `rustc --explain E0382`.
   error: could not compile `ownership` (bin "ownership") due to 1 previous error
 #+end_src
-*** Scope and Assignment
+** Scope and Assignment
 #+begin_src rust
   let mut s = String::from("hello");
   s = String::from("ahoy");
 
   println!("{s}, world!");
 #+end_src
-drop() the s immediately when assign s with "ahoy"
-*** Copy trait and owership "Move"
+ndrop() the s immediately when assign s with "ahoy"
+** Copy trait and owership "Move"
 String类型未实现Copy trait,且为Heap数据类型,只能手动.clone()实现"deep clone",否则只是"shallow clone",会"Move ownership"
 #+begin_src rust
   let s1 = String::from("hello");
@@ -85,7 +84,7 @@ Stack-Only的数据类型比如i32,bool,默认实现了Copy trait,默认assign(�
 
   println!("x = {x}, y = {y}");
 #+end_src
-*** Owership in function
+** Owership in function
 ~Passing a variable to a function will "move or copy", just as assignment does.~
 #+begin_src rust
   fn main() {
@@ -112,7 +111,7 @@ Stack-Only的数据类型比如i32,bool,默认实现了Copy trait,默认assign(�
       println!("{some_integer}");
   } // Here, some_integer goes out of scope. Nothing special happens.
 #+end_src
-*** Ownership about function's return value
+** Ownership about function's return value
 #+begin_src rust
     fn main() {
       let s1 = gives_ownership();        // gives_ownership moves its return
@@ -149,10 +148,10 @@ Stack-Only的数据类型比如i32,bool,默认实现了Copy trait,默认assign(�
 What if we want to let a function use a value but not take ownership?~
 所以引出了"Reference"
 ~Rust has a feature for using a value without transferring ownership: references.~
-** Reference and borrowing
-*** Reference特点
+* Reference and borrowing
+** Reference特点
 ~allow you to refer to some value without taking ownership of it~
-*** Immutable Reference
+** Immutable Reference
 Immutable ref不能被修改
 #+begin_src rust
   fn main() {
@@ -165,7 +164,7 @@ Immutable ref不能被修改
       some_string.push_str(", world");
   }
 #+end_src
-*** Mutable Reference
+** Mutable Reference
 Mutable Reference可以被修改
 #+begin_src rust
     fn main() {
@@ -178,7 +177,7 @@ Mutable Reference可以被修改
       some_string.push_str(", world");
   }
 #+end_src
-*** (error!!!)Only one Mutable Reference at A time
+** (error!!!)Only one Mutable Reference at A time
 p#+begin_src rust
   // error code!!!!!!!
   let mut s = String::from("hello");
@@ -198,7 +197,7 @@ p#+begin_src rust
 
   let r2 = &mut s;
 #+end_src
-*** (error!!)mutable & immutable reference cannot exist at one time
+** (error!!)mutable & immutable reference cannot exist at one time
 可以一个可变引用Scope或者多个不可变引用Scope
 #+begin_src rust
   let mut s = String::from("hello");
@@ -209,7 +208,7 @@ p#+begin_src rust
 
   println!("{r1}, {r2}, and {r3}");
 #+end_src
-*** 如何认定Reference的Scope
+** 如何认定Reference的Scope
 ~a reference’s scope starts from where it is introduced and continues through the last time that reference is used.~
 比如以下这种写法是合法的
 #+begin_src rust
@@ -223,7 +222,7 @@ p#+begin_src rust
   let r3 = &mut s; // no problem
   println!("{r3}");
 #+end_src
-*** 关于rust中的悬空引用
+** 关于rust中的悬空引用
 ~If you have a reference to some data, the compiler will ensure that the data
 will not go out of scope before the reference to the data does.~
 #+begin_src rust
@@ -259,16 +258,16 @@ will not go out of scope before the reference to the data does.~
   For more information about this error, try `rustc --explain E0106`.
   error: could not compile `ownership` (bin "ownership") due to 1 previous error
 #+end_src
-*** 小结
+** 小结
 ~1.At any given time, you can have either one mutable reference or any number of immutable references.
 2.References must always be valid.~
-** slices
+* slices
 ~Slices let you reference a contiguous sequence of elements in a collection.
 A slice is a kind of reference, so it does not have ownership.~
-*** why?为什么引入
+** why?为什么引入
 因为需要一种方式能保证对String读取时,String是不会被销毁的,所以引入了这种
 immutable引用:Slice
-*** 用法
+** 用法
 同样适用于任何"~collections~"数据结构(Vector,String,Hashmap)
 #+begin_src rust
   let s = String::from("hello world");
@@ -276,11 +275,11 @@ immutable引用:Slice
   let hello = &s[0..5];
   let world = &s[6..11];
 #+end_src
-*** string字面量即是&str(string slice)
-** how rust lay datas out in memory?
+** string字面量即是&str(string slice)
+* how rust lay datas out in memory?
 Stack:fixed size
 Heap:dynamic size
-** QA:
-*** "No GC"的核心原因？
-*** "str"和"String"有什么区别?????
+* QA:
+** "No GC"的核心原因？
+** "str"和"String"有什么区别?????
 

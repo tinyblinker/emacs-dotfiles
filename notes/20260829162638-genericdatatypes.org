@@ -1,0 +1,166 @@
+:PROPERTIES:
+:ID:       aa2da050-e8f7-40fe-bbfe-ae1430b71b6a
+:END:
+#+title: GenericDataTypes
+#+date: 2026-08-29 16:26
+#+filetags:
+
+* In Function Definition
+无GenericTypes代码展示(不同数据类型必须各自写函数实现某一相同功能)
+#+begin_src rust
+  fn largest_i32(list: &[i32]) -> &i32 {
+      let mut largest = &list[0];
+
+      for item in list {
+          if item > largest {
+              largest = item;
+          }
+      }
+
+      largest
+  }
+
+  fn largest_char(list: &[char]) -> &char {
+      let mut largest = &list[0];
+
+      for item in list {
+          if item > largest {
+              largest = item;
+          }
+      }
+
+      largest
+  }
+
+  fn main() {
+      let number_list = vec![34, 50, 25, 100, 65];
+
+      let result = largest_i32(&number_list);
+      println!("The largest number is {result}");
+
+      let char_list = vec!['y', 'm', 'a', 'q'];
+      
+      let result = largest_char(&char_list);
+      println!("The largest char is {result}");
+  }
+#+end_src
+引入GenericTypes(只要某个数据类型有相应Traits,就能直接用相同GenericTypes函数)
+#+begin_src rust
+  // 限定,只有实现了"PartialOrd"Traits(一个用于支持大小比较的Traits)的数据类型能使用这个函数
+  fn largest<T: std::cmp::PartialOrd>(list: &[T]) -> &T {
+      let mut largest = &list[0];
+
+      for item in list {
+          if item > largest {
+              largest = item;
+          }
+      }
+
+      largest
+  }
+
+  fn main() {
+      let number_list = vec![34, 50, 25, 100, 65];
+
+      let result = largest(&number_list);
+      println!("The largest number is {result}");
+
+      let char_list = vec!['y', 'm', 'a', 'q'];
+
+      let result = largest(&char_list);
+      println!("The largest char is {result}");
+  }
+#+end_src
+* In Struct Definition
+用GenericTypes限定一个结构体中有两个一定相同的数据类型
+#+begin_src rust
+  struct Point<T> {
+      x: T,
+      y: T,
+  }
+
+  fn main() {
+      let integer = Point { x: 5, y: 10 };
+      let float = Point { x: 1.0, y: 4.0 };
+  }
+#+end_src
+用GenericTypes限定一个结构体中有两个不一定相同的数据类型
+#+begin_src rust
+  struct Point<T, U> {
+      x: T,
+      y: U,
+  }
+
+  fn main() {
+      let both_integer = Point { x: 5, y: 10 };
+      let both_float = Point { x: 1.0, y: 4.0 };
+      let integer_and_float = Point { x: 5, y: 4.0 };
+  }
+#+end_src
+* In Enum Definition
+rust中的Result<T, E>和Option<T>两个enum的具体实现
+#+begin_src rust
+  enum Result<T, E> { //结果要么是正常输出Ok(T),要么报错,返回Err(E)
+      Ok(T),
+      Err(E),
+  }
+  enum Option<T> { //要么存在T类型数据,要么为空
+      Some(T),
+      None,
+  }
+#+end_src
+* In Method Definition
+用"impl"实现struct的methods时,可以为T实现methods,也可以只为特定数据类型实现
+#+begin_src rust
+  struct Point<T> {
+      x: T,
+      y: T,
+  }
+
+  impl<T> Point<T> {
+      fn x(&self) -> &T {
+          &self.x
+      }
+  }
+  
+  impl Point<f32> {
+    fn distance_from_origin(&self) -> f32 {
+        (self.x.powi(2) + self.y.powi(2)).sqrt()
+    }
+  }
+
+  fn main() {
+      let p = Point { x: 5, y: 10 };
+
+      println!("p.x = {}", p.x());
+  }
+#+end_src
+"impl"中指定的GenericTypes名称可以和原定义处不一样
+#+begin_src rust
+  struct Point<X1, Y1> {
+      x: X1,
+      y: Y1,
+  }
+
+  impl<X1, Y1> Point<X1, Y1> {
+      fn mixup<X2, Y2>(self, other: Point<X2, Y2>) -> Point<X1, Y2> {
+          Point {
+              x: self.x,
+              y: other.y,
+          }
+      }
+  }
+
+  fn main() {
+      let p1 = Point { x: 5, y: 10.4 };
+      let p2 = Point { x: "Hello", y: 'c' };
+
+      let p3 = p1.mixup(p2);
+
+      println!("p3.x = {}, p3.y = {}", p3.x, p3.y);
+  }
+#+end_src        
+* Runtime Cost
+GenericTypes无运行时开销,因为编译期会将所有GenericTypes替换为实际数据类型
+在程序执行阶段不会进行任何推导,所以不会有运行时开销
+
