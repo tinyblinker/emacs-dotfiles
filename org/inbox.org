@@ -25,3 +25,6 @@
 * TODO 视频idea:emacs相比neovim的强大org-mode笔记系统,文学编程
   [2026-08-29 Sat 14:57]
   [[file:~/.config/emacs/notes/20260829141000-generictypes.org::*In Struct Definition][In Struct Definition]]
+* TODO 惊叹于那么快就忘记了vim的键位,习惯了emacs键位,原来人可塑性那么强
+  [2026-08-29 Sat 21:02]
+  [[id:51f26b39-98b0-4f87-929c-f4f6024e5cd9::+filetags:]]
