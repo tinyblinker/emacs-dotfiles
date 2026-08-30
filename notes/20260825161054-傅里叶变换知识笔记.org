@@ -5,8 +5,7 @@
 #+OPTIONS: toc:2 num:t
 #+LANGUAGE: zh
 #+date: 2026-08-25 16:10
-#+filetags:cava
-#+filetags:recreational programming
+#+filetags:
 
 * 介绍
 本文整理利用傅里叶变换将声音的时域信号转换为频域信号、实现频谱分析所需掌握的具体知识。理论公式与Rust实现并重，实现部分基于本项目（mini_cava）已有的 Symphonia 解码逻辑。

@@ -28,3 +28,5 @@
 * TODO 惊叹于那么快就忘记了vim的键位,习惯了emacs键位,原来人可塑性那么强
   [2026-08-29 Sat 21:02]
   [[id:51f26b39-98b0-4f87-929c-f4f6024e5cd9::+filetags:]]
+* TODO Goals: emacs,GNU/Linux and math
+  [2026-08-30 Sun 18:19]
