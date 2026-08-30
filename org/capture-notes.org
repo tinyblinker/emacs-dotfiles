@@ -45,3 +45,5 @@ more interested thing, interacting with each other
 并总结在org-mode,先知道怎么做,先记录,再在记录回顾中自然形成知识??
   [2026-08-30 Sun 20:34]
   [[id:51f26b39-98b0-4f87-929c-f4f6024e5cd9::"I am tinyblinker, who lives in emacs with GNU/Linux."]]
+* 参考???bilibili:鹦鹉罗???风格
+  [2026-08-30 Sun 22:10]
