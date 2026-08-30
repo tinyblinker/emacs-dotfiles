@@ -20,3 +20,4 @@ tinyblinker的日常博客记录:
 2026-08-26:[[id:b019ee0c-29e2-45af-9014-6bb6ae54a32f][emacs中被overwrite-mode恶心到了]]
 2026-08-27:[[id:2c59a2ba-5b21-48b9-80e0-614af85eb43a][Lisp-machine-from-scratch-Top]]
 2026-08-27:[[id:037d79c2-a79e-4ae0-b59a-5b196c1fb8b5][调研中文文本转语音的方案]]
+2026-08-30:[[id:ed94d82b-f91b-4aac-a52c-eaac954e1f20][复刻cava心态爆炸的一次反思]]
