@@ -41,3 +41,7 @@ more interested thing, interacting with each other
 真正的工程实用主义的价值,,,,,,,
   [2026-08-30 Sun 20:31]
   [[id:51f26b39-98b0-4f87-929c-f4f6024e5cd9::tinyblinker的日常博客记录:]]
+* 或许借助ai?,基于每次探索的项目主题比如cava的fft来学习相应的知识章节(在最合适的时候激活相应的学习)
+并总结在org-mode,先知道怎么做,先记录,再在记录回顾中自然形成知识??
+  [2026-08-30 Sun 20:34]
+  [[id:51f26b39-98b0-4f87-929c-f4f6024e5cd9::"I am tinyblinker, who lives in emacs with GNU/Linux."]]
