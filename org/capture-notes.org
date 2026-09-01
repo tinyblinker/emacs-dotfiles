@@ -47,3 +47,6 @@ more interested thing, interacting with each other
   [[id:51f26b39-98b0-4f87-929c-f4f6024e5cd9::"I am tinyblinker, who lives in emacs with GNU/Linux."]]
 * 参考???bilibili:鹦鹉罗???风格
   [2026-08-30 Sun 22:10]
+* 项目标准:本身能不断加东西,不断迭代
+  [2026-09-01 Tue 15:57]
+  [[file:~/.config/emacs/notes/20260822124455-简易地复刻一个cava.org::*第二次尝试学习如何做傅里叶变换][第二次尝试学习如何做傅里叶变换]]
