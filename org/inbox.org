@@ -44,3 +44,7 @@
 * TODO ?try to do sth. or这就是上次休学的复刻
   [2026-09-01 Tue 15:46]
   [[file:~/.config/emacs/notes/20260822124455-简易地复刻一个cava.org::*第二次尝试学习如何做傅里叶变换][第二次尝试学习如何做傅里叶变换]]
+* TODO 看wiki,查资料,只看english, more you read, faster you will be,
+逃避开中文只会拖慢学习的进度
+  [2026-09-01 Tue 22:20]
+  [[file:~/.config/emacs/notes/20260822124455-简易地复刻一个cava.org::*第二次尝试学习如何做傅里叶变换][第二次尝试学习如何做傅里叶变换]]

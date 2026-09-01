@@ -1,0 +1,22 @@
+:PROPERTIES:
+:ID:       df9d008f-ffc5-4c4b-a0d8-c9a44e0c177e
+:END:
+#+title: 还原论
+#+date: 2026-09-01 21:19
+#+filetags:
+
+* Original Reference
+[[https://en.wikipedia.org/wiki/Reductionism][WikiPedia_Reductionism]]
+* intro
+Reductionism is any of several related philosophical ideas regarding the associations between phenomena which can be described in terms of simpler or more fundamental phenomena.It is also described as an intellectual and philosophical position that interprets a complex system as the sum of its parts,contrary to holism. Reductionism tends to focus on the small, predictable details of a system and is often associated with various philosophies like emergence, materialism, and determinism.
+* Definition
+suggests that reductionism is "one of the most used and abused terms in the philosophical lexicon" and suggests a three-part division:
+    ~Ontological reductionism~: a belief that the whole of reality consists of a minimal number of parts.
+    ~Methodological reductionism~: the scientific attempt to provide an explanation in terms of ever-smaller entities.
+    ~Theory reductionism~: the suggestion that a newer theory does not replace or absorb an older one, but reduces it to more basic terms. Theory reduction itself is divisible into three parts: translation, derivation, and explanation.
+Reductionism can be applied to any phenomenon, including objects, problems, explanations, theories, and meanings.
+For the sciences, application of methodological reductionism attempts explanation of entire systems in terms of their individual, constituent parts and their interactions. For example, the temperature of a gas is reduced to nothing beyond the average kinetic energy of its molecules in motion. Thomas Nagel and others speak of 'psychophysical reductionism' (the attempted reduction of psychological phenomena to physics and chemistry), and 'physico-chemical reductionism' (the attempted reduction of biology to physics and chemistry).In a very simplified and sometimes contested form, reductionism is said to imply that a system is nothing but the sum of its parts.
+However, a more nuanced opinion is that a system is composed entirely of its parts, but the system will have features that none of the parts have (which, in essence is the basis of emergentism)."The point of mechanistic explanations is usually showing how the higher level features arise from the parts."
+Other definitions are used by other authors. For example, what John Polkinghorne terms 'conceptual' or 'epistemological' reductionism is the definition provided by Simon Blackburn and by Jaegwon Kim: that form of reductionism which concerns a program of replacing the facts or entities involved in one type of discourse with other facts or entities from another type, thereby providing a relationship between them. Richard Jones distinguishes ontological and epistemological reductionism, arguing that many ontological and epistemological reductionists affirm the need for different concepts for different degrees of complexity while affirming a reduction of theories.
+The idea of reductionism can be expressed by "levels" of explanation, with higher levels reducible if need be to lower levels. This use of levels of understanding in part expresses our human limitations in remembering detail. However, "most philosophers would insist that our role in conceptualizing reality [our need for a hierarchy of "levels" of understanding] does not change the fact that different levels of organization in reality do have different 'properties'."
+Reductionism does not preclude the existence of what might be termed emergent phenomena, but it does imply the ability to understand those phenomena completely in terms of the processes from which they are composed. This reductionist understanding is very different from ontological or strong emergentism, which intends that what emerges in "emergence" is more than the sum of the processes from which it emerges, respectively either in the ontological sense or in the epistemological sense.
