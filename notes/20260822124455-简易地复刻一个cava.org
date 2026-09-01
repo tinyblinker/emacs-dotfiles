@@ -47,5 +47,6 @@
   极其微小的PCM型数据进行频谱分析(单独建立一个rust测试文件)
 - 发现:主流的实现算法(目标不考虑性能,能跑就行),
   Cooley-Turkey算法(最常用)
-- Cooley-Turkey算法:
+** Cooley-Turkey算法:
+*** TODO 阅读研究Cooley-Turkey EN wiki和配合YOUTUBE视频搓一个基本的FFT样例代码出来
 
