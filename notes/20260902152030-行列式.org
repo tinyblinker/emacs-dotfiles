@@ -1,0 +1,8 @@
+:PROPERTIES:
+:ID:       245ca656-f363-47a7-b1f1-1c6cf1db6987
+:END:
+#+title: 行列式
+#+date: 2026-09-02 15:20
+#+filetags:
+
+* 求值?

@@ -54,3 +54,10 @@ more interested thing, interacting with each other
 却又恍然发现自己走上了那条讨厌的路,变成讨厌的样子
   [2026-09-01 Tue 21:15]
   [[file:~/.config/emacs/notes/20260822124455-简易地复刻一个cava.org::*第二次尝试学习如何做傅里叶变换][第二次尝试学习如何做傅里叶变换]]
+* 英文学习唯一可行不就是全英文环境?无论知识密度,全部全英文即可,减少上下文
+切换和认知切换和内耗的陷阱
+  [2026-09-02 Wed 14:44]
+  [[file:~/Projects/test_rust/src/main.rs::fn main() {]]
+* 至少保证输入为纯英文,与ai交流可以直接中文保持高效率,或在查询资料时用英文正则保持高效
+  [2026-09-02 Wed 16:03]
+  [[file:~/.config/emacs/notes/20260902150555-线性代数.org::*矩阵][矩阵]]

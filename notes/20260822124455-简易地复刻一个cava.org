@@ -49,4 +49,11 @@
   Cooley-Turkey算法(最常用)
 ** Cooley-Turkey算法:
 *** TODO 阅读研究Cooley-Turkey EN wiki和配合YOUTUBE视频搓一个基本的FFT样例代码出来
+- 研究视频:[[https://www.youtube.com/watch?v=h7apO7q16V0&t=1196s][FFT介绍]]
+  锐评,看了和没看一样,很没用,很困,感觉不如看EN wikipedia
+- [[https://en.wikipedia.org/wiki/Cooley%E2%80%93Tukey_FFT_algorithm][Cooley-Turkey_wikipedia]]
+  核心需要掌握的:Radix-2 Cooley–Tukey
+  这个算法最经典，递归二分，要求,$N = 2^k$,适合手写实现
+  - 先研究"DFT":$X_k=\sum_{n=0}^{N-1}x_n e^{-2\pi i nk/N}$
+    
 
