@@ -40,6 +40,9 @@
   (require 'org-id)
   (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
 
+  ;; when open .org files, preview the Latex Codes
+  (setq org-startup-with-latex-preview t)
+  
   ;; adjust Latex backend and latex's picture's scale
   (setq org-preview-latex-default-process 'dvisvgm)
   (setq org-format-latex-options
