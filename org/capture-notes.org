@@ -61,3 +61,28 @@ more interested thing, interacting with each other
 * 至少保证输入为纯英文,与ai交流可以直接中文保持高效率,或在查询资料时用英文正则保持高效
   [2026-09-02 Wed 16:03]
   [[file:~/.config/emacs/notes/20260902150555-线性代数.org::*矩阵][矩阵]]
+* 优先知道怎么做就行,每次学习只学会刚好可以做到下一步的程序,即"惰性求值"即可
+  [2026-09-03 Thu 17:07]
+  [[id:51f26b39-98b0-4f87-929c-f4f6024e5cd9::+date: 2026-08-13 16:05]]
+* 与其天天自己脑子颅内高潮自己实现稀奇古怪的库结果到头来发现天天难以控制
+复杂度地胡乱造轮子,不如好好研究和用好别人造好的轮子,先模仿学习,再谈自己造,
+狂妄自大骄傲是最大的敌人
+  [2026-09-03 Thu 17:40]
+  [[file:~/.config/emacs/notes/20260822124455-简易地复刻一个cava.org::*阅读研究Cooley-Turkey EN wiki和配合YOUTUBE视频搓一个基本的FFT样例代码出来][阅读研究Cooley-Turkey EN wiki和配合YOUTUBE视频搓一个基本的FFT样例代码出来]]
+* 先知道怎么做就行,每次执行,只需要先学到勉强能继续做下一步的程度(lazy evaluation)
+  [2026-09-03 Thu 17:43]
+  [[file:~/.config/emacs/notes/20260822124455-简易地复刻一个cava.org::*阅读研究Cooley-Turkey EN wiki和配合YOUTUBE视频搓一个基本的FFT样例代码出来][阅读研究Cooley-Turkey EN wiki和配合YOUTUBE视频搓一个基本的FFT样例代码出来]]
+* 有的时候对于那些不知道怎么实现的东西,可以先用库实现,再尝试用自己的简易代码把库给替代了
+实现反向学习库的代码,多学习库的优秀思想,感觉自己莫名奇妙很像裸奔造轮子
+  [2026-09-03 Thu 18:47]
+  [[file:~/Projects/test_rust_plus/src/main.rs::let xn: Vec<Complex32> = (1..101).map(|x| Complex32::new(x as f32, 0f32)).collect();]]
+* 先知道怎么做,然后继续学习勉强够下一步的知识做下一步,知识不断激活之后
+才是自己的,无论是传统的查资料激活还是ai提示的激活,可视为同等效力的激活
+可视为等价的同等效力学习
+  [2026-09-03 Thu 18:49]
+  [[file:~/Projects/test_rust_plus/src/main.rs::for (index, data) in (&xn).into_iter().enumerate() {]]
+* 论迹不论心,优先是把东西做出来交付
+  [2026-09-03 Thu 18:56]
+* 时刻记着代码是因为需求写的,基于自己的内心需求,勿乱折腾
+  [2026-09-03 Thu 21:50]
+  [[file:~/Projects/cava_plus/src/main.rs::fft.process(&mut buffer);]]
