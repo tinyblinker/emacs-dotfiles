@@ -1,0 +1,245 @@
+:PROPERTIES:
+:ID:       bdd0e227-cba4-4908-a8bb-6990b58188a9
+:END:
+#+title: 捕获pipewire到PCM数据的历程
+#+date: 2026-09-04 21:12
+#+filetags:
+
+* 目标
+在 Arch Linux (PipeWire) 上，用 cpal 实时捕获"正在播放"的音频（即默认 sink 的
+monitor），并转成单声道 f32 PCM。
+
+* 原始代码的三个问题
+原始代码:
+#+begin_src rust
+  use anyhow::anyhow;
+  use cpal::{
+      traits::{DeviceTrait, HostTrait, StreamTrait},
+      Device, Error, ErrorKind, InputCallbackInfo, SampleFormat, SizedSample, StreamConfig,
+  };
+
+  fn err_fn(err: Error) {
+      match err.kind() {
+          ErrorKind::DeviceChanged | ErrorKind::RealtimeDenied => {
+              eprintln!("{err}")
+          }
+          _ => eprintln!("Stream error: {err}"),
+      }
+  }
+
+  fn run<T>(input_device: &Device, config: StreamConfig) -> Result<(), anyhow::Error>
+  where
+      T: SizedSample + std::fmt::Debug + Send + 'static,
+  {
+      let input_data_fn = move |data: &[T], _: &InputCallbackInfo| {
+          println!("data = {:?}", data);
+      };
+
+      // Build streams.
+      println!(
+          "Attempting to build input stream with {} samples and `{config:?}`.",
+          T::FORMAT
+      );
+      let input_stream = input_device.build_input_stream(config, input_data_fn, err_fn, None)?;
+      println!("Successfully built streams.");
+
+      // play the stream
+      input_stream.play()?;
+
+      Ok(())
+  }
+
+  fn main() -> Result<(), anyhow::Error> {
+      // init Host and Device
+      let host = cpal::host_from_id(cpal::HostId::PipeWire)?;
+      let input_device = host
+          .input_devices()?
+          .find(|d| {
+              d.id()
+                  .map(|id| id.to_string() == "default_sink")
+                  .unwrap_or(false)
+          })
+          .ok_or(anyhow!("找不到input sink"))?;
+      println!("input device: {}", input_device);
+
+      // init the config
+      let input_config = input_device.default_input_config()?;
+      println!(
+          "sample rate: {} Hz, channels: {}, format: {:?}",
+          input_config.sample_rate(),
+          input_config.channels(),
+          input_config.sample_format()
+      );
+
+      match input_config.sample_format() {
+          SampleFormat::I8 => run::<i8>(&input_device, input_config.into()),
+          SampleFormat::I16 => run::<i16>(&input_device, input_config.into()),
+          SampleFormat::I32 => run::<i32>(&input_device, input_config.into()),
+          SampleFormat::I64 => run::<i64>(&input_device, input_config.into()),
+          SampleFormat::U8 => run::<u8>(&input_device, input_config.into()),
+          SampleFormat::U16 => run::<u16>(&input_device, input_config.into()),
+          SampleFormat::U32 => run::<u32>(&input_device, input_config.into()),
+          SampleFormat::U64 => run::<u64>(&input_device, input_config.into()),
+          SampleFormat::F32 => run::<f32>(&input_device, input_config.into()),
+          SampleFormat::F64 => run::<f64>(&input_device, input_config.into()),
+          sample_format => panic!("Unsupported sample format '{sample_format}'"),
+      }?;
+
+      // leave the thread sleep
+      loop {
+          std::thread::park();
+      }
+
+      Ok(())
+  }
+#+end_src
+1. 设备查找逻辑永远匹配不到目标设备；
+2. 回调只打印原始数据，没有做 PCM 下混转换；
+3. 最致命：流在 ~play()~ 之后立刻被 drop，导致收不到任何数据。
+
+* 改动一：修正设备查找
+** 原代码
+#+begin_src rust
+let input_device = host
+    .input_devices()?
+    .find(|d| {
+        d.id()
+            .map(|id| id.to_string() == "default_sink")
+            .unwrap_or(false)
+    })
+    .ok_or(anyhow!("找不到input sink"))?;
+#+end_src
+
+** 新代码
+#+begin_src rust
+let input_device = host
+    .devices()?
+    .find(|d| {
+        d.description()
+            .map(|desc| desc.name() == "default_sink")
+            .unwrap_or(false)
+    })
+    .or_else(|| {
+        host.devices().ok()?.into_iter().find(|d| {
+            d.id()
+                .map(|id| id.to_string().contains(".monitor"))
+                .unwrap_or(false)
+        })
+    })
+    .ok_or(anyhow!("找不到播放监听设备（default_sink / *.monitor）"))?;
+#+end_src
+
+** 依据
+- cpal 的 PipeWire 后端里，~Device::id()~ 返回内部 ~node_name~；默认 sink 设备的
+  ~node_name~ 是 ~"sink_default"~，而 ~"default_sink"~ 是它的 /描述名/（description），
+  只出现在 ~description().name()~ 或 ~Display~ 里。所以原来的 ~id() == "default_sink"~
+  永远为假。参见 cpal 源码 ~src/host/pipewire/device.rs~ 的 ~sink_default()~ 与 ~id()~。
+- ~default_input_device()~ 返回的是麦克风（~default_input~），不是播放监听。对
+  ~Role::Sink~ 的设备建 *输入流* 时，cpal 会自动设置 ~stream.capture.sink=true~，从而
+  捕获"正在播放到该 sink"的音频（monitor）。
+- 捕获桌面音频的官方讨论见 [[https://github.com/RustAudio/cpal/issues/736][cpal#736 Capture desktop audio on linux]]。
+
+* 改动二：回调中下混为单声道 f32
+** 原代码
+#+begin_src rust
+fn run<T>(input_device: &Device, config: StreamConfig) -> Result<(), anyhow::Error>
+where
+    T: SizedSample + std::fmt::Debug + Send + 'static,
+{
+    let input_data_fn = move |data: &[T], _: &InputCallbackInfo| {
+        println!("data = {:?}", data);
+    };
+    // ...
+}
+#+end_src
+
+** 新代码
+#+begin_src rust
+fn run<T>(
+    input_device: &Device,
+    config: StreamConfig,
+    channels: usize,
+) -> Result<Stream, anyhow::Error>
+where
+    T: SizedSample + Sample + Send + 'static,
+    f32: FromSample<T>,
+{
+    let input_data_fn = move |data: &[T], _: &InputCallbackInfo| {
+        let mut mono = Vec::with_capacity(data.len() / channels);
+        for frame in data.chunks_exact(channels) {
+            let sum: f32 = frame.iter().map(|s| s.to_sample::<f32>()).sum();
+            mono.push(sum / channels as f32);
+        }
+        println!(
+            "mono: {} 帧, 首帧 {:.4}",
+            mono.len(),
+            mono.first().copied().unwrap_or(0.0)
+        );
+    };
+    // ...
+}
+#+end_src
+
+** 依据
+- 回调收到的 ~&[T]~ 是交错（interleaved）排列的 PCM（L R L R …），~T~ 由设备采样格式
+  决定；PipeWire 后端 ~default_input_config()~ 固定返回 ~F32~。
+- 用 ~to_sample::<f32>()~ 把任意整数/浮点样本统一转成归一化 f32，再按声道求平均完成下混。
+  该方法来自 dasp_sample 的 ~Sample~ trait（cpal 重导出，见
+  [[https://docs.rs/cpal/0.18.2/cpal/trait.Sample.html][Sample]]）。泛型上因此需要补
+  ~f32: FromSample<T>~ 约束，并导入 ~Sample~、~FromSample~。
+- ~channels~ 由 ~input_config.channels()~ 传入（默认 sink 为 2）。
+
+* 改动三（关键）：保持流存活
+** 原代码
+#+begin_src rust
+let input_stream = input_device.build_input_stream(config, input_data_fn, err_fn, None)?;
+input_stream.play()?;
+Ok(())
+#+end_src
+
+** 新代码
+#+begin_src rust
+let input_stream = input_device.build_input_stream(config, input_data_fn, err_fn, None)?;
+input_stream.play()?;
+Ok(input_stream)
+#+end_src
+
+并在 ~main~ 中接住返回的流，避免其被立即释放：
+#+begin_src rust
+let _stream = match input_config.sample_format() {
+    // ... 各格式分支调用 run::<T>
+    sample_format => panic!("Unsupported sample format '{sample_format}'"),
+}?;
+
+loop {
+    std::thread::park();
+}
+#+end_src
+
+** 依据
+- cpal 的 ~Stream::drop~ 会发送 ~Stop~ 命令并 join 工作线程（见
+  ~src/host/pipewire/stream.rs~ 的 ~impl Drop for Stream~）。原代码在 ~play()~ 之后
+  立即从 ~run()~ 返回，局部变量 ~input_stream~ 随之被 drop，流刚启动即被销毁，回调永远
+  收不到数据。这就是"无法实时读取输入声音"的根因。
+- 参考官方示例 [[https://github.com/RustAudio/cpal/blob/master/examples/record_wav.rs][record_wav.rs]]，
+  它在录制期间始终保持 ~stream~ 存活。
+
+* 依赖与验证
+- ~Cargo.toml~ 无需改动：~cpal = { version = "0.18.2", features = ["pipewire"] }~。
+- 验证输出示例：
+#+begin_example
+mono: 512 帧, 首帧 0.0000
+mono: 512 帧, 首帧 -0.0603
+mono: 512 帧, 首帧 -0.0359
+#+end_example
+
+* 参考链接
+- [[https://docs.rs/cpal/0.18.2/cpal/][cpal API 文档]]
+- [[https://docs.rs/cpal/0.18.2/cpal/traits/DeviceTrait.html][DeviceTrait]]
+- [[https://docs.rs/cpal/0.18.2/cpal/traits/HostTrait.html][HostTrait]]
+- [[https://docs.rs/cpal/0.18.2/cpal/traits/StreamTrait.html][StreamTrait]]
+- [[https://docs.rs/cpal/0.18.2/cpal/trait.Sample.html][Sample]]
+- [[https://docs.rs/cpal/0.18.2/cpal/trait.FromSample.html][FromSample]]
+- [[https://github.com/RustAudio/cpal/issues/736][cpal#736 Capture desktop audio on linux]]
+- [[https://github.com/RustAudio/cpal/blob/master/examples/record_wav.rs][record_wav.rs 示例]]
+
