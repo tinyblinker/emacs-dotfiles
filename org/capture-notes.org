@@ -86,3 +86,10 @@ more interested thing, interacting with each other
 * 时刻记着代码是因为需求写的,基于自己的内心需求,勿乱折腾
   [2026-09-03 Thu 21:50]
   [[file:~/Projects/cava_plus/src/main.rs::fft.process(&mut buffer);]]
+* 理解一个库,比如一个rust create,应该最好的方法就是去读例子吧,然后去实验一下相应的例子
+  [2026-09-04 Fri 17:06]
+  [[file:~/.config/emacs/notes/20260822124455-简易地复刻一个cava.org::*改进优化:系统音源(pipewire)->PCM->(FFT)->频域数据][改进优化:系统音源(pipewire)->PCM->(FFT)->频域数据]]
+* 感悟,即使用ai改代码,也要在改完之后,让ai生成修改总结和修改证据链
+手动审查;这样才能学到更多东西,防止成为ai的奴隶
+  [2026-09-04 Fri 21:05]
+  [[file:~/.config/emacs/notes/20260822124455-简易地复刻一个cava.org::*改进优化:系统音源(pipewire)->PCM->(FFT)->频域数据][改进优化:系统音源(pipewire)->PCM->(FFT)->频域数据]]

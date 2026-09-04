@@ -1,0 +1,48 @@
+:PROPERTIES:
+:ID:       18b66129-14f3-4806-bffd-1fb2c003b1bc
+:END:
+#+title: archlinux的dms-shell更新崩溃解析
+#+date: 2026-09-04 15:14
+#+filetags:
+
+* 诊断结论
+- 根本原因是 dms-shell / dms-shell-niri 在 9月4日 13:51 从 1.5.3-1 升级到 1.6.0-1，而 Arch 的 1.6.0 打包是有缺陷的。这次升级同时破坏了 greeter（greetd） 和 dms 桌面 shell 两处。
+* 证据链（从 systemd 报错开始）
+- 1. greetd.service → failed (Result: start-limit-hit)，journal 里循环出现：
+  greetd[767]: error: check_children: greeter exited without creating a session
+  greetd 的 greeter 是 dms-greeter --command niri -p /usr/share/quickshell/dms，它内部用 niri 拉起 quickshell -p /usr/share/quickshell/dms。quickshell 在 ~1 秒内崩溃退出 → 触发 niri msg action quit → greetd 判定 greeter 未创建会话而重启，5 次后 start-limit。
+- 2. greeter 崩溃的原因：/usr/share/quickshell/dms/shell.qml 第 13 行
+  import qs.DankCommon.Common as DC
+  而 /usr/share/quickshell/dms/DankCommon 是指向 ../dank-qml-common/DankCommon 的悬空符号链接，/usr/share/dank-qml-common 根本不存在，仓库里也没有 dank-qml-common 这个包（pacman -Ss 无结果）。这是 DMS 1.6.0 新增的 dank-qml-common submodule 依赖，Arch 包没带上。（GreeterContent.qml 也 import qs.DankCommon.Session）
+- 3. 即使绕过 greeter（用户 14:04/14:12 用 TTY 登录后），dms.service 也失败：
+  Error: this dms build has no embedded UI; pass -c <dir> or set DMS_SHELL_DIR
+  FATAL go: this dms build has no embedded UI; pass -c <dir> or set DMS_SHELL_DIR
+  /usr/lib/systemd/user/dms.service 执行 dms run --session（无 -c），但 Arch 的 dms 二进制是不带 withshell 编译标签构建的，没有内嵌 UI。
+- 4. 上游 1.6.0 发布说明明确写了 breaking change：UI 改为内嵌进二进制（需 -tags withshell），且 greeter 已独立为 dank-greeter。Arch 包既没内嵌 UI、又没给 dms.service 传 -c、还缺 dank-qml-common —— 三处都没跟上。
+* 对比验证
+- 1.5.3 的 shell.qml 只 import qs.Common/qs.Modules/qs.Services，不依赖 DankCommon；1.6.0 才引入 qs.DankCommon。
+- 1.5.3 的 dms 是内嵌 UI 的，dms run --session 正常工作。
+- 9月3日及 9月4日 12:55 的启动日志里 greeter 都正常（session opened for user shyweeds）。
+* 修复计划（推荐：降级并锁定，立即恢复可用）
+- 1. 降级三个包（缓存里都有旧包）：
+  #+begin_src shell
+    sudo pacman -U /var/cache/pacman/pkg/dgop-0.2.3-1-x86_64.pkg.tar.zst \
+         /var/cache/pacman/pkg/dms-shell-1.5.3-1-x86_64.pkg.tar.zst \
+         /var/cache/pacman/pkg/dms-shell-niri-1.5.3-1-x86_64.pkg.tar.zst
+  #+end_src
+（dgop 需一起降到 0.2.3，因为 1.6.0 是配套发布）
+- 2. 锁定版本防止再次被 -Syu 拉高，在 /etc/pacman.conf 加：
+  IgnorePkg = dgop dms-shell dms-shell-niri
+- 3. 重启验证（或直接 sudo systemctl restart greetd）：
+  - systemctl status greetd 应为 active，greeter 正常显示登录界面
+  - 登录后 systemctl --user status dms.service 应为 active（DMS 桌面出现）
+  - 确认 journalctl -u greetd 无 greeter exited without creating a session
+  - 如要彻底回归，先 systemctl --user daemon-reload（无需改动 dms.service，1.5.3 已内嵌 UI）。
+* 备选（向前修复，需上游/打包者补齐，暂不可行）
+- 安装缺失的 dank-qml-common（目前 Arch 仓库/AUR 无此包，需从 DMS 仓库 submodule 自行构建）
+- 给 dms.service 加 -c /usr/share/quickshell/dms（systemctl --user edit dms.service drop-in）——但仅修桌面、不修 greeter
+- 迁移到独立 dank-greeter 包并改 /etc/greetd/config.toml（该包同样未进 Arch 仓库）
+* 建议额外动作
+- 向 Arch 维护者/上游报 issue：dms-shell 1.6.0 缺少 dank-qml-common 依赖、dms.service 未传 -c、且未按 1.6.0 要求内嵌 UI。
+* TODO !!!!!!计划,这次cava的项目做完,视频剪辑完成后,就迁移到sway去,用unix-pron方式生存
+- 用Sway+一堆小组件,降低错误排查难度,同时换用Sway,防止niri这种一次性占一堆内存
