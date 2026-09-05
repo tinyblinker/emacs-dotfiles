@@ -130,13 +130,13 @@ let input_device = host
 #+end_src
 
 ** 依据
-- cpal 的 PipeWire 后端里，~Device::id()~ 返回内部 ~node_name~；默认 sink 设备的
+- cpal 的 PipeWire 后端里, ~Device::id()~ 返回内部 ~node_name~；默认 sink 设备的
   ~node_name~ 是 ~"sink_default"~，而 ~"default_sink"~ 是它的 /描述名/（description），
   只出现在 ~description().name()~ 或 ~Display~ 里。所以原来的 ~id() == "default_sink"~
-  永远为假。参见 cpal 源码 ~src/host/pipewire/device.rs~ 的 ~sink_default()~ 与 ~id()~。
+  永远为假。参见 cpal 源码 ~src/host/pipewire/device.rs~ 的 ~sink_default()~ 与 ~id()~.
 - ~default_input_device()~ 返回的是麦克风（~default_input~），不是播放监听。对
-  ~Role::Sink~ 的设备建 *输入流* 时，cpal 会自动设置 ~stream.capture.sink=true~，从而
-  捕获"正在播放到该 sink"的音频（monitor）。
+  ~Role::Sink~ 的设备建 *输入流* 时，cpal 会自动设置 ~stream.capture.sink=true~,从而
+  捕获"正在播放到该 sink"的音频（monitor）.
 - 捕获桌面音频的官方讨论见 [[https://github.com/RustAudio/cpal/issues/736][cpal#736 Capture desktop audio on linux]]。
 
 * 改动二：回调中下混为单声道 f32
