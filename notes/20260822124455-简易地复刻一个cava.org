@@ -123,4 +123,4 @@
 先试试手搓一个ui来跑起来试试(纯ascii字符)
 - ???如何在终端上异步地画类似cava的ui条呢???
   方案一:用二维Vector画一个点阵,用类似life_game中的表示方法表示音量条
-  方案二:借助crossterm这类轻量库,直接操作terminal,用轻量抽象的ui库去绘制
+  方案二:借助crossterm这类轻量库,直接操作terminal,用轻量抽象的ui库去绘制(~!!!ENTER alternate screen~)
