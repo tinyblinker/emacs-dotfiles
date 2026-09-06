@@ -9,6 +9,7 @@
   "I am tinyblinker, who lives in emacs with GNU/Linux."
   "世界上最令人向往的是,忠实于自己的自由,即诚实"
   "追逐影子的人,自己就是影子"
+  "世间万物本就无异,都是在苦难和希望交加的地狱中挣扎........"
 #+end_src
 tinyblinker的日常博客记录:
 2026-08-13:[[id:d609461c-c718-47e9-b41b-6aa49a91e362][archlinux的旁路由配置]]
@@ -25,3 +26,4 @@ tinyblinker的日常博客记录:
 2026-09-02:[[id:8b72daae-6a13-4a94-b4f8-772e4de60a87][和外国人练口语的app或者网站推荐]]
 2026-09-04:[[id:18b66129-14f3-4806-bffd-1fb2c003b1bc][archlinux的dms-shell更新崩溃解析]]
 2026-09-04:[[id:bdd0e227-cba4-4908-a8bb-6990b58188a9][捕获pipewire到PCM数据的历程]]
+2026-09-06:[[id:335872b6-c145-49cf-87d7-06230e31bc7d][PCM数据用RustFFT转换为频谱的Debug过程]]

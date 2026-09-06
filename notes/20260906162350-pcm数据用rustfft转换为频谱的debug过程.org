@@ -1,0 +1,257 @@
+:PROPERTIES:
+:ID:       335872b6-c145-49cf-87d7-06230e31bc7d
+:END:
+#+title: PCM数据用RustFFT转换为频谱的Debug过程
+#+date: 2026-09-06 16:23
+#+filetags:
+
+* 一句话结论
+ring buffer 本身 *从头到尾都没坏*。
+真正的问题是：消费者在 *空转*（busy-loop 无脑 ~pop_slice~），
+它的消费速度远快于生产者（音频回调）的填充速度，
+所以绝大多数 ~pop_slice~ 都返回 0，*看起来* 就像 buffer 不工作。
+
+* 现象
+- 控制台疯狂刷屏：
+  #+begin_src text
+  Consuming fft input data too quickly!!
+  poped_data_len = 0
+  #+end_src
+- 但最初几次 ~poped_data_len = 1024~,之后就一直 = 0。
+- 于是直觉判断：「ring buffer 没有把数据传过来」。
+
+* 根因分析
+** 数据流的两端速率不匹配
+  - 生产者：CPAL 音频回调，每 ~21ms 才来一批（~2048 个采样）。
+  - 消费者：一个 ~loop { pop_slice; FFT }~ 的 *无等待空转*，
+    每秒钟能空跑几千次。
+  - 结果：消费者先把预填充的数据瞬间吃光，之后每次醒来看 buffer 都是
+    空的/不满的，于是返回 0 或部分数据。
+
+** 关键证据（用数字说话）
+  在同一台机器上跑 3 秒并统计日志：
+  #+begin_src text
+  producer 回调次数（pushed_slice_cnt = 2048）:  138 次   <- 一直在产
+  consumer 成功 pop 满 1024 的次数:               280 次   <- 有数据时能吃满
+  consumer 空转 pop=0 的次数:                    21983 次  <- 空转才是大头
+  #+end_src
+  - 138 × 2048 ≈ 282k 个采样，与 280 × 1024 ≈ 286k 基本吻合，
+    说明 *数据一字不差地通过了 ring buffer* .
+  - 那 21983 次空转，才是「poped_data_len 始终 = 0」的假象来源。
+
+** 为什么容易误判
+  - 只盯着消费者一侧的打印，没去看生产者那一侧。
+  - 预填充的 4096 个 ~EQUILIBRIUM~（静音）数据，让程序「前几次能吃到
+    1024、之后就 0」，这个「先有后无」的现象极具迷惑性。
+
+* 调试心路历程（复盘）
+1. *先别急着改代码，先分清「谁没工作」。*
+   ring buffer 是 SPSC 的两端，必须 *分别* 验证生产端和消费端：
+   - 生产端：给回调加计数，看它到底有没有被调用、每次 push 多少。
+     结果：138 次、每次完整 push 2048，生产端完全正常。
+   - 消费端：统计 pop 返回值分布。
+     结果：有数据时能 pop 满，但空转次数是有效次数的 ~78 倍。
+2. *把「症状」翻译成「速率不匹配」。*
+   - 「pop 返回 0」≠「没数据」，也可能是「我来早了 / 我吃太快了」。
+3. *对照上游 CPAL 的 fft 例子。*
+   - 老版本 cpal 的 ~examples/fft.rs~ 用的是「先 ~consumer.len()~ 判断，
+     不够就 continue 等」的写法；正是缺了这一步「等」。
+4. *注意 ringbuf 版本 API 差异。*
+   - 老例子里 ~consumer.len()~ 在 ringbuf 0.5 里变成了
+     ~consumer.occupied_len()~（~Observer~ trait 的方法），
+     ~HeapRb::new().split()~ 拆出 producer/consumer 是对的，
+     但需要把 ~Observer~ 也引入作用域才能调 ~occupied_len()~。
+
+* 修复
+  - 消费者改成「先等够 FFT_SIZE 个采样，再一次性吃满」：
+  #+begin_src rust
+  while consumer.occupied_len() < FFT_SIZE {
+      std::thread::sleep(std::time::Duration::from_millis(1));
+  }
+  let mut window = [T::EQUILIBRIUM; FFT_SIZE];
+  consumer.pop_slice(&mut window);
+  #+end_src
+  - 去掉了导致误解的预填充（那是 cpal 双工例子做延迟补偿用的，纯采集不需要）。
+  - 去掉了刷屏的 per-callback ~println!~，峰值信息每 50 帧打印一次。
+
+* 验证（端到端）
+  用一个 1000 Hz 的正弦波打到 ~default_sink~，看 FFT 能否抓到：
+  #+begin_src sh
+  ffmpeg -f lavfi -i "sine=frequency=1000:sample_rate=48000:duration=8" \
+         -ac 2 -ar 48000 tone.wav
+  # 一边跑程序，一边：
+  pw-play tone.wav
+  #+end_src
+  程序输出：
+  #+begin_src text
+  frame   150: peak bin =  11, magnitude = 37.179
+  frame   200: peak bin =  11, magnitude = 37.968
+  #+end_src
+  峰值稳定出现在 bin 11、幅度 ~37，说明真实音频数据已经
+  *从设备 → 回调 → ring buffer → 消费者 → FFT* 全链路跑通。
+
+* 经验教训（可复用）
+1. 调 SPSC/队列问题时，*一定要分别给生产端和消费端加计数*，
+   用「总产量 ≈ 总消费量」来判断到底哪一端有问题。
+2. 「返回 0」要多问一句：是「真没数据」，还是「消费者太快 / 生产者太慢」。
+3. 消费者不要在热循环里无脑 ~pop~；要么阻塞/休眠等待，
+   要么用「攒够一批再处理」的批量策略。
+4. 参考上游例子时，先核对依赖版本，API 可能已经改名
+   (~len~ → ~occupied_len~, ~push~ → ~try_push/push_slice~ 等).
+5. 用真实信号（正弦波）做端到端验证，比「看打印」更有说服力，
+   能一次性确认整条链路而非某一段。
+
+* 遗留建议（非本次 bug，仅供参考）
+  - 输入是 2 声道交错（L,R,L,R…），直接塞进 FFT 会把 L/R 混在一起，
+    峰值频点会偏移（本例 1000 Hz 出现在 bin 11 而非理论 bin 21）。
+    做频谱可视化前建议先「降混成单声道」（取 (L+R)/2）再 FFT。
+  - 1ms 的 sleep 对可视化足够，若追求更低延迟/省 CPU，可换成
+    ~condvar~ 或定时器驱动的消费节奏。
+* ai的最终可行代码
+#+begin_src rust
+  use anyhow::anyhow;
+  use cpal::{
+      traits::{DeviceTrait, HostTrait, StreamTrait},
+      Device, Error, ErrorKind, FromSample, InputCallbackInfo, SampleFormat, SizedSample,
+      StreamConfig,
+  };
+  use ringbuf::{
+      traits::{Consumer, Observer, Producer, Split},
+      HeapRb,
+  };
+  use rustfft::{
+      num_complex::{Complex, Complex32},
+      FftPlanner,
+  };
+
+  const FFT_SIZE: usize = 1024;
+
+  fn err_fn(err: Error) {
+      match err.kind() {
+          ErrorKind::DeviceChanged | ErrorKind::RealtimeDenied => {
+              eprintln!("{err}")
+          }
+          _ => eprintln!("Stream error: {err}"),
+      }
+  }
+
+  fn run<T>(input_device: &Device, config: StreamConfig) -> Result<(), anyhow::Error>
+  where
+      T: SizedSample
+          + std::fmt::Debug
+          + Send
+          + 'static
+          + rustfft::num_traits::FromPrimitive
+          + rustfft::num_traits::Signed
+          + std::marker::Sync,
+      f32: FromSample<T>,
+  {
+      // Create RingBuffer for "input_data_fn" (producer), for the "RustFFT"(consumer)
+      let ring_capacity = FFT_SIZE * 8;
+      let ring = HeapRb::<T>::new(ring_capacity);
+      let (mut producer, mut consumer) = ring.split();
+
+      // "move" 能让闭包捕获的外部变量拿走所有权,而不是继续借用他们
+      let input_data_fn = move |data: &[T], _: &InputCallbackInfo| {
+          let pushed_slice_cnt = producer.push_slice(data);
+          if pushed_slice_cnt < data.len() {
+              eprintln!("Producing fft input data too quickly!!");
+          }
+      };
+
+      // Build streams.
+      println!(
+          "Attempting to build input stream with {} samples and `{config:?}`.",
+          T::FORMAT
+      );
+      let input_stream = input_device.build_input_stream(config, input_data_fn, err_fn, None)?;
+      println!("Successfully built streams.");
+
+      // play the stream(should be alive in this thread always!)
+      input_stream.play()?;
+
+      // RustFFT
+      let mut planner = FftPlanner::<f32>::new();
+      let fft = planner.plan_fft_forward(FFT_SIZE);
+      let mut fft_counter: u64 = 0;
+      loop {
+          // 关键:生产者(音频回调)大约每 20ms 才填进来一批数据,
+          // 而消费者如果空转(无脑 pop_slice),速度远快于生产者,
+          // 于是绝大多数 pop 都返回 0,看起来就像 ring buffer "不工作"。
+          // 正确做法:先等 ring buffer 攒够 FFT_SIZE 个采样,再消费。
+          while consumer.occupied_len() < FFT_SIZE {
+              std::thread::sleep(std::time::Duration::from_millis(1));
+          }
+
+          let mut window = [T::EQUILIBRIUM; FFT_SIZE];
+          consumer.pop_slice(&mut window);
+
+          let mut buffer: Vec<Complex<f32>> = window
+              .iter()
+              .map(|&x| Complex32::new(x.to_sample::<f32>(), 0.0))
+              .collect();
+          fft.process(&mut buffer);
+
+          // 打印最大幅值所在的频点,便于肉眼确认数据确实在流动。
+          // 每 50 帧打印一次,避免刷屏。
+          fft_counter += 1;
+          if fft_counter.is_multiple_of(50) {
+              let (bin, mag) = buffer
+                  .iter()
+                  .take(FFT_SIZE / 2)
+                  .enumerate()
+                  .max_by(|(_, a), (_, b)| a.norm().partial_cmp(&b.norm()).unwrap())
+                  .unwrap();
+              println!(
+                  "frame {fft_counter:>5}: peak bin = {bin:>3}, magnitude = {:.3}",
+                  mag.norm()
+              );
+          }
+      }
+  }
+
+  fn main() -> Result<(), anyhow::Error> {
+      // init Host and Device
+      let host = cpal::host_from_id(cpal::HostId::PipeWire)?;
+      let input_device = host
+          .devices()?
+          .find(|d| {
+              d.description()
+                  .map(|des| des.name() == "default_sink")
+                  .unwrap_or(false)
+          })
+          .ok_or(anyhow!("Cannot find the \"default_sink\"!"))?;
+      println!("input device: {}", input_device);
+
+      // init the config
+      let input_config = input_device.default_input_config()?;
+      println!(
+          "sample rate: {} Hz, channels: {}, format: {:?}",
+          input_config.sample_rate(),
+          input_config.channels(),
+          input_config.sample_format()
+      );
+
+      // run() 内部持有 input_stream 并进入无限循环,stream 一直存活;
+      // 因此这里无需再额外持有返回值。
+      match input_config.sample_format() {
+          // SampleFormat::I8 => run::<i8>(&input_device, input_config.into()),
+          // SampleFormat::I16 => run::<i16>(&input_device, input_config.into()),
+          // SampleFormat::I32 => run::<i32>(&input_device, input_config.into()),
+          // SampleFormat::I64 => run::<i64>(&input_device, input_config.into()),
+          // SampleFormat::U8 => run::<u8>(&input_device, input_config.into()),
+          // SampleFormat::U16 => run::<u16>(&input_device, input_config.into()),
+          // SampleFormat::U32 => run::<u32>(&input_device, input_config.into()),
+          // SampleFormat::U64 => run::<u64>(&input_device, input_config.into()),
+          SampleFormat::F32 => run::<f32>(&input_device, input_config.into())?,
+          // SampleFormat::F64 => run::<f64>(&input_device, input_config.into()),
+
+          sample_format => panic!("Unsupported sample format '{sample_format}'"),
+      }
+
+      // leave the thread sleep
+      loop {
+          std::thread::park();
+      }
+  }
+#+end_src
