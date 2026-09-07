@@ -1,0 +1,91 @@
+:PROPERTIES:
+:ID:       c0c8c9ca-5e9c-4d95-ae38-aa0845785964
+:END:
+#+title: rust中Option和Result和.ok()族和.unwrap()族的区别
+#+date: 2026-09-07 18:03
+#+filetags:
+
+* 核心概念
+
+#+BEGIN_SRC rust
+  enum Option<T> {
+      Some(T),
+      None,
+  }
+
+  enum Result<T, E> {
+      Ok(T),
+      Err(E),
+  }
+#+END_SRC
+
+- ~Option<T>~ :: 表示"有没有值", ~None~ 不携带任何原因
+- ~Result<T, E>~ :: 表示"成功或失败", ~Err~ 携带错误信息 ~E~
+
+一句话:*Option 回答"有没有"，Result 回答"为什么失败"*。
+
+* 互转方法 (.ok() 族)
+
+| 方法                   | 方向                   | 说明                     |
+|-----------------------+-----------------------+-------------------------|
+| ~Result::ok()~          | Result -> Option<T>   | 丢弃错误，Err(_) -> None |
+| ~Result::err()~         | Result -> Option<E>   | 只留错误，Ok(_) -> None  |
+| ~Option::ok_or(e)~      | Option -> Result<T,E> | None 时用给定值填错误     |
+| ~Option::ok_or_else(f)~ | Option -> Result<T,E> | None 时用闭包惰性生成错误  |
+
+#+BEGIN_SRC rust
+  let o: Option<i32> = Some(5);
+  let r: Result<i32, &str> = o.ok_or("没有值");
+  
+  let r: Result<i32, String> = Ok(5);
+  let o1: Option<i32> = r.ok();   // 丢弃错误信息
+  let o2: Option<String> = r.err(); // 只要错误信息
+#+END_SRC
+
+* 拆包方法 (.unwrap() 族)
+
+两者命名和行为高度对称：
+
+| 方法                        | Option<T>           | Result<T,E>                 |
+|----------------------------+---------------------+-----------------------------|
+| 失败就 panic                | ~unwrap()~            | ~unwrap()~                    |
+| 失败 panic 带自定义信息      | ~expect(msg)~         | ~expect(msg)~                 |
+| 失败返回默认值               | ~unwrap_or(v)~        | ~unwrap_or(v)~                |
+| 失败用闭包计算默认值          | ~unwrap_or_else(f)~   | ~unwrap_or_else(f)~           |
+| 失败返回 Default::default() | ~unwrap_or_default()~ | ~unwrap_or_default()~         |
+| 反向：成功值 panic（少用）    | -                   | ~unwrap_err()~ / ~expect_err()~ |
+
+*关键差异*： ~Result::unwrap()~ panic 时会打印 ~E~ 的 Debug 输出，信息更丰富；
+~Option::unwrap()~ panic 信息固定，无上下文。
+
+* 整体关系图
+
+#+BEGIN_EXAMPLE
+                 +-------------+        .ok_or(e) / .ok_or_else(f)
+                 |  Option<T>  | --------------------------------> Result<T, E>
+                 | Some / None | <-------------------------------- Ok / Err
+                 +-------------+        .ok()  (丢弃错误)
+                       |                .err() (只留错误 -> Option<E>)
+                       |
+        .unwrap() / .expect() / .unwrap_or() / .unwrap_or_else() / .unwrap_or_default()
+                       |
+                       v
+                    直接拿到 T (或 panic)
+#+END_EXAMPLE
+
+* 使用建议
+
+1. 需要传递失败原因 -> 用 ~Result~；只需判断"有没有" -> 用 ~Option~
+   （如 ~HashMap::get~, ~Vec::first~ ）。
+2. ~?~ 运算符对两者都适用，可在函数内部链式传播：
+
+   #+BEGIN_SRC rust
+     fn parse(s: &str) -> Option<i32> {
+         let n: i32 = s.parse().ok()?;   // Result -> Option 再用 ? 传播
+         Some(n * 2)
+     }
+   #+END_SRC
+
+3. 生产代码避免裸 ~.unwrap()~ ,改用 ~?~ 、 ~unwrap_or_else~ 、 ~match~ ，
+   或 ~anyhow~ / ~thiserror~ 等错误处理库；
+   确实不会失败时用 ~.expect("原因说明")~ 留下注释。

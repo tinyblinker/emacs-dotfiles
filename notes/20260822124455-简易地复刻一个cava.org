@@ -124,3 +124,22 @@
 - ???如何在终端上异步地画类似cava的ui条呢???
   方案一:用二维Vector画一个点阵,用类似life_game中的表示方法表示音量条
   方案二:借助crossterm这类轻量库,直接操作terminal,用轻量抽象的ui库去绘制(~!!!ENTER alternate screen~)
+- ai的意义?
+  新的一些思考,ai解放了一些重复枯燥的活,这些活比如查文档这些,人类会做,但效率不高,并且
+  损坏精力;所以ai的左右只是让人能把精力投入真正重要的事情中,和古代圣贤身边的弟子一样,
+  只是辅助做事,减少了重复低效的劳动,让单人的能力提升一个维度;所以请跳脱哪些手动做和ai
+  一样的活的复古言论,既然有了这种工具,基于技术显示主义,那就用好这个工具,而不是用一种行
+  为艺术一般的态度去盲目地听信那些言论 
+- 接下来crossterm绘制类似cava的ui
+  1.把绘制ui的时候(~alternate screen~),的所有stderr全部重定向到一个文件;
+  Ok!!!!!!!!重定向所有输出为一个my_cava.log文件,非常优雅
+  2.绘制ui和fft分别多线程优化(分别一个线程,线程间用ringbuffer通信)
+  1) 线程1:CPAL捕获pipewire声音的pcm原始数据推送进入ringbuffer,用thread::park()保持线程存活;
+     - ~Created successfully~
+  2) 线程2:rustfft通过捕获线程1的ringbuffer数据,fft转换其中的数据为Vec<f32>频域数据,再push
+     频域数据进入另外一个面向线程3的ringbuffer.
+     - ~NEXT~ 
+  3) 线程3(作为主线程):接收线程2的ringbuffer数据,将其ringbuffer中的Vec<f32>数据
+     通过crossterm绘制到屏幕上,这个线程就是视为独立的ui线程
+  4) !! ~plan~ 一个一个线程地创建并搞定哦
+  

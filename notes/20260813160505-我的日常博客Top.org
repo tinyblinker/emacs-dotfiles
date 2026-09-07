@@ -27,3 +27,4 @@ tinyblinker的日常博客记录:
 2026-09-04:[[id:18b66129-14f3-4806-bffd-1fb2c003b1bc][archlinux的dms-shell更新崩溃解析]]
 2026-09-04:[[id:bdd0e227-cba4-4908-a8bb-6990b58188a9][捕获pipewire到PCM数据的历程]]
 2026-09-06:[[id:335872b6-c145-49cf-87d7-06230e31bc7d][PCM数据用RustFFT转换为频谱的Debug过程]]
+2026-09-07:[[id:c0c8c9ca-5e9c-4d95-ae38-aa0845785964][rust中Option和Result和.ok()族和.unwrap()族的区别]]
