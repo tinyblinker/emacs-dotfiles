@@ -134,12 +134,16 @@
   1.把绘制ui的时候(~alternate screen~),的所有stderr全部重定向到一个文件;
   Ok!!!!!!!!重定向所有输出为一个my_cava.log文件,非常优雅
   2.绘制ui和fft分别多线程优化(分别一个线程,线程间用ringbuffer通信)
-  1) 线程1:CPAL捕获pipewire声音的pcm原始数据推送进入ringbuffer,用thread::park()保持线程存活;
+  1) 线程0(主线程):CPAL捕获pipewire声音的pcm原始数据推送进入ringbuffer,
+     用AtomicBool标志位保持线程存活;
      - ~Created successfully~
-  2) 线程2:rustfft通过捕获线程1的ringbuffer数据,fft转换其中的数据为Vec<f32>频域数据,再push
+  2) 线程1:rustfft通过捕获线程1的ringbuffer数据,fft转换其中的数据为Vec<f32>频域数据,再push
      频域数据进入另外一个面向线程3的ringbuffer.
-     - ~NEXT~ 
-  3) 线程3(作为主线程):接收线程2的ringbuffer数据,将其ringbuffer中的Vec<f32>数据
+     - 完成了这个东西
+     - ~Created successfully~
+  3) 线程2:连续扫描判断"q"是否按下,按下则置位AtonicBool标志位,从而让所有线程推出
+     - 完成
+     - ~Created successfully~
+  4) ~NEXT~ 线程3:接收线程2的ringbuffer数据,将其ringbuffer中的Vec<f32>数据
      通过crossterm绘制到屏幕上,这个线程就是视为独立的ui线程
-  4) !! ~plan~ 一个一个线程地创建并搞定哦
-  
+     - 正在创建RingBuffer和打通RingBuffer运行的数据流

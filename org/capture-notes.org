@@ -102,3 +102,6 @@ more interested thing, interacting with each other
 
   [2026-09-07 Mon 15:03]
   [[file:~/.config/emacs/notes/20260822124455-简易地复刻一个cava.org::*接下来就是把实时捕获的fft转换的频域数据输出为电脑屏幕上的跳动的柱子][接下来就是把实时捕获的fft转换的频域数据输出为电脑屏幕上的跳动的柱子]]
+* 可以用类似penguins on bread的视频风格,分享linux使用小技巧
+  [2026-09-07 Mon 18:51]
+  [[file:~/.config/emacs/notes/20260822124455-简易地复刻一个cava.org::*接下来就是把实时捕获的fft转换的频域数据输出为电脑屏幕上的跳动的柱子][接下来就是把实时捕获的fft转换的频域数据输出为电脑屏幕上的跳动的柱子]]
