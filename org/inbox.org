@@ -54,3 +54,7 @@
 用Sway+一堆小组件,降低错误排查难度,同时换用Sway,防止niri这种一次性占一堆内存
   [2026-09-04 Fri 15:25]
   [[file:~/.config/emacs/notes/20260904151430-archlinux的dms_shell更新崩溃解析.org::*!!!!!!计划,这次cava的项目做完,视频剪辑完成后,就迁移到sway去,用unix-pron方式生存][!!!!!!计划,这次cava的项目做完,视频剪辑完成后,就迁移到sway去,用unix-pron方式生存]]
+* TODO 使用GNU Stow管理我sway的dotfiles,在小主机上配置好后迁移到这个大主机上,注意同时迁移我的磁盘的
+录屏的备份数据
+  [2026-09-08 Tue 15:29]
+  [[id:eabc1693-8212-4006-81de-ffa60700eb41][简易地复刻一个cava]]
