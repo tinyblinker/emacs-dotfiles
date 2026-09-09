@@ -12,7 +12,7 @@
          ("C-c n a" . org-roam-alias-add)) ;; Add an alias (alternate title) to the note
   :custom
   ;; Store all Org-roam notes in the notes/ directory under the Emacs config.
-  (org-roam-directory (file-truename (expand-file-name "notes/" user-emacs-directory)))
+  (org-roam-directory (file-truename (expand-file-name "org/notes/" user-emacs-directory)))
   ;; Capture template for new notes: creates a file named after a timestamp
   (org-roam-capture-templates
    '(("d" "default" plain "%?"

@@ -12,7 +12,7 @@
   :bind (("C-c a" . org-agenda)
          ("C-c c" . org-capture))
   :config
-  (setq org-directory (expand-file-name "org/" user-emacs-directory))
+  (setq org-directory (expand-file-name "org/capture/" user-emacs-directory))
   (setq org-agenda-files `(,org-directory))
   (setq org-use-sub-superscripts nil)
 
