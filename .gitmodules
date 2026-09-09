@@ -1,0 +1,3 @@
+[submodule "org"]
+	path = org
+	url = git@gitee.com:tinyblinker/emacs_org_notes_private.git
