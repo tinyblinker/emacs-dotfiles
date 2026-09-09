@@ -58,3 +58,34 @@
 录屏的备份数据
   [2026-09-08 Tue 15:29]
   [[id:eabc1693-8212-4006-81de-ffa60700eb41][简易地复刻一个cava]]
+* TODO 急需优化emacs使用体验(详情见下)
+- 模拟neovim中的ctrl+o和ctrl+i的使用体验
+- 模拟neovim中flash.nvim的使用体验
+- 模拟neovim中telescope.nvim的使用体验
+  - 当前buffer全文模糊搜索
+  - 在全项目中liveGrep(实时文本内容匹配查询搜索)
+  - 模糊搜索所有打开的文件
+  - 恢复上一个搜索状态
+- lsp体验
+  - 鼠标落在symbol上时高亮显示所有相同symbol
+  - lsp的goto referrence的体验
+  - lsp的goto definition的体验
+  - 类似neovim中lsp搜索symbols和telescope.nvim联动的体验
+- emacs中类似neovim"<leader>+q"显示当前buffer的rust所有errors,hints的体验
+- rust编码的内联提示,错误,图标等的美化;
+- 模拟类似neotree的体验
+- 让dired有类似yazi的体验
+- 关闭相对行号,使用绝对行号
+- 快速改变括号的插件(类似neovim中的快速括号change的方案)
+  [2026-09-09 Wed 14:56]
+  [[id:51f26b39-98b0-4f87-929c-f4f6024e5cd9::2026-09-07:\[\[id:c0c8c9ca-5e9c-4d95-ae38-aa0845785964\]\[rust中Option和Result和.ok()族和.unwrap()族的区别\]\]]]
+* TODO 做那几道算法题目并录屏
+  [2026-09-09 Wed 16:37]
+  [[file:~/.config/emacs/notes/20260822124455-简易地复刻一个cava.org::*接下来就是重构代码结构+用crossterm完善ui渲染逻辑+写cargo test模块][接下来就是重构代码结构+用crossterm完善ui渲染逻辑+写cargo test模块]]
+* TODO rust小技巧:函数化编程时多用引用!!!!&mut和&以及切片类型应该合理使用,
+不要总是抽象函数接收返回值了,那样太丑了;
+  [2026-09-09 Wed 21:58]
+  [[file:~/.config/emacs/notes/20260822124455-简易地复刻一个cava.org::*接下来就是重构代码结构+用crossterm完善ui渲染逻辑+写cargo test模块][接下来就是重构代码结构+用crossterm完善ui渲染逻辑+写cargo test模块]]
+* TODO mini_cava做完后发分享点子者展示
+  [2026-09-09 Wed 23:44]
+  [[id:51f26b39-98b0-4f87-929c-f4f6024e5cd9::2026-08-27:\[\[id:2c59a2ba-5b21-48b9-80e0-614af85eb43a\]\[Lisp-machine-from-scratch-Top\]\]]]

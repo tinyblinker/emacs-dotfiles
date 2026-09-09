@@ -147,8 +147,11 @@
   4) 线程3:连续扫描判断"q"是否按下,按下则置位AtonicBool标志位,从而让所有线程推出
      - 完成
      - ~Created successfully~
-** NEXT 接下来就是重构代码结构+用crossterm完善ui渲染逻辑+写cargo test模块
-- 具体任务:1.先重构代码为函数式,删除冗余的日志(重构原则,函数简短明晰,函数签名即注释)
-  2.写清晰的cargo test测试模块
-  3.完善crossterm的ui渲染逻辑
+** DONE 接下来就是重构代码结构+写cargo test模块
+- 具体任务:(~DONE~)1.先重构代码为函数式,删除冗余的日志(重构原则,函数简短明晰,函数签名即注释)
+  (~GIVEUP~)2.写清晰的cargo test测试模块
+** NEXT 完善crossterm的ui渲染逻辑
+- (~DONE~)加入窗函数:apodize:hanning窗,
+- (~DONE~)做归一化处理:直接在.norm()后归一化,
+- (~NEXT~):实现crossterm的ui渲染逻辑
        
