@@ -26,6 +26,8 @@
   :config
   ;; Keep the SQLite database in sync with notes files automatically.
   (org-roam-db-autosync-mode)
+  ;; Use more fittable way to show org-roam-graph for my notes
+  (setq org-roam-graph-executable "fdp")
   ;; Create the notes directory if it does not exist yet
   (unless (file-directory-p org-roam-directory)
     (make-directory org-roam-directory t)))
