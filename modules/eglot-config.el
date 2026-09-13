@@ -6,8 +6,11 @@
   (eglot-autoshutdown t) ;; shut down server when last managed buffer closes
   :hook
   ((rust-ts-mode . eglot-ensure)
-   (rust-ts-mode . eglot-inlay-hints-mode)
-   (rust-mode . eglot-ensure))
+   (rust-mode . eglot-ensure)
+   ;; Enable inlay hints only after the server connects.  Hooking
+   ;; eglot-inlay-hints-mode on rust-ts-mode runs it before any server
+   ;; exists, which errors with "No current JSON-RPC connection".
+   (eglot-managed-mode . eglot-inlay-hints-mode))
   :bind (:map eglot-mode-map
               ("C-c l a" . eglot-code-actions)
               ("C-c l r" . eglot-rename)
