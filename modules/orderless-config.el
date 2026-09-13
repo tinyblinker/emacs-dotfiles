@@ -3,6 +3,7 @@
 ;; Orderless: flexible out-of-order fuzzy matching for completion candidates
 (use-package orderless
   :ensure t
+  :defer 1
   :custom
   (orderless-matching-styles '(orderless-flex))
   ;; orderless as the primary completion style, basic as fallback

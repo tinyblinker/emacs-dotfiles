@@ -12,6 +12,9 @@ jumps, surround-style editing).
 The configuration is modular: each plugin lives in its own file under
 =~/.config/emacs/modules/=.  =init.el= loads them in order;
 =early-init.el= sets up package mirrors, quickstart, and GC tuning.
+For fast =emacs --daemon= startup, non-essential packages are deferred
+(=:defer 1= loads them 1s after idle) and the native-comp cache is warmed
+in the background (see *Notes*).
 
 * Requirements
 
@@ -236,6 +239,19 @@ Each plugin lives in its own file under =modules/=.  =init.el= loads
 
 * Notes
 
+- *Startup speed:* =emacs --daemon= startup is kept fast by (1) deferring
+  non-essential packages — the completion stack (=vertico= / =marginalia= /
+  =orderless= / =corfu= / =which-key=) uses =:defer 1= (loaded 1s after idle),
+  =ox-gfm= loads =:after org=, and the heavy ones (=magit= / =org-roam= /
+  =vterm= / =org=) are deferred; and (2) native compilation is kept
+  non-blocking: =package-native-compile= is =nil= (no compile during install),
+  =native-comp-jit-compilation= is =t= (async JIT: bytecode first, native code
+  compiled in the background), =native-comp-async-report-warnings-errors= is
+  =nil= (silent), and =init.el= pre-warms the cache via =native-compile-async=
+  over =elpa/=.  =early-init.el= no longer nils out =file-name-handler-alist=
+  (that hack conflicted with native-comp).  *Note:* the first run is still
+  slow mainly because ~30 packages are downloaded over the network, not
+  because of compilation.
 - *Rust mode:* =.rs= files open in the tree-sitter =rust-ts-mode=.  The
   =rust-mode= package is kept only for the cargo commands.
 - *Dirvish extensions:* dirvish installs its optional extensions

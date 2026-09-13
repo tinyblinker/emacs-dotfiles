@@ -3,7 +3,8 @@
 ;; Marginalia: annotate completion candidates with descriptions (type, etc.)
 (use-package marginalia
   :ensure t
-  :init
+  :defer 1
+  :config
   (marginalia-mode 1))
 
 (provide 'marginalia-config)

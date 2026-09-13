@@ -64,3 +64,10 @@
 
 ;; Apply the dark high-contrast modus-vivendi theme
 (load-theme 'modus-vivendi-tinted t)
+
+;; Warm the native-comp cache in the background so that startup (and the
+;; first load of any deferred package) doesn't block on synchronous JIT
+;; compilation.  Idempotent: already-compiled files are skipped.
+(when (native-comp-available-p)
+  (native-compile-async (expand-file-name "elpa" user-emacs-directory)
+                        'recursively))

@@ -3,6 +3,7 @@
 ;; Corfu: in-buffer popup completion with auto-trigger
 (use-package corfu
   :ensure t
+  :defer 1
   :custom
   (corfu-cycle t)                ;; Wrap around at list boundaries
   (corfu-auto t)                 ;; Show popup automatically while typing
