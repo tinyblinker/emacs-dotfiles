@@ -1,8 +1,11 @@
 ;;; -*- lexical-binding: t -*-
 
-;; Nerd-icons family: icon fonts for completion, dired, ibuffer, marginalia
+;; Nerd-icons family: icon fonts for completion, corfu, ibuffer, marginalia.
+;; (Dirvish renders its own icons via its `nerd-icons' attribute, so we do NOT
+;; enable nerd-icons-dired here -- that would show every entry's icon twice.)
 
-;; Core icon library
+;; Core icon library (used by dirvish's `nerd-icons' attribute and the
+;; nerd-icons-* frontends below)
 (use-package nerd-icons
   :ensure t)
 
@@ -20,11 +23,6 @@
   :after corfu
   :config
   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
-
-;; Show icons in dired listings
-(use-package nerd-icons-dired
-  :ensure t
-  :hook (dired-mode . nerd-icons-dired-mode))
 
 ;; Show icons in ibuffer listings
 (use-package nerd-icons-ibuffer

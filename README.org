@@ -22,7 +22,7 @@ install them manually.
 |------------------+-------------------------------------------|
 | =ripgrep=        | consult-ripgrep (live grep)               |
 | =fd=             | dirvish (fast file search)                |
-| =chafa=          | dirvish (image preview)                   |
+| =libvips= (=vipsthumbnail=) | dirvish (image preview)           |
 | =poppler=        | dirvish (PDF preview)                     |
 | =graphviz=       | org-roam (graph layout, =fdp=)            |
 | =cmake= =libvterm= | vterm (terminal module)                 |
@@ -82,8 +82,9 @@ Launch Emacs.  Packages install automatically on the first run.
 ** Buffers, windows, files
 - =ibuffer-config.el= =recentf-config.el= =savehist-config.el= =dired-config.el=
 - =window-config.el= :: winner + windmove + display rules
-- =dirvish-config.el= :: yazi-style file manager
-- =nerd-icons-config.el= :: icon fonts (nerd-icons family)
+- =dirvish-config.el= :: yazi-style file manager (two-pane layout: dir + preview)
+- =nerd-icons-config.el= :: icon fonts (nerd-icons family; dirvish draws its
+  own icons via its =nerd-icons= attribute, so =nerd-icons-dired= is disabled)
 
 ** IDE / LSP
 - =eglot-config.el= :: LSP client (rust-analyzer)
@@ -192,6 +193,28 @@ Launch Emacs.  Packages install automatically on the first run.
 
 - *Rust mode:* =.rs= files open in the tree-sitter =rust-ts-mode=.  The
   =rust-mode= package is kept only for the cargo commands.
+- *Dirvish extensions:* dirvish installs its optional extensions
+  (=dirvish-icons=, =dirvish-subtree=, =dirvish-collapse=, =dirvish-side=, ...)
+  under =elpa/dirvish-<ver>/extensions/=, which is not on the =load-path= by
+  default.  =dirvish-config.el= adds it so that =nerd-icons= / =subtree-state= /
+  =collapse= attributes work (otherwise dirvish errors with
+  =Cannot open load file dirvish-icons=).  For the same reason =dirvish-side=
+  is autoloaded explicitly (=:bind= would mis-autoload it from =dirvish=).
+- *Dirvish layout:* =dirvish-default-layout= is set to ='(0 0 0.4)=, a clean
+  two-pane =current dir | preview= split.  The upstream default
+  ='(1 0.11 0.55)= also opens parent-directory panes, which clutter the frame.
+- *Dirvish sidebar size:* the sidebar width is =dirvish-side-width= (integer
+  columns, default =35=).  Set it in =dirvish-config.el= to resize, e.g.
+  =#+begin_src emacs-lisp
+  (setq dirvish-side-width 30)  ; narrower sidebar
+  #+end_src
+  Its position is controlled by =dirvish-side-display-alist= (default
+  =((side . left) (slot . -1))=; set =side= to =right= to flip it).
+- *Dirvish image preview:* previews (images, pdf, video thumbnails)
+  only appear in the *full-frame layout* (=C-x d= / =M-x dirvish=), which
+  has a dedicated preview pane.  The sidebar (=C-c d= / =dirvish-side=) is a
+  plain tree view with no preview window.  Image preview needs
+  =vipsthumbnail= (from =libvips=); video thumbnails need =ffmpegthumbnailer=.
 - *Fonts:* the icons need a Nerd Font (JetBrainsMono NF is used).  If
   icons look broken, run =M-x nerd-icons-install-fonts=.
 - *Tree-sitter:* grammars go in =~/.config/emacs/tree-sitter/= and are
