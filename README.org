@@ -70,7 +70,7 @@ Each plugin lives in its own file under =modules/=.  =init.el= loads
 - =embrace-config.el= :: add/change/delete surrounding pairs (surround.nvim style)
 
 ** Navigation
-- =better-jumper-config.el= :: jump list (=C-o= / =C-M-o=)
+- =better-jumper-config.el= :: jump list (=C-c j b= / =C-c j f=)
 - =avy-config.el= :: jump to visible text via labels (flash.nvim style)
 
 ** Completion and search (vertico + consult stack)
@@ -122,14 +122,15 @@ Each plugin lives in its own file under =modules/=.  =init.el= loads
 * Keybindings
 
 ** Navigation
-| Key     | Action                                   |
-|---------+------------------------------------------|
-| =C-o=     | jump backward (better-jumper)            |
-| =C-M-o=   | jump forward (better-jumper)             |
-| =M-g c=   | jump to a character (avy)                |
-| =M-g l=   | jump to a line (avy)                     |
+| Key         | Action                          |
+|-------------+---------------------------------|
+| =C-c j b=     | jump backward (better-jumper)   |
+| =C-c j f=     | jump forward (better-jumper)    |
+| =M-g c=       | jump to a character (avy)       |
+| =M-g l=       | jump to a line (avy)            |
 
-*Note:* =C-i= is the same as =TAB= in Emacs, so forward jump uses =C-M-o=.
+Jump points are recorded automatically before xref/consult/consult-eglot/avy/
+org-roam/mark navigation commands, so =C-c j b= / =C-c j f= can navigate them.
 
 ** Search (consult)
 | Key     | Action                                          |
