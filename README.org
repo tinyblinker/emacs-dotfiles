@@ -50,55 +50,71 @@ Launch Emacs.  Packages install automatically on the first run.
 
 * Plugins
 
+Each plugin lives in its own file under =modules/=.  =init.el= loads
+=redirect-file-config.el= first, then the rest in alphabetical order.
+
 ** Appearance
-- =ui-config.el= :: font, absolute line numbers, scrolling, UI chrome
-- =keycast-config.el= :: keycast (pressed keys on the mode line)
-- =which-key-config.el= :: which-key (keybinding hints)
+- =ui-config.el= :: font (JetBrainsMono NF), absolute line numbers, pixel scrolling, UI chrome
+- =keycast-config.el= :: keycast (show pressed keys on the mode line)
+- =which-key-config.el= :: which-key (keybinding hints popup)
 
 ** Editing
-- =paren-config.el= :: show-paren + electric-pair
-- =editing-config.el= :: global editing defaults
-- =auto-revert-config.el= :: auto-revert buffers on disk change
-- =so-long-config.el= :: handle files with very long lines
-- =repeat-config.el= :: repeat commands with the last key
-- =embrace-config.el= :: add/change/delete surrounding pairs
+- =paren-config.el= :: show-paren (highlight matching pair) + electric-pair (auto-insert pairs)
+- =editing-config.el= :: global editing defaults (delete-selection, no tabs, auto-chmod scripts, ...)
+- =auto-revert-config.el= :: auto-revert buffers when files change on disk
+- =so-long-config.el= :: fall back to =fundamental-mode= for files with very long lines
+- =repeat-config.el= :: repeat commands by pressing only their last key
+- =embrace-config.el= :: add/change/delete surrounding pairs (surround.nvim style)
 
 ** Navigation
 - =better-jumper-config.el= :: jump list (=C-o= / =C-M-o=)
-- =avy-config.el= :: flash-style jumps
+- =avy-config.el= :: jump to visible text via labels (flash.nvim style)
 
 ** Completion and search (vertico + consult stack)
-- =vertico-config.el= :: vertical minibuffer completion
+- =vertico-config.el= :: vertical minibuffer completion UI
 - =orderless-config.el= :: out-of-order fuzzy matching
-- =marginalia-config.el= :: candidate annotations
-- =embark-config.el= :: contextual actions
-- =consult-config.el= :: search/navigation (telescope replacement)
-- =consult-eglot-config.el= :: LSP workspace symbol search
-- =symbol-overlay-config.el= :: highlight the symbol at point
-- =completion-config.el= :: global completion defaults
-- =corfu-config.el= :: in-buffer completion popup
-- =cape-config.el= :: completion-at-point backends
+- =marginalia-config.el= :: annotate candidates with descriptions
+- =embark-config.el= :: contextual actions on candidates / things at point
+- =consult-config.el= :: interactive search/navigation (telescope replacement)
+- =consult-eglot-config.el= :: LSP workspace symbol search through consult
+- =symbol-overlay-config.el= :: highlight all occurrences of the symbol at point
+- =completion-config.el= :: global completion defaults (Tab completes, vertical list)
+- =corfu-config.el= :: in-buffer completion popup (auto-trigger + docs)
+- =cape-config.el= :: extra completion-at-point backends (dabbrev, files, keywords, elisp)
 
 ** Buffers, windows, files
-- =ibuffer-config.el= =recentf-config.el= =savehist-config.el= =dired-config.el=
-- =window-config.el= :: winner + windmove + display rules
-- =dirvish-config.el= :: yazi-style file manager (two-pane layout: dir + preview)
-- =nerd-icons-config.el= :: icon fonts (nerd-icons family; dirvish draws its
-  own icons via its =nerd-icons= attribute, so =nerd-icons-dired= is disabled)
+- =ibuffer-config.el= :: ibuffer (advanced buffer list, replaces =list-buffers=)
+- =recentf-config.el= :: track recently opened files
+- =savehist-config.el= :: persist minibuffer history, kill ring, search rings
+- =dired-config.el= :: dired defaults (dwim target, auto-revert)
+- =window-config.el= :: winner undo/redo + windmove + display rules
+- =dirvish-config.el= :: yazi-style file manager (two-pane dir + preview)
+- =nerd-icons-config.el= :: nerd-icons fonts (completion/corfu/ibuffer/marginalia;
+  dirvish draws its own icons, so =nerd-icons-dired= is disabled)
 
 ** IDE / LSP
 - =eglot-config.el= :: LSP client (rust-analyzer)
-- =exec-path-from-shell-config.el= :: shell environment for GUI/daemon
-- =editorconfig-config.el= :: .editorconfig support
+- =exec-path-from-shell-config.el= :: import shell env for GUI/daemon
+- =editorconfig-config.el= :: apply =.editorconfig= project settings
 - =flymake-config.el= :: diagnostics navigation
-- =flymake-popon-config.el= :: diagnostics popup near point
+- =flymake-popon-config.el= :: show diagnostics in a popup near point
 - =rust-config.el= :: rust-ts-mode remap + cargo commands
 
 ** Git / shell
-- =magit-config.el= =diff-hl-config.el= =vterm-config.el=
+- =magit-config.el= :: magit (git porcelain)
+- =diff-hl-config.el= :: inline git change indicators
+- =vterm-config.el= :: vterm (terminal emulator)
 
 ** Org-mode
-- =org-config.el= =ob-mermaid-config.el= =ox-gfm-config.el= =org-roam-config.el=
+- =org-config.el= :: org-mode (agenda, capture, latex preview)
+- =ob-mermaid-config.el= :: mermaid diagrams in org-babel source blocks
+- =ox-gfm-config.el= :: GitHub Flavored Markdown export backend
+- =org-roam-config.el= :: networked notes (backlinks, graph)
+
+** Utilities / housekeeping
+- =helper-config.el= :: helper commands (add =lexical-binding= header, fullwidth→halfwidth)
+- =redirect-file-config.el= :: redirect cache/config files into =var/= (org-roam db,
+  tramp, eww, eshell, bookmarks, transient, backups, auto-saves, recentf, ...)
 
 * Keybindings
 
@@ -138,7 +154,12 @@ Launch Emacs.  Packages install automatically on the first run.
 | =C-c l .=   | go to definition                  |
 | =C-c l ,=   | go to references                  |
 | =C-c l s=   | workspace symbols                 |
-| =M-n= =M-p= | next/previous same symbol         |
+
+** Symbol (symbol-overlay, in code buffers)
+| Key         | Action                        |
+|-------------+-------------------------------|
+| =M-n=         | jump to next same symbol      |
+| =M-p=         | jump to previous same symbol  |
 
 ** Diagnostics
 | Key       | Action                                    |
@@ -180,14 +201,38 @@ Launch Emacs.  Packages install automatically on the first run.
 |-------------+---------------------------------------------------|
 | =C-c C-t p=   | convert fullwidth to halfwidth (CJK to ASCII)     |
 
+** Git (magit)
+| Key     | Action             |
+|---------+--------------------|
+| =C-x g=   | magit-status       |
+| =C-c g=   | magit-dispatch     |
+| =C-c f=   | magit-file-dispatch |
+
+** Org
+| Key     | Action      |
+|---------+-------------|
+| =C-c a=   | org-agenda  |
+| =C-c c=   | org-capture |
+
+** Org-roam
+| Key       | Action                                       |
+|-----------+----------------------------------------------|
+| =C-c n f=   | find or create a note (org-roam-node-find)  |
+| =C-c n i=   | insert a link to an existing note           |
+| =C-c n l=   | toggle the backlinks sidebar                |
+| =C-c n g=   | show the notes graph                        |
+| =C-c n t=   | add a tag to the current note               |
+| =C-c n a=   | add an alias to the current note            |
+
+** Buffers
+| Key       | Action                                          |
+|-----------+-------------------------------------------------|
+| =C-x C-b=   | ibuffer (advanced buffer list, remaps =list-buffers=) |
+
 ** Other
 | Key         | Action        |
 |-------------+---------------|
-| =C-x g=       | magit-status  |
 | =C-c p=       | cape commands |
-| =C-c a=       | org-agenda    |
-| =C-c c=       | org-capture   |
-| =C-c n ...=   | org-roam      |
 
 * Notes
 
@@ -203,6 +248,8 @@ Launch Emacs.  Packages install automatically on the first run.
 - *Dirvish layout:* =dirvish-default-layout= is set to ='(0 0 0.4)=, a clean
   two-pane =current dir | preview= split.  The upstream default
   ='(1 0.11 0.55)= also opens parent-directory panes, which clutter the frame.
+  =dirvish-use-header-line= and =dirvish-use-mode-line= are both set to =nil=
+  because Dirvish draws those as extra windows (above/below the panes).
 - *Dirvish sidebar size:* the sidebar width is =dirvish-side-width= (integer
   columns, default =35=).  Set it in =dirvish-config.el= to resize, e.g.
   =#+begin_src emacs-lisp

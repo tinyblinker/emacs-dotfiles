@@ -25,6 +25,11 @@
   ;; A clean two-pane layout: current dir | preview.  The default
   ;; '(1 0.11 0.55) adds parent-directory panes that clutter the frame.
   (dirvish-default-layout '(0 0 0.4))
+  ;; Dirvish implements its header/mode-line as *separate windows* (above /
+  ;; below the panes).  Disable them so M-x dirvish shows only the two panes
+  ;; above instead of extra header/footer windows.
+  (dirvish-use-header-line nil)
+  (dirvish-use-mode-line nil)
   (dirvish-cache-dir (expand-file-name "var/dirvish" user-emacs-directory)))
 
 (provide 'dirvish-config)
