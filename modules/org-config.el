@@ -48,19 +48,5 @@
   (setq org-format-latex-options
         (plist-put org-format-latex-options :scale 1.5)))
 
-;; add mermaid support for org-mode
-(use-package ob-mermaid
-  :ensure t
-  :after org
-  :config
-  (add-to-list 'org-babel-tangle-lang-exts '("mermaid" . "mmd")))
-
-;; add ox-gfm for modern markdown export
-(use-package ox-gfm
-  :ensure t
-  :config
-  (eval-after-load "org"
-    '(require 'ox-gfm nil t)))
-
 (provide 'org-config)
 ;;; org-config.el ends here

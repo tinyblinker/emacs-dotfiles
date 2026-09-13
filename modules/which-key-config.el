@@ -2,7 +2,6 @@
 
 ;; which-key: popup keybinding hints after a prefix key (built-in since Emacs 30)
 (use-package which-key
-  :defer 0
   :custom
   (which-key-idle-delay 0.5)
   (which-key-min-display-lines 3)

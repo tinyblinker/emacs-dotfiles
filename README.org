@@ -1,0 +1,198 @@
+#+title: Emacs Configuration
+#+author: shyweeds
+#+startup: content
+
+* Overview
+
+A lightweight GNU Emacs 31.1 configuration focused on *Rust*
+(eglot + rust-analyzer + tree-sitter) and *Org-mode* notes.  It also
+borrows several ideas from Neovim (telescope-style search, flash-style
+jumps, surround-style editing).
+
+The configuration is modular: each plugin lives in its own file under
+=~/.config/emacs/modules/=.  =init.el= loads them in order;
+=early-init.el= sets up package mirrors, quickstart, and GC tuning.
+
+* Requirements
+
+Run =./install-dependencies.sh= to install the system packages, or
+install them manually.
+
+| Package          | Used by                                   |
+|------------------+-------------------------------------------|
+| =ripgrep=        | consult-ripgrep (live grep)               |
+| =fd=             | dirvish (fast file search)                |
+| =chafa=          | dirvish (image preview)                   |
+| =poppler=        | dirvish (PDF preview)                     |
+| =graphviz=       | org-roam (graph layout, =fdp=)            |
+| =cmake= =libvterm= | vterm (terminal module)                 |
+| =ffmpegthumbnailer= | dirvish (video thumbnails, optional)    |
+| =texlive-core=   | org-mode LaTeX preview (dvisvgm, optional) |
+
+Non-pacman dependencies:
+
+- =rust-analyzer= :: =rustup component add rust-analyzer=
+- =mmdc= (mermaid-cli) :: =npm install -g @mermaid-js/mermaid-cli= (for ob-mermaid)
+- Rust tree-sitter grammar :: compiled and placed in =~/.config/emacs/tree-sitter/=
+
+ELPA packages are installed automatically on first launch via
+=use-package :ensure t=.
+
+* Install
+
+#+begin_src bash
+  git clone <this-repo> ~/.config/emacs
+  cd ~/.config/emacs
+  ./install-dependencies.sh
+#+end_src
+
+Launch Emacs.  Packages install automatically on the first run.
+
+* Plugins
+
+** Appearance
+- =ui-config.el= :: font, absolute line numbers, scrolling, UI chrome
+- =keycast-config.el= :: keycast (pressed keys on the mode line)
+- =which-key-config.el= :: which-key (keybinding hints)
+
+** Editing
+- =paren-config.el= :: show-paren + electric-pair
+- =editing-config.el= :: global editing defaults
+- =auto-revert-config.el= :: auto-revert buffers on disk change
+- =so-long-config.el= :: handle files with very long lines
+- =repeat-config.el= :: repeat commands with the last key
+- =embrace-config.el= :: add/change/delete surrounding pairs
+
+** Navigation
+- =better-jumper-config.el= :: jump list (=C-o= / =C-M-o=)
+- =avy-config.el= :: flash-style jumps
+
+** Completion and search (vertico + consult stack)
+- =vertico-config.el= :: vertical minibuffer completion
+- =orderless-config.el= :: out-of-order fuzzy matching
+- =marginalia-config.el= :: candidate annotations
+- =embark-config.el= :: contextual actions
+- =consult-config.el= :: search/navigation (telescope replacement)
+- =consult-eglot-config.el= :: LSP workspace symbol search
+- =symbol-overlay-config.el= :: highlight the symbol at point
+- =completion-config.el= :: global completion defaults
+- =corfu-config.el= :: in-buffer completion popup
+- =cape-config.el= :: completion-at-point backends
+
+** Buffers, windows, files
+- =ibuffer-config.el= =recentf-config.el= =savehist-config.el= =dired-config.el=
+- =window-config.el= :: winner + windmove + display rules
+- =dirvish-config.el= :: yazi-style file manager
+- =nerd-icons-config.el= :: icon fonts (nerd-icons family)
+
+** IDE / LSP
+- =eglot-config.el= :: LSP client (rust-analyzer)
+- =exec-path-from-shell-config.el= :: shell environment for GUI/daemon
+- =editorconfig-config.el= :: .editorconfig support
+- =flymake-config.el= :: diagnostics navigation
+- =flymake-popon-config.el= :: diagnostics popup near point
+- =rust-config.el= :: rust-ts-mode remap + cargo commands
+
+** Git / shell
+- =magit-config.el= =diff-hl-config.el= =vterm-config.el=
+
+** Org-mode
+- =org-config.el= =ob-mermaid-config.el= =ox-gfm-config.el= =org-roam-config.el=
+
+* Keybindings
+
+** Navigation
+| Key     | Action                                   |
+|---------+------------------------------------------|
+| =C-o=     | jump backward (better-jumper)            |
+| =C-M-o=   | jump forward (better-jumper)             |
+| =M-g c=   | jump to a character (avy)                |
+| =M-g l=   | jump to a line (avy)                     |
+
+*Note:* =C-i= is the same as =TAB= in Emacs, so forward jump uses =C-M-o=.
+
+** Search (consult)
+| Key     | Action                                          |
+|---------+-------------------------------------------------|
+| =C-x b=   | fuzzy switch buffer/file                       |
+| =M-s l=   | fuzzy search in current buffer (consult-line)  |
+| =M-s g=   | live grep in project (consult-ripgrep)         |
+| =M-s r=   | restore search history (consult-history)       |
+| =M-g g=   | go to line (consult-goto-line)                 |
+| =M-g i=   | outline/imenu navigation (consult-imenu)       |
+| =M-y=     | fuzzy yank (consult-yank-pop)                  |
+
+** Embark
+| Key  | Action                          |
+|------+---------------------------------|
+| =C-.=  | act on target (embark-act)      |
+| =C-;=  | do the right thing (embark-dwim) |
+
+** LSP (eglot, in Rust buffers)
+| Key       | Action                            |
+|-----------+-----------------------------------|
+| =C-c l a=   | code actions                      |
+| =C-c l r=   | rename                            |
+| =C-c l f=   | format buffer                     |
+| =C-c l .=   | go to definition                  |
+| =C-c l ,=   | go to references                  |
+| =C-c l s=   | workspace symbols                 |
+| =M-n= =M-p= | next/previous same symbol         |
+
+** Diagnostics
+| Key       | Action                                    |
+|-----------+-------------------------------------------|
+| =C-c q=     | list diagnostics (consult-flymake)         |
+| =C-c ! n=   | next error (flymake)                       |
+| =C-c ! p=   | previous error (flymake)                   |
+
+** Surround editing
+| Key       | Action                     |
+|-----------+----------------------------|
+| =C-c e a=   | add a surrounding pair     |
+| =C-c e c=   | change surrounding pair    |
+| =C-c e d=   | delete surrounding pair    |
+
+** Files (dirvish)
+| Key   | Action                       |
+|-------+------------------------------|
+| =C-x d= | open dirvish (replaces dired) |
+| =C-c d= | open dirvish sidebar          |
+
+** Windows
+| Key                 | Action                    |
+|---------------------+---------------------------|
+| =C-c w u= / =C-c w r=  | undo / redo layout        |
+| =C-c w n/p/b/f=       | move down/up/left/right   |
+
+** Cargo (Rust)
+| Key           | Action              |
+|---------------+---------------------|
+| =C-c C-c C-u=   | rust-compile        |
+| =C-c C-c C-k=   | rust-check          |
+| =C-c C-c C-t=   | rust-test           |
+| =C-c C-c C-l=   | rust-run-clippy     |
+| =C-c C-f=       | rust-format-buffer  |
+
+** Text tools
+| Key         | Action                                            |
+|-------------+---------------------------------------------------|
+| =C-c C-t p=   | convert fullwidth to halfwidth (CJK to ASCII)     |
+
+** Other
+| Key         | Action        |
+|-------------+---------------|
+| =C-x g=       | magit-status  |
+| =C-c p=       | cape commands |
+| =C-c a=       | org-agenda    |
+| =C-c c=       | org-capture   |
+| =C-c n ...=   | org-roam      |
+
+* Notes
+
+- *Rust mode:* =.rs= files open in the tree-sitter =rust-ts-mode=.  The
+  =rust-mode= package is kept only for the cargo commands.
+- *Fonts:* the icons need a Nerd Font (JetBrainsMono NF is used).  If
+  icons look broken, run =M-x nerd-icons-install-fonts=.
+- *Tree-sitter:* grammars go in =~/.config/emacs/tree-sitter/= and are
+  found automatically through =treesit-extra-load-path=.
