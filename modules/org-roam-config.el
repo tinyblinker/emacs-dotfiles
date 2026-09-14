@@ -1,34 +1,34 @@
 ;;; -*- lexical-binding: t -*-
 
-;;; Org-roam: networked note-taking with automatic backlinks and graph visualization
+;; Networked notes
 (use-package org-roam
   :ensure t
   :defer t
-  :bind (("C-c n f" . org-roam-node-find) ;; Find or create a note by title
-         ("C-c n i" . org-roam-node-insert) ;; Insert a link to an existing note at point
-         ("C-c n l" . org-roam-buffer-toggle) ;; Toggle the backlinks sidebar for the current note
-         ("C-c n g" . org-roam-graph) ;; Show an interactive graph of note connections
-         ("C-c n t" . org-roam-tag-add) ;; Add a tag to the current note
-         ("C-c n a" . org-roam-alias-add)) ;; Add an alias (alternate title) to the note
+  :bind (("C-c n f" . org-roam-node-find) ;; find note
+         ("C-c n i" . org-roam-node-insert) ;; insert link
+         ("C-c n l" . org-roam-buffer-toggle) ;; backlinks
+         ("C-c n g" . org-roam-graph) ;; graph
+         ("C-c n t" . org-roam-tag-add) ;; add tag
+         ("C-c n a" . org-roam-alias-add)) ;; add alias
   :custom
-  ;; Store all Org-roam notes in the notes/ directory under the Emacs config.
+  ;; Notes dir
   (org-roam-directory (file-truename (expand-file-name "org/notes/" user-emacs-directory)))
-  ;; Capture template for new notes: creates a file named after a timestamp
+  ;; Capture template
   (org-roam-capture-templates
    '(("d" "default" plain "%?"
       :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
                          "#+title: ${title}\n#+date: %<%Y-%m-%d %H:%M>\n#+filetags:\n\n")
       :unnarrowed t)))
-  ;; How each node appears in the minibuffer completion list: title, then tags
+  ;; Node display: title + tags
   (org-roam-node-display-template
    (concat "${title}"
            (propertize " ${tags}" 'face 'org-tag)))
   :config
-  ;; Keep the SQLite database in sync with notes files automatically.
+  ;; Autosync DB
   (org-roam-db-autosync-mode)
-  ;; Use more fittable way to show org-roam-graph for my notes
+  ;; Graph via fdp
   (setq org-roam-graph-executable "fdp")
-  ;; Create the notes directory if it does not exist yet
+  ;; mkdir if missing
   (unless (file-directory-p org-roam-directory)
     (make-directory org-roam-directory t)))
 

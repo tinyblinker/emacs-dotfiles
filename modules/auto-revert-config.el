@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-;; Auto-revert: reload buffers when their files change on disk
+;; Reload buffers on disk change
 (setq global-auto-revert-non-file-buffers t)
 (global-auto-revert-mode 1)
 

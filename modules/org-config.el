@@ -1,14 +1,14 @@
 ;;; -*- lexical-binding: t -*-
 
-;; Org-mode: note-taking, task management, agenda, and capture
+;; Org-mode
 (use-package org
   :defer t
   :custom
-  (org-hide-emphasis-markers t) ;; Hide */_~= markup, show styled text only
-  (org-startup-indented t)      ;; Turn on org-indent-mode at startup
-  (org-log-into-drawer t) ;; File state change notes into LOGBOOK drawer
-  (org-pretty-entities t) ;; Display \alpha etc. as Unicode characters
-  ;; Global keybindings for agenda and capture
+  (org-hide-emphasis-markers t) ;; hide markup
+  (org-startup-indented t)      ;; indent
+  (org-log-into-drawer t) ;; log into drawer
+  (org-pretty-entities t) ;; pretty entities
+  ;; agenda/capture keys
   :bind (("C-c a" . org-agenda)
          ("C-c c" . org-capture))
   :config
@@ -16,11 +16,11 @@
   (setq org-agenda-files `(,org-directory))
   (setq org-use-sub-superscripts nil)
 
-  ;; Create files and dirs if not exists
+  ;; mkdir if missing
   (unless (file-directory-p org-directory)
     (make-directory org-directory t))
 
-  ;; Capture templates for quick todo and note entries
+  ;; Capture templates
   (setq org-capture-templates
         '(("t" "Todo" entry
            (file "inbox.org")
@@ -29,21 +29,21 @@
            (file "capture-notes.org")
            "* %?\n  %U\n  %a")))
 
-  ;; TODO workflow states: TODO -> NEXT -> DONE
+  ;; TODO workflow
   (setq org-todo-keywords
         '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")))
 
-  ;; Enable built-in structure templates (<s TAB, <e TAB, etc.)
+  ;; Structure templates
   (require 'org-tempo)
 
-  ;; Enable org-id for stable cross-reference links; create an ID when inserting a link interactively
+  ;; Stable links via org-id
   (require 'org-id)
   (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
 
-  ;; when open .org files, preview the Latex Codes
+  ;; Preview LaTeX on open
   (setq org-startup-with-latex-preview t)
-  
-  ;; adjust Latex backend and latex's picture's scale
+
+  ;; LaTeX backend + scale
   (setq org-preview-latex-default-process 'dvisvgm)
   (setq org-format-latex-options
         (plist-put org-format-latex-options :scale 1.5)))

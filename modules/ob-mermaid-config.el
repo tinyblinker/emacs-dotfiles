@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-;; ob-mermaid: mermaid diagram support in org-babel source blocks
+;; Mermaid in babel
 (use-package ob-mermaid
   :ensure t
   :after org

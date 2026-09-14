@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-;; Symbol-overlay: highlight all occurrences of the symbol at point
+;; Highlight symbol at point
 (use-package symbol-overlay
   :ensure t
   :hook (prog-mode . symbol-overlay-mode)

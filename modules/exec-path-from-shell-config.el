@@ -1,7 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-;; Exec-path-from-shell: import shell env vars in GUI or daemon mode
-;; (Terminal Emacs inherits the shell env; GUI/daemon must pull it in)
+;; Import shell env in GUI/daemon
 (use-package exec-path-from-shell
   :ensure t
   :if (and (or (display-graphic-p) (daemonp))

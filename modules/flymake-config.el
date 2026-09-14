@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-;; Flymake: diagnostics navigation (eglot reports diagnostics via flymake)
+;; Diagnostics navigation
 (use-package flymake
   :bind (("C-c ! n" . flymake-goto-next-error)
          ("C-c ! p" . flymake-goto-prev-error)))

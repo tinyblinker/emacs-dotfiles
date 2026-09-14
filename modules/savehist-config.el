@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-;; Savehist: persist minibuffer history, kill ring, and search rings
+;; Persist history
 (use-package savehist
   :custom
   (savehist-additional-variables '(kill-ring register-alist search-ring regexp-search-ring))

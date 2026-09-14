@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-;; EditorConfig: apply .editorconfig project settings in programming modes
+;; .editorconfig support
 (use-package editorconfig
   :ensure t
   :hook (prog-mode . editorconfig-mode))

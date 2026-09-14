@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-;; Recentf: track recently opened files
+;; Recent files
 (use-package recentf
   :hook (after-init . recentf-mode)
   :custom

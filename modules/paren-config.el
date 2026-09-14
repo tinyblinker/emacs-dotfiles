@@ -1,8 +1,8 @@
 ;;; -*- lexical-binding: t -*-
 
-;; Parenthesis features: highlight matching pairs + auto-insert pairs
-(show-paren-mode 1)       ;; highlight the matching parenthesis
-(electric-pair-mode 1)    ;; auto-insert matching (), [], {}, quotes
+;; Highlight + auto-insert parens
+(show-paren-mode 1)       ;; highlight matching paren
+(electric-pair-mode 1)    ;; auto-insert pairs
 
 (provide 'paren-config)
 ;;; paren-config.el ends here

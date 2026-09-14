@@ -1,7 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-;; Consult-eglot: search LSP workspace symbols through consult
-;; (simulates neovim's telescope + lsp symbols linkage)
+;; LSP workspace symbols
 (use-package consult-eglot
   :ensure t
   :after (consult eglot)

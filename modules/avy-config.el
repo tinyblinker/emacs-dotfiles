@@ -1,11 +1,10 @@
 ;;; -*- lexical-binding: t -*-
 
-;; Avy: jump to visible text via overlay labels
-;; (simulates neovim's flash.nvim)
+;; Jump to visible text
 (use-package avy
   :ensure t
-  :bind (("M-g c" . avy-goto-char-timer)  ;; type a char, labels appear
-         ("M-g l" . avy-goto-line)))      ;; jump to a visible line
+  :bind (("M-g c" . avy-goto-char-timer)  ;; goto char
+         ("M-g l" . avy-goto-line)))      ;; goto line
 
 (provide 'avy-config)
 ;;; avy-config.el ends here

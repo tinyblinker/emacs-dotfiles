@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-;; Marginalia: annotate completion candidates with descriptions (type, etc.)
+;; Annotate candidates
 (use-package marginalia
   :ensure t
   :defer 1

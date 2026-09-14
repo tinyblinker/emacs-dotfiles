@@ -1,11 +1,11 @@
 ;;; -*- lexical-binding: t -*-
 
-;; IBuffer: advanced, filterable buffer list (replaces default list-buffers)
+;; Filterable buffer list
 (use-package ibuffer
   :bind ("<remap><list-buffer>" . ibuffer-list-buffers)
   :custom
-  (ibuffer-movement-cycle nil)  ;; Do not wrap around buffer list ends
-  (ibuffer-old-time 24))        ;; Mark buffers as "old" after 24 hours
+  (ibuffer-movement-cycle nil)  ;; no wrap
+  (ibuffer-old-time 24))        ;; old after 24h
 
 (provide 'ibuffer-config)
 ;;; ibuffer-config.el ends here

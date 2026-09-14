@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-;; Command to insert lexical-binding header into the current buffer
+;; Insert lexical-binding header
 (defun add-lexical-binding-to-file ()
   (interactive)
   (save-excursion
@@ -10,9 +10,7 @@
       (insert ";;; -*- lexical-binding: t -*-\n\n")
       (message "added successfully"))))
 
-;;; Convert fullwidth CJK punctuation/letters to halfwidth ASCII
-;;; (e.g. Chinese brackets （） to English (), ， to , etc.)
-;;; Works on the active region, or the whole buffer if no region is active.
+;; Convert fullwidth CJK to halfwidth ASCII
 (defconst fullwidth-to-halfwidth-extra-table
   '(("【" . "[") ("】" . "]")
     ("「" . "'") ("」" . "'")
@@ -30,12 +28,11 @@
     (save-restriction
       (narrow-to-region beg end)
       (goto-char (point-min))
-      ;; U+FF01..U+FF5E map to ASCII by subtracting #xFEE0;
-      ;; U+3000 (ideographic space) maps to a plain space.
+      ;; FF01-FF5E -> ASCII; 3000 -> space
       (while (re-search-forward "[\uFF01-\uFF5E\u3000]" nil t)
         (let ((ch (char-before)))
           (replace-match (string (if (= ch ?\u3000) ?\s (- ch #xFEE0))))))
-      ;; Handle the CJK-specific punctuation that falls outside that block.
+      ;; Extra CJK punctuation
       (goto-char (point-min))
       (dolist (pair fullwidth-to-halfwidth-extra-table)
         (goto-char (point-min))

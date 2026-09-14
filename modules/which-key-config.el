@@ -1,17 +1,17 @@
 ;;; -*- lexical-binding: t -*-
 
-;; which-key: popup keybinding hints after a prefix key (built-in since Emacs 30)
+;; Keybinding hints popup
 (use-package which-key
   :defer 1
   :custom
   (which-key-idle-delay 0.5)
   (which-key-min-display-lines 3)
   (which-key-max-description-length 27)
-  ;; Show hints immediately when pressing C-h
+  ;; Show on C-h
   (which-key-show-early-on-C-h t)
-  ;; Display the popup at the bottom of the frame
+  ;; Popup at bottom
   (which-key-side-window-location 'bottom)
-  ;; Separator between key and description
+  ;; Key/desc separator
   (which-key-separator " → ")
   :config
   (which-key-mode 1))

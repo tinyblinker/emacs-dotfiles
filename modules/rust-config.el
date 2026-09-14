@@ -1,15 +1,13 @@
 ;;; -*- lexical-binding: t -*-
 
-;; Make Emacs find the compiled Rust tree-sitter grammar in tree-sitter/
+;; Rust tree-sitter grammar
 (setq treesit-extra-load-path
       (list (expand-file-name "tree-sitter" user-emacs-directory)))
 
-;; The `rust-mode' package maps .rs to `rust-mode'; remap it to the
-;; built-in tree-sitter `rust-ts-mode' instead.
+;; Remap rust-mode -> rust-ts-mode
 (add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
 
-;; Cargo commands (rust-compile/check/test/clippy/fmt) live in the
-;; `rust-mode' package, not the built-in rust-ts-mode.
+;; Cargo commands (from rust-mode)
 (use-package rust-mode
   :ensure t
   :bind (:map rust-ts-mode-map

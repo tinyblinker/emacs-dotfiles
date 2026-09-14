@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-;; Flymake-popon: show diagnostics in a popup near point
+;; Diagnostics popup
 (use-package flymake-popon
   :ensure t
   :hook (flymake-mode . flymake-popon-mode))

@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-;; So-long: use fundamental-mode for files with very long lines
+;; Fundamental-mode for long lines
 (use-package so-long
   :config (global-so-long-mode 1))
 

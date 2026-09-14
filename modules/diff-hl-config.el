@@ -2,12 +2,12 @@
 
 (use-package diff-hl
   :ensure t
-  :defer 1               ; load 1s after idle, not needed at startup
+  :defer 1               ; deferred 1s
   :hook
-  (magit-post-refresh . diff-hl-magit-post-refresh) ;; Refresh indicators after magit commands
+  (magit-post-refresh . diff-hl-magit-post-refresh) ;; refresh after magit
   :config
-  (global-diff-hl-mode 1)   ;; Show git change indicators in all tracked buffers
-  (diff-hl-dired-mode 1))   ;; Show git status marks in Dired
+  (global-diff-hl-mode 1)   ;; git indicators
+  (diff-hl-dired-mode 1))   ;; dired marks
 
 (provide 'diff-hl-config)
 ;;; diff-hl-config.el ends here
