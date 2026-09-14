@@ -8,6 +8,9 @@
 (keymap-global-unset "<insert>")
 (keymap-global-unset "<insertchar>")
 
+;; mode-line: do not show buffer-identification(buffer's name)
+(setq-default mode-line-buffer-identification nil)
+
 ;; Scroll eshell on input
 (setq eshell-scroll-to-bottom-on-input 'this)
 

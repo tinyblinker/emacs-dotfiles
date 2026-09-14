@@ -27,3 +27,4 @@ modules/.dir-locals.el
 /eln-cache/
 /site-lisp/
 /auto-save-list/
+/games/
