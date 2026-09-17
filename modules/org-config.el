@@ -16,6 +16,9 @@
   (setq org-agenda-files `(,org-directory))
   (setq org-use-sub-superscripts nil)
 
+  ;; add timestamp when the TODO changed to "done"
+  (setq org-log-done 'time)
+  
   ;; mkdir if missing
   (unless (file-directory-p org-directory)
     (make-directory org-directory t))
