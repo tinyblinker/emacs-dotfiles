@@ -8,3 +8,4 @@
   ;; automatic add to auto mode alist
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
+;;; treesit-auto-config.el ends here
