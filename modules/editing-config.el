@@ -1,6 +1,7 @@
 ;;; -*- lexical-binding: t -*-
 
-;; Global editing defaults
+;; Enable ts-fold-mode when in the *-ts-mode
+(add-hook 'ts-mode-hook #'ts-fold-mode)
 
 ;; Disable overwrite-mode
 (add-hook 'after-change-major-mode-hook
