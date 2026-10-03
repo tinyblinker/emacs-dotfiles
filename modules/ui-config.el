@@ -3,7 +3,7 @@
 ;; Default font
 (set-face-attribute 'default nil
                     :family "JetBrainsMono NF"
-                    :weight 'bold
+                    :weight 'normal
                     :slant 'italic
                     :height 180)
 
