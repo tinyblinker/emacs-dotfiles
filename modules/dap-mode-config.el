@@ -59,6 +59,70 @@
               (breakpoints (gethash file (dap--get-breakpoints))))
     (dap--set-breakpoints-in-file file breakpoints)))
 
+;; Test binary lookup for debugging tests
+(defun dap-mode-config--test-bins (root)
+  "Return (SRC-FILE . TEST-BIN) pairs of test targets in ROOT."
+  (with-temp-buffer
+    (let ((default-directory (file-name-as-directory root)))
+      (unless (zerop (call-process "cargo" nil (list t t)
+                                   nil "test" "--no-run" "--message-format=json"))
+        (user-error "cargo test --no-run failed:\n%s"
+                    (string-limit (buffer-string) 2000))))
+    (let (bins)
+      (dolist (line (split-string (buffer-string) "\n" t))
+        (let* ((msg (ignore-errors (json-parse-string line :object-type 'alist)))
+               (target (alist-get 'target msg))
+               (exe (alist-get 'executable msg)))
+          (when (and target (stringp exe))
+            (push (cons (file-truename (alist-get 'src_path target))
+                        (file-truename exe))
+                  bins))))
+      (nreverse bins))))
+
+(defun dap-mode-config--test-names (exe)
+  "Return the test names in test binary EXE."
+  (with-temp-buffer
+    (call-process exe nil t nil "--list")
+    (let (names)
+      (dolist (line (split-string (buffer-string) "\n" t))
+        (when (string-match "\\`\\(.+\\): test\\'" line)
+          (push (match-string 1 line) names)))
+      (nreverse names))))
+
+(defun dap-mode-config-debug-test ()
+  "Debug the test at point with rust-gdb."
+  (interactive)
+  (let* ((file (or (buffer-file-name) (user-error "Buffer is not visiting a file")))
+         (manifest (or (locate-dominating-file file "Cargo.toml")
+                       (user-error "No Cargo.toml above %s" file)))
+         (root (dap-mode-config--cargo-root
+                (directory-file-name (file-name-directory manifest))))
+         (bins (dap-mode-config--test-bins root))
+         (choices (mapcar (lambda (bin) (cons (file-relative-name (car bin) root)
+                                              (cdr bin)))
+                          bins))
+         (bin (or (assoc (file-truename file) bins)
+                  (if (cdr bins)
+                      (assoc (completing-read "Test binary: " choices nil t) choices)
+                    (car bins))))
+         (exe (or (cdr bin) (user-error "No test binary found in %s" root)))
+         (names (dap-mode-config--test-names exe))
+         (fn (save-excursion
+               (when (re-search-backward "^[ \t]*fn[ \t]+\\([[:alnum:]_]+\\)" nil t)
+                 (match-string-no-properties 1))))
+         matches name)
+    (dolist (test names)
+      (when (and fn (string-match-p (concat "::" (regexp-quote fn) "\\'") test))
+        (push test matches)))
+    (setq matches (nreverse matches))
+    (setq name (cond ((null names) (user-error "No tests in %s" exe))
+                     ((= 1 (length matches)) (car matches))
+                     (t (completing-read "Test: " (or matches names) nil t
+                                         nil nil (car matches)))))
+    (dap-debug (list :type "gdb" :request "launch" :name "Rust test"
+                     :program exe :cwd root
+                     :args (list name "--exact" "--nocapture" "--test-threads=1")))))
+
 ;; DAP client (global)
 (use-package dap-mode
   :ensure t
@@ -69,6 +133,7 @@
   :bind (:map dap-mode-map
               ("C-c C-d d" . dap-debug)
               ("C-c C-d l" . dap-debug-last)
+              ("C-c C-d t" . dap-mode-config-debug-test)
               ("C-c C-d r" . dap-debug-restart)
               ("C-c C-d q" . dap-disconnect)
               ("C-c C-d b" . dap-breakpoint-toggle)
@@ -77,6 +142,8 @@
               ("C-c C-d n" . dap-next)
               ("C-c C-d i" . dap-step-in)
               ("C-c C-d o" . dap-step-out)
+              ("C-c C-d u" . dap-up-stack-frame)
+              ("C-c C-d f" . dap-switch-stack-frame)
               ("C-c C-d R" . dap-restart-frame)
               ("C-c C-d e" . dap-eval-thing-at-point)
               ("C-c C-d E" . dap-eval)
