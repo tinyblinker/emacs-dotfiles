@@ -10,6 +10,17 @@
       (insert ";;; -*- lexical-binding: t -*-\n\n")
       (message "added successfully"))))
 
+;; Insert emacs config-file template to current buffer
+(defun insert-emacs-config-template()
+  "Insert Emacs config template in current buffer"
+  (interactive)
+  (let* ((filename (file-name-nondirectory (buffer-file-name)))
+    (header ";;; -*- lexical-binding: t -*-")
+    (footer (format ";;; %s ends here" filename)))
+  (erase-buffer)
+  (insert header "\n\n")
+  (insert footer)))
+
 ;; Convert fullwidth CJK to halfwidth ASCII
 (defconst fullwidth-to-halfwidth-extra-table
   '(("【" . "[") ("】" . "]")
