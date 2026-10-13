@@ -29,3 +29,4 @@ modules/.dir-locals.el
 /auto-save-list/
 /games/
 /projects.eld
+/.dap-breakpoints
