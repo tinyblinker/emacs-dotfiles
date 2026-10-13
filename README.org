@@ -31,6 +31,7 @@ install them manually.
 | =cmake= =libvterm= | vterm (terminal module)                 |
 | =ffmpegthumbnailer= | dirvish (video thumbnails, optional)    |
 | =texlive-core=   | org-mode LaTeX preview (dvisvgm, optional) |
+| =gdb= (>= 14)    | dap-mode (Rust debugging via =rust-gdb=)  |
 
 Non-pacman dependencies:
 
@@ -102,6 +103,7 @@ Each plugin lives in its own file under =modules/=.  =init.el= loads
 - =flymake-config.el= :: diagnostics navigation
 - =flymake-popon-config.el= :: show diagnostics in a popup near point
 - =rust-config.el= :: rust-ts-mode remap + cargo commands
+- =dap-mode-config.el= :: DAP debug client (=rust-gdb=, =dap-hydra=)
 
 ** Git / shell
 - =magit-config.el= :: magit (git porcelain)
@@ -117,7 +119,8 @@ Each plugin lives in its own file under =modules/=.  =init.el= loads
 ** Utilities / housekeeping
 - =helper-config.el= :: helper commands (add =lexical-binding= header, fullwidth→halfwidth)
 - =redirect-file-config.el= :: redirect cache/config files into =var/= (org-roam db,
-  tramp, eww, eshell, bookmarks, transient, backups, auto-saves, recentf, ...)
+  tramp, eww, eshell, bookmarks, transient, backups, auto-saves, recentf,
+  dap breakpoints, ...)
 
 * Keybindings
 
@@ -158,6 +161,27 @@ org-roam/mark navigation commands, so =C-c j b= / =C-c j f= can navigate them.
 | =C-c l .=   | go to definition                  |
 | =C-c l ,=   | go to references                  |
 | =C-c l s=   | workspace symbols                 |
+
+** Debug (dap-mode, global)
+| Key         | Action                  |
+|-------------+-------------------------|
+| =C-c C-d d= | debug (select template) |
+| =C-c C-d l= | debug last template     |
+| =C-c C-d r= | restart session         |
+| =C-c C-d q= | stop session            |
+| =C-c C-d b= | toggle breakpoint       |
+| =C-c C-d C= | conditional breakpoint  |
+| =C-c C-d c= | continue                |
+| =C-c C-d n= | step over               |
+| =C-c C-d i= | step into               |
+| =C-c C-d o= | step out                |
+| =C-c C-d R= | restart frame           |
+| =C-c C-d e= | eval at point           |
+| =C-c C-d E= | eval expression         |
+| =C-c C-d s= | sessions view           |
+| =C-c C-d v= | locals view             |
+| =C-c C-d B= | breakpoints view        |
+| =C-c C-d h= | dap-hydra               |
 
 ** Symbol (symbol-overlay, in code buffers)
 | Key         | Action                        |
@@ -255,6 +279,8 @@ org-roam/mark navigation commands, so =C-c j b= / =C-c j f= can navigate them.
   because of compilation.
 - *Rust mode:* =.rs= files open in the tree-sitter =rust-ts-mode=.  The
   =rust-mode= package is kept only for the cargo commands.
+- *Rust debug:* =dap-mode= runs =cargo build= then =rust-gdb= on
+  =target/debug/<crate>=.  =dap-hydra= pops at breakpoints.
 - *Dirvish extensions:* dirvish installs its optional extensions
   (=dirvish-icons=, =dirvish-subtree=, =dirvish-collapse=, =dirvish-side=, ...)
   under =elpa/dirvish-<ver>/extensions/=, which is not on the =load-path= by
