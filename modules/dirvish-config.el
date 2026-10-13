@@ -9,9 +9,6 @@
                (expand-file-name "extensions"
                                  (file-name-directory (locate-library "dirvish"))))
   (dirvish-override-dired-mode 1)  ;; open dirvish on C-x d
-  ;; Autoload dirvish-side
-  (autoload 'dirvish-side "dirvish-side" nil t)
-  (global-set-key (kbd "C-c d") #'dirvish-side)
   :custom
   ;; Icons, size, git, subtree
   (dirvish-attributes '(nerd-icons file-size git-rainbow subtree-state collapse))
