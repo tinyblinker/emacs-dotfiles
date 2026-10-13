@@ -3,9 +3,6 @@
 ;; Redirect org-roam DB
 (setq org-roam-db-location (expand-file-name "var/org-roam.db" user-emacs-directory))
 
-;; Redirect dap breakpoints
-(setq dap-breakpoints-file (expand-file-name "var/dap-breakpoints" user-emacs-directory))
-
 ;; Redirect tramp files
 (setq tramp-persistency-file-name (expand-file-name "var/tramp" user-emacs-directory))
 

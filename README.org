@@ -119,8 +119,7 @@ Each plugin lives in its own file under =modules/=.  =init.el= loads
 ** Utilities / housekeeping
 - =helper-config.el= :: helper commands (add =lexical-binding= header, fullwidth→halfwidth)
 - =redirect-file-config.el= :: redirect cache/config files into =var/= (org-roam db,
-  tramp, eww, eshell, bookmarks, transient, backups, auto-saves, recentf,
-  dap breakpoints, ...)
+  tramp, eww, eshell, bookmarks, transient, backups, auto-saves, recentf, ...)
 
 * Keybindings
 
