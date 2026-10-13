@@ -6,13 +6,13 @@
   (interactive)
   (if truncate-lines
       (progn
-        (setq-local truncate-lines nil)
         (visual-line-mode 1)
+        (setq truncate-lines nil)
         (setq word-wrap t)
         (message "disable truncate-wrapper"))
     (progn
-      (setq-local truncate-lines t)
       (visual-line-mode -1)
+      (setq truncate-lines t)
       (setq word-wrap nil)
       (message "enable truncate-wrapper"))))
 
