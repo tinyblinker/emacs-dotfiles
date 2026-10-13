@@ -10,6 +10,10 @@
 ;; Visual wrap
 (global-visual-line-mode 1)
 
+;; truncate-lines enables, disabel word-wrap
+(setq word-wrap nil)
+(setq truncate-lines t)
+
 ;; Absolute line numbers
 (global-display-line-numbers-mode 1)
 (setq display-line-numbers-type t)
