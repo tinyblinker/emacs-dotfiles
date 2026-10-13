@@ -1,7 +1,21 @@
 ;;; -*- lexical-binding: t -*-
 
+;; toggle truncate line
+(defun myhelper-toggle-truncate-of-line ()
+  "toggle truncate of the lines"
+  (interactive)
+  (if truncate-lines
+      (progn
+        (setq truncate-lines nil)
+        (visual-line-mode 1)
+        (setq word-wrap t))
+    (progn
+      (setq truncate-lines t)
+      (visual-line-mode nil)
+      (setq word-wrap nil))))
+
 ;; Insert lexical-binding header
-(defun add-lexical-binding-to-file ()
+(defun myhelper-add-lexical-binding-to-file ()
   (interactive)
   (save-excursion
     (goto-char (point-min))
@@ -11,7 +25,7 @@
       (message "added successfully"))))
 
 ;; Insert emacs config-file template to current buffer
-(defun insert-emacs-config-template()
+(defun myhelper-insert-emacs-config-template()
   "Insert Emacs config template in current buffer"
   (interactive)
   (let* ((filename (file-name-nondirectory (buffer-file-name)))
@@ -30,7 +44,7 @@
     ("。" . ".") ("、" . ","))
   "Extra CJK punctuation not covered by the U+FF00 halfwidth block.")
 
-(defun fullwidth-to-halfwidth (beg end)
+(defun myhelper-fullwidth-to-halfwidth (beg end)
   "Convert fullwidth characters between BEG and END to halfwidth ASCII."
   (interactive (if (use-region-p)
                    (list (region-beginning) (region-end))
