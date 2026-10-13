@@ -6,13 +6,15 @@
   (interactive)
   (if truncate-lines
       (progn
-        (setq truncate-lines nil)
+        (setq-local truncate-lines nil)
         (visual-line-mode 1)
-        (setq word-wrap t))
+        (setq word-wrap t)
+        (message "disable truncate-wrapper"))
     (progn
-      (setq truncate-lines t)
-      (visual-line-mode nil)
-      (setq word-wrap nil))))
+      (setq-local truncate-lines t)
+      (visual-line-mode -1)
+      (setq word-wrap nil)
+      (message "enable truncate-wrapper"))))
 
 ;; Insert lexical-binding header
 (defun myhelper-add-lexical-binding-to-file ()
