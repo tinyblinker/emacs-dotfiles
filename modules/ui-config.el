@@ -7,8 +7,10 @@
                     :slant 'italic
                     :height 180)
 
-;; Visual wrap
-(global-visual-line-mode 1)
+;; truncate line wrappers
+(global-visual-line-mode -1)
+(setq truncate-lines t)
+(setq word-wrap nil)
 
 ;; Absolute line numbers
 (global-display-line-numbers-mode 1)
