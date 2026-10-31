@@ -2,46 +2,22 @@
 #+author: shyweeds
 #+startup: content
 
-* Overview
+* What this is
 
-A lightweight GNU Emacs 31.1 configuration focused on *Rust*
-(eglot + rust-analyzer + tree-sitter) and *Org-mode* notes.  It also
-borrows several ideas from Neovim (telescope-style search, flash-style
-jumps, surround-style editing).
+This is my personal GNU Emacs 31.1 configuration. It is small and
+modular. It is made for *Rust* (eglot + rust-analyzer + tree-sitter)
+and for *Org-mode* notes. It also borrows some good ideas from Neovim:
+telescope-style search, flash-style jumps, and surround-style editing.
 
-The configuration is modular: each plugin lives in its own file under
-=~/.config/emacs/modules/=.  =init.el= loads them in order;
-=early-init.el= sets up package mirrors, quickstart, and GC tuning.
-For fast =emacs --daemon= startup, non-essential packages are deferred
-(=:defer 1= loads them 1s after idle) and the native-comp cache is warmed
-in the background (see *Notes*).
+The config is split into modules. Each module is one file in
+=modules/=, and =init.el= loads them all. =early-init.el= sets up the
+package sources and startup tuning. The first start is slow because
+Emacs downloads the packages. Later starts are fast: heavy packages
+load only when needed, and native compilation runs in the background.
 
-* Requirements
+* How to deploy
 
-Run =./install-dependencies.sh= to install the system packages, or
-install them manually.
-
-| Package          | Used by                                   |
-|------------------+-------------------------------------------|
-| =ripgrep=        | consult-ripgrep (live grep)               |
-| =fd=             | dirvish (fast file search)                |
-| =libvips= (=vipsthumbnail=) | dirvish (image preview)           |
-| =poppler=        | dirvish (PDF preview)                     |
-| =graphviz=       | org-roam (graph layout, =fdp=)            |
-| =cmake= =libvterm= | vterm (terminal module)                 |
-| =ffmpegthumbnailer= | dirvish (video thumbnails, optional)    |
-| =texlive-core=   | org-mode LaTeX preview (dvisvgm, optional) |
-
-Non-pacman dependencies:
-
-- =rust-analyzer= :: =rustup component add rust-analyzer=
-- =mmdc= (mermaid-cli) :: =npm install -g @mermaid-js/mermaid-cli= (for ob-mermaid)
-- Rust tree-sitter grammar :: compiled and placed in =~/.config/emacs/tree-sitter/=
-
-ELPA packages are installed automatically on first launch via
-=use-package :ensure t=.
-
-* Install
+This config is made for Arch Linux and needs GNU Emacs 31.1.
 
 #+begin_src bash
   git clone <this-repo> ~/.config/emacs
@@ -49,237 +25,32 @@ ELPA packages are installed automatically on first launch via
   ./install-dependencies.sh
 #+end_src
 
-Launch Emacs.  Packages install automatically on the first run.
+Then start Emacs. On the first start, Emacs installs the ELPA packages
+by itself (=use-package :ensure t=).
 
-* Plugins
+=install-dependencies.sh= installs the system tools with =pacman=. If
+you use another distro, install the same tools with your own package
+manager. The script lists them all, with a comment for each one.
 
-Each plugin lives in its own file under =modules/=.  =init.el= loads
-=redirect-file-config.el= first, then the rest in alphabetical order.
+A few tools are not installed by the script:
 
-** Appearance
-- =ui-config.el= :: font (JetBrainsMono NF), absolute line numbers, pixel scrolling, UI chrome
-- =keycast-config.el= :: keycast (show pressed keys on the mode line)
-- =which-key-config.el= :: which-key (keybinding hints popup)
+- =rust-analyzer= :: =rustup component add rust-analyzer=
+- =mermaid-cli= (optional) :: =npm install -g @mermaid-js/mermaid-cli=
+- Rust tree-sitter grammar :: compile it and put it in
+  =~/.config/emacs/tree-sitter/=
 
-** Editing
-- =paren-config.el= :: show-paren (highlight matching pair) + electric-pair (auto-insert pairs)
-- =editing-config.el= :: global editing defaults (delete-selection, no tabs, auto-chmod scripts, ...)
-- =auto-revert-config.el= :: auto-revert buffers when files change on disk
-- =so-long-config.el= :: fall back to =fundamental-mode= for files with very long lines
-- =repeat-config.el= :: repeat commands by pressing only their last key
-- =embrace-config.el= :: add/change/delete surrounding pairs (surround.nvim style)
+* Documentation and usage: code as doc
 
-** Navigation
-- =better-jumper-config.el= :: jump list (=C-c j b= / =C-c j f=)
-- =avy-config.el= :: jump to visible text via labels (flash.nvim style)
+This README does not copy the config. *The code is the doc.*
 
-** Completion and search (vertico + consult stack)
-- =vertico-config.el= :: vertical minibuffer completion UI
-- =orderless-config.el= :: out-of-order fuzzy matching
-- =marginalia-config.el= :: annotate candidates with descriptions
-- =embark-config.el= :: contextual actions on candidates / things at point
-- =consult-config.el= :: interactive search/navigation (telescope replacement)
-- =consult-eglot-config.el= :: LSP workspace symbol search through consult
-- =symbol-overlay-config.el= :: highlight all occurrences of the symbol at point
-- =completion-config.el= :: global completion defaults (Tab completes, vertical list)
-- =corfu-config.el= :: in-buffer completion popup (auto-trigger + docs)
-- =cape-config.el= :: extra completion-at-point backends (dabbrev, files, keywords, elisp)
+- *Read the module.* Each file in =modules/= is small and has
+  comments. The file name tells you the topic: =rust-config.el=,
+  =org-config.el=, =ui-config.el=, and so on.
+- *Find a key.* Look in the module that sets it. Inside Emacs, press
+  =C-h b= to list all keys, or wait for which-key to show them.
+- *Check the load order.* Read =init.el=. It loads every module.
+- *Check the reason.* Read the comments next to the code. Design notes
+  live there, not here.
 
-** Buffers, windows, files
-- =ibuffer-config.el= :: ibuffer (advanced buffer list, replaces =list-buffers=)
-- =recentf-config.el= :: track recently opened files
-- =savehist-config.el= :: persist minibuffer history, kill ring, search rings
-- =dired-config.el= :: dired defaults (dwim target, auto-revert)
-- =window-config.el= :: winner undo/redo + windmove + display rules
-- =dirvish-config.el= :: yazi-style file manager (two-pane dir + preview)
-- =nerd-icons-config.el= :: nerd-icons fonts (completion/corfu/ibuffer/marginalia;
-  dirvish draws its own icons, so =nerd-icons-dired= is disabled)
-
-** IDE / LSP
-- =eglot-config.el= :: LSP client (rust-analyzer)
-- =exec-path-from-shell-config.el= :: import shell env for GUI/daemon
-- =editorconfig-config.el= :: apply =.editorconfig= project settings
-- =flymake-config.el= :: diagnostics navigation
-- =flymake-popon-config.el= :: show diagnostics in a popup near point
-- =rust-config.el= :: rust-ts-mode remap + cargo commands
-
-** Git / shell
-- =magit-config.el= :: magit (git porcelain)
-- =diff-hl-config.el= :: inline git change indicators
-- =vterm-config.el= :: vterm (terminal emulator)
-
-** Org-mode
-- =org-config.el= :: org-mode (agenda, capture, latex preview)
-- =ob-mermaid-config.el= :: mermaid diagrams in org-babel source blocks
-- =ox-gfm-config.el= :: GitHub Flavored Markdown export backend
-- =org-roam-config.el= :: networked notes (backlinks, graph)
-
-** Utilities / housekeeping
-- =helper-config.el= :: helper commands (add =lexical-binding= header, fullwidth→halfwidth)
-- =redirect-file-config.el= :: redirect cache/config files into =var/= (org-roam db,
-  tramp, eww, eshell, bookmarks, transient, backups, auto-saves, recentf, ...)
-
-* Keybindings
-
-** Navigation
-| Key         | Action                          |
-|-------------+---------------------------------|
-| =C-c j b=     | jump backward (better-jumper)   |
-| =C-c j f=     | jump forward (better-jumper)    |
-| =M-g c=       | jump to a character (avy)       |
-| =M-g l=       | jump to a line (avy)            |
-
-Jump points are recorded automatically before xref/consult/consult-eglot/avy/
-org-roam/mark navigation commands, so =C-c j b= / =C-c j f= can navigate them.
-
-** Search (consult)
-| Key     | Action                                          |
-|---------+-------------------------------------------------|
-| =C-x b=   | fuzzy switch buffer/file                       |
-| =M-s l=   | fuzzy search in current buffer (consult-line)  |
-| =M-s g=   | live grep in project (consult-ripgrep)         |
-| =M-s r=   | restore search history (consult-history)       |
-| =M-g g=   | go to line (consult-goto-line)                 |
-| =M-g i=   | outline/imenu navigation (consult-imenu)       |
-| =M-y=     | fuzzy yank (consult-yank-pop)                  |
-
-** Embark
-| Key  | Action                          |
-|------+---------------------------------|
-| =C-.=  | act on target (embark-act)      |
-| =C-;=  | do the right thing (embark-dwim) |
-
-** LSP (eglot, in Rust buffers)
-| Key       | Action                            |
-|-----------+-----------------------------------|
-| =C-c l a=   | code actions                      |
-| =C-c l r=   | rename                            |
-| =C-c l f=   | format buffer                     |
-| =C-c l .=   | go to definition                  |
-| =C-c l ,=   | go to references                  |
-| =C-c l s=   | workspace symbols                 |
-
-** Symbol (symbol-overlay, in code buffers)
-| Key         | Action                        |
-|-------------+-------------------------------|
-| =M-n=         | jump to next same symbol      |
-| =M-p=         | jump to previous same symbol  |
-
-** Diagnostics
-| Key       | Action                                    |
-|-----------+-------------------------------------------|
-| =C-c q=     | list diagnostics (consult-flymake)         |
-| =C-c ! n=   | next error (flymake)                       |
-| =C-c ! p=   | previous error (flymake)                   |
-
-** Surround editing
-| Key       | Action                     |
-|-----------+----------------------------|
-| =C-c e a=   | add a surrounding pair     |
-| =C-c e c=   | change surrounding pair    |
-| =C-c e d=   | delete surrounding pair    |
-
-** Files (dirvish)
-| Key   | Action                       |
-|-------+------------------------------|
-| =C-x d= | open dirvish (replaces dired) |
-| =C-c d= | open dirvish sidebar          |
-
-** Windows
-| Key                 | Action                    |
-|---------------------+---------------------------|
-| =C-c w u= / =C-c w r=  | undo / redo layout        |
-| =C-c w n/p/b/f=       | move down/up/left/right   |
-
-** Cargo (Rust)
-| Key           | Action              |
-|---------------+---------------------|
-| =C-c C-c C-u=   | rust-compile        |
-| =C-c C-c C-k=   | rust-check          |
-| =C-c C-c C-t=   | rust-test           |
-| =C-c C-c C-l=   | rust-run-clippy     |
-| =C-c C-f=       | rust-format-buffer  |
-
-** Text tools
-| Key         | Action                                            |
-|-------------+---------------------------------------------------|
-| =C-c C-t p=   | convert fullwidth to halfwidth (CJK to ASCII)     |
-
-** Git (magit)
-| Key     | Action             |
-|---------+--------------------|
-| =C-x g=   | magit-status       |
-| =C-c g=   | magit-dispatch     |
-| =C-c f=   | magit-file-dispatch |
-
-** Org
-| Key     | Action      |
-|---------+-------------|
-| =C-c a=   | org-agenda  |
-| =C-c c=   | org-capture |
-
-** Org-roam
-| Key       | Action                                       |
-|-----------+----------------------------------------------|
-| =C-c n f=   | find or create a note (org-roam-node-find)  |
-| =C-c n i=   | insert a link to an existing note           |
-| =C-c n l=   | toggle the backlinks sidebar                |
-| =C-c n g=   | show the notes graph                        |
-| =C-c n t=   | add a tag to the current note               |
-| =C-c n a=   | add an alias to the current note            |
-
-** Buffers
-| Key       | Action                                          |
-|-----------+-------------------------------------------------|
-| =C-x C-b=   | ibuffer (advanced buffer list, remaps =list-buffers=) |
-
-** Other
-| Key         | Action        |
-|-------------+---------------|
-| =C-c p=       | cape commands |
-
-* Notes
-
-- *Startup speed:* =emacs --daemon= startup is kept fast by (1) deferring
-  non-essential packages — the completion stack (=vertico= / =marginalia= /
-  =orderless= / =corfu= / =which-key=) uses =:defer 1= (loaded 1s after idle),
-  =ox-gfm= loads =:after org=, and the heavy ones (=magit= / =org-roam= /
-  =vterm= / =org=) are deferred; and (2) native compilation is kept
-  non-blocking: =package-native-compile= is =nil= (no compile during install),
-  =native-comp-jit-compilation= is =t= (async JIT: bytecode first, native code
-  compiled in the background), =native-comp-async-report-warnings-errors= is
-  =nil= (silent), and =init.el= pre-warms the cache via =native-compile-async=
-  over =elpa/=.  =early-init.el= no longer nils out =file-name-handler-alist=
-  (that hack conflicted with native-comp).  *Note:* the first run is still
-  slow mainly because ~30 packages are downloaded over the network, not
-  because of compilation.
-- *Rust mode:* =.rs= files open in the tree-sitter =rust-ts-mode=.  The
-  =rust-mode= package is kept only for the cargo commands.
-- *Dirvish extensions:* dirvish installs its optional extensions
-  (=dirvish-icons=, =dirvish-subtree=, =dirvish-collapse=, =dirvish-side=, ...)
-  under =elpa/dirvish-<ver>/extensions/=, which is not on the =load-path= by
-  default.  =dirvish-config.el= adds it so that =nerd-icons= / =subtree-state= /
-  =collapse= attributes work (otherwise dirvish errors with
-  =Cannot open load file dirvish-icons=).  For the same reason =dirvish-side=
-  is autoloaded explicitly (=:bind= would mis-autoload it from =dirvish=).
-- *Dirvish layout:* =dirvish-default-layout= is set to ='(0 0 0.4)=, a clean
-  two-pane =current dir | preview= split.  The upstream default
-  ='(1 0.11 0.55)= also opens parent-directory panes, which clutter the frame.
-  =dirvish-use-header-line= and =dirvish-use-mode-line= are both set to =nil=
-  because Dirvish draws those as extra windows (above/below the panes).
-- *Dirvish sidebar size:* the sidebar width is =dirvish-side-width= (integer
-  columns, default =35=).  Set it in =dirvish-config.el= to resize, e.g.
-  =#+begin_src emacs-lisp
-  (setq dirvish-side-width 30)  ; narrower sidebar
-  #+end_src
-  Its position is controlled by =dirvish-side-display-alist= (default
-  =((side . left) (slot . -1))=; set =side= to =right= to flip it).
-- *Dirvish image preview:* previews (images, pdf, video thumbnails)
-  only appear in the *full-frame layout* (=C-x d= / =M-x dirvish=), which
-  has a dedicated preview pane.  The sidebar (=C-c d= / =dirvish-side=) is a
-  plain tree view with no preview window.  Image preview needs
-  =vipsthumbnail= (from =libvips=); video thumbnails need =ffmpegthumbnailer=.
-- *Fonts:* the icons need a Nerd Font (JetBrainsMono NF is used).  If
-  icons look broken, run =M-x nerd-icons-install-fonts=.
-- *Tree-sitter:* grammars go in =~/.config/emacs/tree-sitter/= and are
-  found automatically through =treesit-extra-load-path=.
+So the rule is simple: trust the code, not a stale README. When you
+change the code, the doc changes with it.
