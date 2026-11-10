@@ -3,7 +3,7 @@
 ;; Annotate candidates
 (use-package marginalia
   :ensure t
-  :defer 1
+  :demand t          ;; load during init so the first M-x gets annotations
   :config
   (marginalia-mode 1))
 
