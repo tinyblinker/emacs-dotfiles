@@ -3,7 +3,7 @@
 ;; Vertical minibuffer completion
 (use-package vertico
   :ensure t
-  :defer 1
+  :demand t          ;; load during init: deferring breaks the first M-x
   :custom
   (vertico-cycle t)  ;; wrap around
   :config
