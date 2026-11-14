@@ -20,4 +20,5 @@
 (global-set-key (kbd "C-c C-c C-c") #'treesit-fold-close-all)
 (global-set-key (kbd "C-c C-c C-o") #'treesit-fold-open-all)
 
+(provide 'treesit-fold-config)
 ;;; treesit-fold-config.el ends here
