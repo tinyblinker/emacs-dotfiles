@@ -5,10 +5,8 @@
   :custom
   (eglot-autoshutdown t) ;; autoshutdown
   :hook
-  ((rust-ts-mode . eglot-ensure)
-   (rust-mode . eglot-ensure)
-   ;; inlay hints after connect
-   (eglot-managed-mode . eglot-inlay-hints-mode))
+  ;; inlay hints after connect
+  ((eglot-managed-mode . eglot-inlay-hints-mode))
   :bind (:map eglot-mode-map
               ("C-c l a" . eglot-code-actions)
               ("C-c l r" . eglot-rename)
