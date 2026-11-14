@@ -1,18 +1,6 @@
 ;;; -*- lexical-binding: t -*-
-
 ;; Remap 'rust-mode' to 'rust-ts-mode'
 (add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
-
-;; (unused?)
-;; ;; Rust tree-sitter grammar
-;; (setq treesit-extra-load-path
-;;       (list (expand-file-name "tree-sitter" user-emacs-directory)))
-
-
-;; ;; Cargo commands (from rust-mode)
-;; (use-package rust-mode
-;;   :ensure t
-;;   :commands (rust-compile rust-check rust-test rust-run-clippy rust-format-buffer))
 
 ;; helper functions
 (defun my/rust-cargo (args)
