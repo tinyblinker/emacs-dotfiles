@@ -1,6 +1,5 @@
 ;;; -*- lexical-binding: t -*-
 
-;; LSP client
 (use-package eglot
   :custom
   (eglot-autoshutdown t) ;; autoshutdown
@@ -14,5 +13,13 @@
               ("C-c l ." . xref-find-definitions)
               ("C-c l ," . xref-find-references)))
 
-(provide 'eglot-config)
-;;; eglot-config.el ends here
+(use-package flymake
+  :bind (("C-c ! n" . flymake-goto-next-error)
+         ("C-c ! p" . flymake-goto-prev-error)))
+
+(use-package flymake-popon
+  :ensure t
+  :hook (flymake-mode . flymake-popon-mode))
+
+(provide 'langs-config)
+;;; langs-config.el ends here

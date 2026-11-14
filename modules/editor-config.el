@@ -1,4 +1,28 @@
 ;;; -*- lexical-binding: t -*-
+(use-package savehist
+  :custom
+  (savehist-additional-variables '(kill-ring register-alist search-ring regexp-search-ring))
+  :config (savehist-mode 1))
+
+(use-package so-long
+  :config (global-so-long-mode 1))
+
+(use-package repeat
+  :config (repeat-mode 1))
+
+(use-package recentf
+  :hook (after-init . recentf-mode)
+  :custom
+  (recentf-exclude '("var/" "elpa/" ".git/" "^/tmp/" "/ssh:" "/sudo:")))
+
+;; Highlight + auto-insert parens
+(show-paren-mode 1)       ;; highlight matching paren
+(electric-pair-mode 1)    ;; auto-insert pairs
+
+;; .editorconfig support
+(use-package editorconfig
+  :ensure t
+  :hook (prog-mode . editorconfig-mode))
 
 ;; Disable overwrite-mode
 (add-hook 'after-change-major-mode-hook
@@ -35,5 +59,9 @@
 ;; Replace selection on paste
 (delete-selection-mode 1)
 
-(provide 'editing-config)
-;;; editing-config.el ends here
+;; Reload buffers on disk change
+(setq global-auto-revert-non-file-buffers t)
+(global-auto-revert-mode 1)
+
+(provide 'editor-config)
+;;; editor-config.el ends here

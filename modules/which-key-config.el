@@ -12,7 +12,7 @@
   ;; Popup at bottom
   (which-key-side-window-location 'bottom)
   ;; Key/desc separator
-  (which-key-separator " → ")
+  (which-key-separator " -> ")
   :config
   (which-key-mode 1))
 
