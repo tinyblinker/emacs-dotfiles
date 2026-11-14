@@ -1,5 +1,19 @@
 ;;; -*- lexical-binding: t -*-
 
+(use-package marginalia
+  :ensure t
+  :demand t          ;; load during init so the first M-x gets annotations
+  :config
+  (marginalia-mode 1))
+
+(use-package vertico
+  :ensure t
+  :demand t          ;; load during init: deferring breaks the first M-x
+  :custom
+  (vertico-cycle t)  ;; wrap around
+  :config
+  (vertico-mode 1))
+
 ;; Completion defaults
 (setq tab-always-indent 'complete   ;; Tab: indent or complete
       completions-format 'vertical) ;; vertical list

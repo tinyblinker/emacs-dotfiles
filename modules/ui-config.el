@@ -38,5 +38,11 @@
   (global-diff-hl-mode 1)   ;; git indicators
   (diff-hl-dired-mode 1))   ;; dired marks
 
+(use-package keycast
+  :ensure t
+  :demand t
+  :config
+  (keycast-mode-line-mode 1))
+
 (provide 'ui-config)
 ;;; ui-config.el ends here
