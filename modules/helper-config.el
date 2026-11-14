@@ -31,10 +31,10 @@
   (interactive)
   (let* ((filename (file-name-nondirectory (buffer-file-name)))
          (header ";;; -*- lexical-binding: t -*-")
-         (feature (format "(provide '%s)" filename))
-         (footer (format ";;; %s ends here"
-                         (substring filename 0
-                                    (or (string-search "." filename) (length filename))))))
+         (feature (format "(provide '%s)"
+                          (substring filename 0
+                                    (or (string-search "." filename) (length filename)))))
+         (footer (format ";;; %s ends here" filename)))
     (erase-buffer)
     (insert header "\n\n")
     (insert feature "\n")
