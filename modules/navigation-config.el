@@ -1,4 +1,11 @@
 ;;; -*- lexical-binding: t -*-
+(use-package symbol-overlay
+  :ensure t
+  :hook (prog-mode . symbol-overlay-mode)
+  :bind (:map symbol-overlay-mode-map
+              ("M-p" . symbol-overlay-jump-prev)
+              ("M-n" . symbol-overlay-jump-next)))
+
 (use-package consult
   :ensure t
   :bind (;; diagnostics

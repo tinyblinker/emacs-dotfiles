@@ -1,4 +1,10 @@
 ;;; -*- lexical-binding: t -*-
+(use-package embrace
+  :ensure t
+  :bind (("C-c e a" . embrace-add)     ;; add
+         ("C-c e c" . embrace-change)  ;; change
+         ("C-c e d" . embrace-delete))) ;; delete
+
 (use-package savehist
   :custom
   (savehist-additional-variables '(kill-ring register-alist search-ring regexp-search-ring))
