@@ -1,5 +1,4 @@
 ;;; -*- lexical-binding: t -*-
-
 ;; toggle truncate line
 (defun my/toggle-truncate-of-line ()
   "toggle truncate of the lines"
@@ -31,11 +30,15 @@
   "Insert Emacs config template in current buffer"
   (interactive)
   (let* ((filename (file-name-nondirectory (buffer-file-name)))
-    (header ";;; -*- lexical-binding: t -*-")
-    (footer (format ";;; %s ends here" filename)))
-  (erase-buffer)
-  (insert header "\n\n")
-  (insert footer)))
+         (header ";;; -*- lexical-binding: t -*-")
+         (feature (format "(provide '%s)" filename))
+         (footer (format ";;; %s ends here"
+                         (substring filename 0
+                                    (or (string-search "." filename) (length filename))))))
+    (erase-buffer)
+    (insert header "\n\n")
+    (insert feature "\n")
+    (insert footer)))
 
 ;; Convert fullwidth CJK to halfwidth ASCII
 (defconst fullwidth-to-halfwidth-extra-table
@@ -67,7 +70,7 @@
         (while (search-forward (car pair) nil t)
           (replace-match (cdr pair) nil t))))))
 
-(global-set-key (kbd "C-c C-t p") #'fullwidth-to-halfwidth)
+(global-set-key (kbd "C-c C-t p") #'my/fullwidth-to-halfwidth)
 
 (provide 'helper-config)
 ;;; helper-config.el ends here
