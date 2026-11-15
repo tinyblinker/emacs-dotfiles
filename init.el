@@ -4,7 +4,7 @@
 (add-to-list 'load-path (expand-file-name "modules" user-emacs-directory))
 
 ;; modules to be loaded
-(defvar my-modules
+(defvar loaded-modules-list
   '(redirect-file-config
     completion-config
     editor-config
@@ -14,22 +14,36 @@
     myhelpers-config
     navigation-config
     org-config
+    terminal-config
     ui-config
     vcs-config)
   "my modules to be loaded")
 
 ;; Load all modules in Order
-(dolist (module my-modules)
+(dolist (module loaded-modules-list)
   (require module))
 
 ;; a function to check all modules are
 ;; Explicit loaded by the exprs above
-(defun my/if-all-modules-are-load ()
+(defun my/if-all-modules-are-loaded ()
   (interactive)
-  (if (dolist (file (directory-files
-                     (expand-file-name "modules" user-emacs-directory t "\\.el\\")))
-        (dolist ()))))
-(my/if-all-modules-are-load)
+  (let* ((my-unload-modules nil)
+         (filename-list (directory-files
+                         (expand-file-name
+                          "modules"
+                          user-emacs-directory)
+                         nil
+                         "\\.el\\'"))
+         (my-modules-list (mapcar #'file-name-base filename-list)))
+    (progn
+      (dolist (my-module my-modules-list)
+        (unless (member (intern my-module) loaded-modules-list)
+          (push my-module my-unload-modules))))
+    (if my-unload-modules
+        (user-error "'init.el' Modules Missing:%s" my-unload-modules))
+    (message "'init.el' All Modules loaded")))
+(my/if-all-modules-are-loaded)
+
 ;; Dark theme
 (load-theme 'modus-vivendi-tinted t)
 
