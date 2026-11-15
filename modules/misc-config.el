@@ -84,5 +84,5 @@ Like normal Emacs `C-k'.  Kill to end of line and put content in kill-ring."
   (dired-dwim-target t)           ;; dwim target
   (dired-auto-revert-buffer t))   ;; auto-revert
 
-(provide 'core-config)
-;;; core-config.el ends here
+(provide 'misc-config)
+;;; misc-config.el ends here

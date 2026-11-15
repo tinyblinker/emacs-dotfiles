@@ -65,5 +65,11 @@
   (keymap-set rust-ts-mode-map "C-c C-c C-l" #'my/rust-clippy)
   (keymap-set rust-ts-mode-map "C-c C-f" #'eglot-format-buffer))
 
+;; Do not load rust-mode(throw an user error)
+(defun my/reject-rust-mode ()
+  (user-error "Please use 'rust-ts-mode' instead of the 'rust-mode'"))
+(add-hook 'rust-mode-hook #'my/reject-rust-mode)
+(with-eval-after-load 'rust-mode #'my/reject-rust-mode)
+
 (provide 'langs-mode-config)
 ;;; langs-mode-config.el ends here

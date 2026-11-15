@@ -1,5 +1,4 @@
 ;;; -*- lexical-binding: t -*-
-;; toggle truncate line
 (defun my/toggle-truncate-of-line ()
   "toggle truncate of the lines"
   (interactive)
@@ -15,8 +14,8 @@
       (setq word-wrap nil)
       (message "enable truncate-wrapper"))))
 
-;; Insert lexical-binding header
 (defun my/add-lexical-binding-to-file ()
+  "Insert lexical-binding header"
   (interactive)
   (save-excursion
     (goto-char (point-min))
@@ -25,7 +24,6 @@
       (insert ";;; -*- lexical-binding: t -*-\n\n")
       (message "added successfully"))))
 
-;; Insert emacs config-file template to current buffer
 (defun my/insert-emacs-config-template()
   "Insert Emacs config template in current buffer"
   (interactive)
@@ -40,7 +38,6 @@
     (insert feature "\n")
     (insert footer)))
 
-;; Convert fullwidth CJK to halfwidth ASCII
 (defconst fullwidth-to-halfwidth-extra-table
   '(("【" . "[") ("】" . "]")
     ("「" . "'") ("」" . "'")
@@ -70,7 +67,5 @@
         (while (search-forward (car pair) nil t)
           (replace-match (cdr pair) nil t))))))
 
-(global-set-key (kbd "C-c C-t p") #'my/fullwidth-to-halfwidth)
-
-(provide 'helper-config)
-;;; helper-config.el ends here
+(provide 'myhelpers-config)
+;;; myhelpers-config.el ends here

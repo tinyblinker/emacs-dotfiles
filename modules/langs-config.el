@@ -1,13 +1,4 @@
 ;;; -*- lexical-binding: t -*-
-(use-package magit
-  :ensure t
-  :demand t
-  :custom
-  (magit-define-global-key-bindings 'recommended)  ; C-c g dispatch
-  (magit-save-repository-buffers 'dontask)          ; autosave
-  :config
-  (magit-auto-revert-mode 1))                       ; auto-revert
-
 (use-package elisp-demos
   :ensure t
   :config
