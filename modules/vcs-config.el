@@ -9,6 +9,7 @@
   (magit-auto-revert-mode 1))                       ; auto-revert
 
 (use-package diff-hl
+  :demand t
   :ensure t
   :hook
   (magit-post-refresh . diff-hl-magit-post-refresh) ;; refresh after magit

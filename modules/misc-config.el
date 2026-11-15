@@ -1,26 +1,4 @@
 ;;; -*- lexical-binding: t -*-
-(use-package which-key
-  :ensure t
-  :demand t
-  :custom
-  (which-key-idle-delay 0.5)
-  (which-key-min-display-lines 3)
-  (which-key-max-description-length 27)
-  ;; Show on C-h
-  (which-key-show-early-on-C-h t)
-  ;; Popup at bottom
-  (which-key-side-window-location 'bottom)
-  ;; Key/desc separator
-  (which-key-separator " -> ")
-  :config
-  (which-key-mode 1))
-
-(use-package ibuffer
-  :bind ("<remap><list-buffer>" . ibuffer-list-buffers)
-  :custom
-  (ibuffer-movement-cycle nil)  ;; no wrap
-  (ibuffer-old-time 24))        ;; old after 24h
-
 (use-package dirvish
   :ensure t
   :init

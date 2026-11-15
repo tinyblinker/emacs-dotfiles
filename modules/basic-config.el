@@ -42,7 +42,9 @@
       display-line-numbers-type t
       scroll-step 1
       initial-scratch-message nil
-      inhibit-startup-screen t)
+      inhibit-startup-screen t
+      ibuffer-movement-cycle nil
+      ibuffer-old-time 24)
 
 (add-hook 'after-change-major-mode-hook
           (lambda () (when (overwrite-mode) (overwrite-mode -1))))
@@ -53,13 +55,24 @@
 (add-hook 'after-init-hook
           #'recentf-mode)
 
+(define-key global-map [remap lisp-buffer] #'ibuffer-list-buffers)
 (keymap-global-unset "<insert>" "<insertchar>")
 
-(use-package embrace
+(use-package which-key
   :ensure t
-  :bind (("C-c e a" . embrace-add)     ;; add
-         ("C-c e c" . embrace-change)  ;; change
-         ("C-c e d" . embrace-delete))) ;; delete
+  :demand t
+  :custom
+  (which-key-idle-delay 0.5)
+  (which-key-min-display-lines 3)
+  (which-key-max-description-length 27)
+  ;; Show on C-h
+  (which-key-show-early-on-C-h t)
+  ;; Popup at bottom
+  (which-key-side-window-location 'bottom)
+  ;; Key/desc separator
+  (which-key-separator " -> ")
+  :config
+  (which-key-mode 1))
 
 (use-package keycast
   :ensure t

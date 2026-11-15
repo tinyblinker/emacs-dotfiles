@@ -7,6 +7,11 @@
          ("C-<" . 'mc/mark-previous-like-this)
          ("C-c C-<" . 'mc/mark-all-like-this)))
 
+(use-package embrace
+  :ensure t
+  :bind (("C-c e a" . embrace-add)     ;; add
+         ("C-c e c" . embrace-change)  ;; change
+         ("C-c e d" . embrace-delete))) ;; delete
 
 (use-package symbol-overlay
   :ensure t

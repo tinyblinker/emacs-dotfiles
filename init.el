@@ -7,7 +7,6 @@
 (defvar loaded-modules-list
   '(redirect-file-config
     completion-config
-    editor-config
     langs-config
     langs-mode-config
     misc-config
@@ -15,7 +14,7 @@
     navigation-config
     org-config
     terminal-config
-    ui-config
+    basic-config
     vcs-config)
   "my modules to be loaded")
 

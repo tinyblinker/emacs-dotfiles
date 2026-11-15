@@ -49,6 +49,7 @@
 ;; Fuzzy matching
 (use-package orderless
   :ensure t
+  :demand t
   :custom
   (orderless-matching-styles '(orderless-flex))
   ;; orderless + basic fallback
