@@ -45,7 +45,8 @@
       ibuffer-movement-cycle nil
       ibuffer-old-time 24)
 
-(setopt visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))
+(setopt visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow)
+        mode-line-collapse-minor-modes '(not))
 
 (add-hook 'after-change-major-mode-hook
           (lambda () (when (overwrite-mode) (overwrite-mode -1))))

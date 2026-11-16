@@ -5,22 +5,11 @@
   (startup-redirect-eln-cache
    (expand-file-name "var/eln-cache/" user-emacs-directory)))
 
-;; JIT-compile .elc in background, silently
+;; JIT-compile .elc in background, not silently
 (setq native-comp-jit-compilation t
-      native-comp-async-report-warnings-errors nil)
-
-;; Disable GC during init
-(setq gc-cons-threshold most-positive-fixnum
-      gc-cons-percentage 0.6)
-(add-hook 'emacs-startup-hook
-          (lambda ()
-            (setq gc-cons-threshold (* 100 1024 1024)
-                  gc-cons-percentage 0.1)))
+      native-comp-async-report-warnings-errors t)
 
 (require 'package)
-
-;; No compile on install
-(setq package-native-compile nil)
 
 ;; Package archives (mirrors first)
 (setq package-archives
@@ -39,12 +28,3 @@
         ("nongnu" . 79)
         ("melpa-mirror"  . 70)
         ("melpa" . 69)))
-
-;; Load all autoloads in one pass
-(setq package-quickstart t)
-
-(package-initialize)
-
-;; Refresh archives if none
-(unless package-archive-contents
-  (package-refresh-contents))

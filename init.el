@@ -45,8 +45,3 @@
 
 ;; Dark theme
 (load-theme 'modus-vivendi-tinted t)
-
-;; Pre-warm native-comp cache in background
-(when (native-comp-available-p)
-  (native-compile-async (expand-file-name "elpa" user-emacs-directory)
-                        'recursively))
