@@ -37,6 +37,9 @@
 ;; Remap 'rust-mode' to 'rust-ts-mode'
 (add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
 
+;; ensure Eglot load after rust-ts-mode
+(add-hook 'rust-ts-mode-hook #'eglot-ensure)
+
 ;; helper functions
 (defun my/rust-cargo (args)
   "Run cargo in the 'nearest' cargo 'root' dir with 'Cargo.toml'"

@@ -5,13 +5,10 @@
   (if truncate-lines
       (progn
         (visual-line-mode 1)
-        (setq truncate-lines nil)
-        (setq word-wrap t)
         (message "disable truncate-wrapper"))
     (progn
       (visual-line-mode -1)
-      (setq truncate-lines t)
-      (setq word-wrap nil)
+      (setq-local truncate-lines t)
       (message "enable truncate-wrapper"))))
 
 (defun my/add-lexical-binding-to-file ()
@@ -31,7 +28,7 @@
          (header ";;; -*- lexical-binding: t -*-")
          (feature (format "(provide '%s)"
                           (substring filename 0
-                                    (or (string-search "." filename) (length filename)))))
+                                     (or (string-search "." filename) (length filename)))))
          (footer (format ";;; %s ends here" filename)))
     (erase-buffer)
     (insert header "\n\n")

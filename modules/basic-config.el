@@ -5,7 +5,7 @@
                     :family "JetBrainsMono NF"
                     :weight 'normal
                     :slant 'italic
-                    :height 180)
+                    :height 160)
 
 (show-paren-mode 1)       
 (electric-pair-mode 1)    
@@ -14,7 +14,7 @@
 (delete-selection-mode 1) 
 (global-auto-revert-mode 1)
 (savehist-mode 1)
-(global-visual-line-mode -1)
+(global-visual-line-mode 1)
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (blink-cursor-mode -1)
@@ -24,8 +24,7 @@
 
 (setq-default indent-tabs-mode nil
               bidi-paragraph-direction 'left-to-right
-              bidi-inhibit-bpa t
-              mode-line-buffer-identification nil)
+              bidi-inhibit-bpa t)
 
 (setq kill-do-not-save-duplicates t
       bookmark-save-flag 1
@@ -45,6 +44,8 @@
       inhibit-startup-screen t
       ibuffer-movement-cycle nil
       ibuffer-old-time 24)
+
+(setopt visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))
 
 (add-hook 'after-change-major-mode-hook
           (lambda () (when (overwrite-mode) (overwrite-mode -1))))
@@ -78,7 +79,7 @@
   :ensure t
   :demand t
   :config
-  (keycast-mode-line-mode 1))
+  (keycast-header-line-mode 1))
 
 (provide 'basic-config)
 ;;; basic-config.el ends here

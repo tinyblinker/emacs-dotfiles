@@ -49,7 +49,14 @@
 
 (use-package flymake
   :bind (("C-c ! n" . flymake-goto-next-error)
-         ("C-c ! p" . flymake-goto-prev-error)))
+         ("C-c ! p" . flymake-goto-prev-error))
+  :config
+  (setq-default flymake-indicator-type 'margins
+                flymake-margin-indicator-position 'left-margin
+                flymake-margin-indicators-string
+                '((error "✖" compilation-error)
+                  (warning "▲" compilation-warning)
+                  (note "●" compilation-info))))
 
 (use-package flymake-popon
   :ensure t
