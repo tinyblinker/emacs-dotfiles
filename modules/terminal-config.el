@@ -1,7 +1,10 @@
 ;;; -*- lexical-binding: t -*-
 (use-package ghostel
   :ensure t
-  :hook (after-init . ghostel-status-indicator-mode)
+  :hook
+  (after-init . ghostel-status-indicator-mode)
+  (ghostel-mode-hook . (lambda ()
+                         (display-line-numbers-mode -1)))
   :bind (("C-x m" . ghostel)
          :map ghostel-semi-char-mode-map
          ("C-s"  . consult-line)
