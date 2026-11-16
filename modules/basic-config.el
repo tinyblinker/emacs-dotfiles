@@ -6,6 +6,9 @@
                     :weight 'normal
                     :slant 'italic
                     :height 160)
+(dolist (charset '(han cjk-misc kana bopomofo))
+  (set-fontset-font t charset
+                    (font-spec :family "Sarasa Mono SC")))
 
 (electric-pair-mode 1)    
 (global-so-long-mode 1)

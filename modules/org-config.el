@@ -7,17 +7,20 @@
   (org-startup-indented t)      ;; indent
   (org-log-into-drawer t) ;; log into drawer
   (org-pretty-entities t) ;; pretty entities
-  ;; agenda/capture keys
   :bind (("C-c a" . org-agenda)
          ("C-c c" . org-capture))
+  :hook (org-agenda-mode . (lambda ()
+                             (visual-line-mode -1)
+                             (setq-local truncate-lines t)))
   :config
-  (setq org-directory (expand-file-name "org/" user-emacs-directory))
-  (setq org-agenda-files `(,org-directory))
+  (defvar org-my-notes (expand-file-name "org/notes/" user-emacs-directory))
+  (setq org-directory (expand-file-name "org/capture/" user-emacs-directory))
+  (setq org-agenda-files `(,org-my-notes ,org-directory))
   (setq org-use-sub-superscripts nil)
 
   ;; add timestamp when the TODO changed to "done"
   (setq org-log-done 'time)
-  
+
   ;; mkdir if missing
   (unless (file-directory-p org-directory)
     (make-directory org-directory t))

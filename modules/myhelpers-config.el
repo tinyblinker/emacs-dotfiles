@@ -2,14 +2,14 @@
 (defun my/toggle-truncate-of-line ()
   "toggle truncate of the lines"
   (interactive)
-  (if truncate-lines
+  (if visual-line-mode
       (progn
-        (visual-line-mode 1)
-        (message "disable truncate-wrapper"))
+        (visual-line-mode -1)
+        (setq-local truncate-lines t)
+        (message "enable truncate-wrapper"))
     (progn
-      (visual-line-mode -1)
-      (setq-local truncate-lines t)
-      (message "enable truncate-wrapper"))))
+      (visual-line-mode 1)
+      (message "disable truncate-wrapper"))))
 
 (defun my/add-lexical-binding-to-file ()
   "Insert lexical-binding header"

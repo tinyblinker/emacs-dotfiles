@@ -19,16 +19,14 @@ set -euo pipefail
 # chafa         : render images in the terminal (dirvish image preview)
 # poppler       : PDF tools, provides pdftoppm (dirvish PDF preview)
 # graphviz      : graph layout tools, provides fdp/dot (org-roam graph)
-# cmake         : build system (compiles the vterm module)
-# libvterm      : terminal emulation library (required by vterm)
+
 REQUIRED=(
   ripgrep
   fd
   chafa
   poppler
   graphviz
-  cmake
-  libvterm
+  ttf-sarasa-gothic
 )
 
 echo "==> Installing required packages..."
