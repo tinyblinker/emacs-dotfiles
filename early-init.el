@@ -5,10 +5,6 @@
   (startup-redirect-eln-cache
    (expand-file-name "var/eln-cache/" user-emacs-directory)))
 
-;; JIT-compile .elc in background, not silently
-(setq native-comp-jit-compilation t
-      native-comp-async-report-warnings-errors t)
-
 (require 'package)
 
 ;; Package archives (mirrors first)

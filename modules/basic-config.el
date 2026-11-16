@@ -7,7 +7,6 @@
                     :slant 'italic
                     :height 160)
 
-(show-paren-mode 1)       
 (electric-pair-mode 1)    
 (global-so-long-mode 1)
 (repeat-mode 1)
@@ -36,9 +35,6 @@
       global-auto-revert-non-file-buffers t
       savehist-additional-variables '(kill-ring register-alist)
       recentf-exclude '("var/" "elpa/" "/\\.git/" "^/tmp/" "/ssh:" "/sudo:")
-      truncate-lines t
-      word-wrap nil
-      display-line-numbers-type t
       scroll-step 1
       initial-scratch-message nil
       inhibit-startup-screen t
@@ -48,8 +44,6 @@
 (setopt visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow)
         mode-line-collapse-minor-modes '(not))
 
-(add-hook 'after-change-major-mode-hook
-          (lambda () (when (overwrite-mode) (overwrite-mode -1))))
 (add-hook 'after-save-hook
           #'executable-make-buffer-file-executable-if-script-p)
 (add-hook 'prog-mode
