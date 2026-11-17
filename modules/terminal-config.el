@@ -3,7 +3,7 @@
   :ensure t
   :hook
   (after-init . ghostel-status-indicator-mode)
-  (ghostel-mode-hook . (lambda ()
+  (ghostel-mode . (lambda ()
                          (display-line-numbers-mode -1)))
   :bind (("C-x m" . ghostel)
          :map ghostel-semi-char-mode-map

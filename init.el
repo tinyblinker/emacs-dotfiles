@@ -34,10 +34,9 @@
                          nil
                          "\\.el\\'"))
          (my-modules-list (mapcar #'file-name-base filename-list)))
-    (progn
-      (dolist (my-module my-modules-list)
-        (unless (member (intern my-module) loaded-modules-list)
-          (push my-module my-unload-modules))))
+    (dolist (my-module my-modules-list)
+      (unless (member (intern my-module) loaded-modules-list)
+        (push my-module my-unload-modules)))
     (if my-unload-modules
         (user-error "'init.el' Modules Missing:%s" my-unload-modules))
     (message "'init.el' All Modules loaded")))
