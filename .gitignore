@@ -30,3 +30,4 @@ modules/.dir-locals.el
 /games/
 /projects.eld
 /.dap-breakpoints
+/.mc-lists.el
