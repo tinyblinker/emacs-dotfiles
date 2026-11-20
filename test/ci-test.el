@@ -19,6 +19,10 @@
 (require 'eglot)
 (unless (memq 'eglot-ensure bash-ts-mode-hook)
   (error "ci: bash eglot hook missing"))
+(with-temp-buffer
+  (condition-case err
+      (run-hooks 'bash-ts-mode-hook)
+    (error (error "ci: bash hook error: %s" err))))
 (unless (eq (keymap-lookup bash-ts-mode-map "C-c C-f")
             #'eglot-format-buffer)
   (error "ci: bash format key missing"))
