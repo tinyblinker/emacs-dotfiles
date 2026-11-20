@@ -23,15 +23,14 @@
                            '(:shellcheckPath "shellcheck"
                              :shfmt (:path "shfmt")))))
 
-;; --Emacs Lisp--
-;; helper functions(formatting)
+;; elisp format helper
 (defun my/elisp-format-buffer ()
   "Format this elisp buffer"
   (interactive)
   (save-excursion
     (indent-region (point-min) (point-max))))
 
-;; bind keys for elisp formatting
+;; elisp format key
 (with-eval-after-load 'elisp-mode
   (keymap-set emacs-lisp-mode-map "C-c C-f" #'my/elisp-format-buffer))
 
