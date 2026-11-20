@@ -64,6 +64,22 @@
   (unless (equal (plist-get (plist-get options :check) :command) "clippy")
     (error "ci: rust clippy missing")))
 
+;; check ui settings
+(unless (memq 'display-line-numbers-mode prog-mode-hook)
+  (error "ci: line numbers hook missing"))
+(unless (memq 'treesit-fold-mode prog-mode-hook)
+  (error "ci: treesit-fold hook missing"))
+(require 'flymake)
+(unless (eq flymake-indicator-type 'auto)
+  (error "ci: flymake indicator type wrong"))
+(unless (eq flymake-fringe-indicator-position 'left-fringe)
+  (error "ci: flymake fringe side wrong"))
+(unless (equal visual-line-fringe-indicators '(nil right-curly-arrow))
+  (error "ci: visual line fringe wrong"))
+(require 'org)
+(unless (eq org-startup-with-latex-preview nil)
+  (error "ci: org latex preview wrong"))
+
 ;; check warnings
 (when (get-buffer "*Warnings*")
   (with-current-buffer "*Warnings*"
