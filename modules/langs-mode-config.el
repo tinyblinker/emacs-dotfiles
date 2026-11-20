@@ -35,27 +35,33 @@
 (with-eval-after-load 'elisp-mode
   (keymap-set emacs-lisp-mode-map "C-c C-f" #'my/elisp-format-buffer))
 
-;; --C--
-;; mode-remap('c-mode' remapped to the 'c-ts-mode')
+;; c and c++
 (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
+(add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
 
-;; ensure Eglot load after c-ts-mode
+;; c lsp, linter and formatter
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '((c-mode c-ts-mode c++-mode c++-ts-mode)
+                 . ("clangd"
+                    "--enable-config"
+                    "--clang-tidy"
+                    "--fallback-style=LLVM"))))
+
 (add-hook 'c-ts-mode-hook #'eglot-ensure)
+(add-hook 'c++-ts-mode-hook #'eglot-ensure)
 
-;; Do not load c-mode(throw an user error)
+;; c format key
+(with-eval-after-load 'c-ts-mode
+  (keymap-set c-ts-mode-map "C-c C-f" #'eglot-format-buffer))
+
+(with-eval-after-load 'c++-ts-mode
+  (keymap-set c++-ts-mode-map "C-c C-f" #'eglot-format-buffer))
+
+;; reject c-mode
 (defun my/reject-c-mode ()
   (user-error "Please use 'c-ts-mode' instead of the 'c-mode'"))
 (add-hook 'c-mode-hook #'my/reject-c-mode)
-(with-eval-after-load 'c-mode #'my/reject-c-mode)
-
-;; let Eglot launch 'Clangd' in c-ts-mode
-(with-eval-after-load 'eglot
-  (add-to-list 'eglot-server-programs
-               '(c-ts-mode . ("clangd"))))
-
-;; keymaps in 'c-ts-mode'
-(with-eval-after-load 'c-ts-mode
-  (keymap-set c-ts-mode-map "C-c C-f" #'eglot-format-buffer))
 
 ;; --Rust--
 ;; Remap 'rust-mode' to 'rust-ts-mode'
