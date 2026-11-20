@@ -1,0 +1,3 @@
+# clangd config
+CompileFlags:
+  Add: [-Wall, -Wextra]

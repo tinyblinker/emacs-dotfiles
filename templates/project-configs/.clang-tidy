@@ -1,0 +1,10 @@
+# clang-tidy config
+Checks: >
+  -*,
+  bugprone-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -readability-magic-numbers
+WarningsAsErrors: ''
+FormatStyle: file
