@@ -1,4 +1,28 @@
 ;;; -*- lexical-binding: t -*-
+
+;; bash
+(add-to-list 'major-mode-remap-alist '(sh-mode . bash-ts-mode))
+
+;; bash lsp
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '((sh-mode bash-ts-mode) . ("bash-language-server" "start"))))
+
+(add-hook 'sh-mode-hook #'eglot-ensure)
+(add-hook 'bash-ts-mode-hook #'eglot-ensure)
+
+;; bash format key
+(with-eval-after-load 'sh-script
+  (keymap-set bash-ts-mode-map "C-c C-f" #'eglot-format-buffer))
+
+;; bash linter and formatter
+(with-eval-after-load 'eglot
+  (setq-default eglot-workspace-configuration
+                (plist-put (default-value 'eglot-workspace-configuration)
+                           :bashIde
+                           '(:shellcheckPath "shellcheck"
+                             :shfmt (:path "shfmt")))))
+
 ;; --Emacs Lisp--
 ;; helper functions(formatting)
 (defun my/elisp-format-buffer ()
