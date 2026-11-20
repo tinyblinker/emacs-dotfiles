@@ -26,6 +26,7 @@
 (editorconfig-mode 1)
 
 (setq-default indent-tabs-mode nil
+              tab-width 4
               bidi-paragraph-direction 'left-to-right
               bidi-inhibit-bpa t)
 
