@@ -1,0 +1,30 @@
+# test on emacs 31.1
+name: emacs-ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: purcell/setup-emacs@master
+        with:
+          version: "31.1"
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            elpa
+            var/eln-cache
+          key: emacs-31.1-${{ hashFiles('early-init.el', 'modules/*.el', 'test/*.el') }}
+
+      - name: show version
+        run: emacs --version
+
+      - name: test config
+        run: emacs --batch --init-directory "$GITHUB_WORKSPACE" -l test/ci-test.el
