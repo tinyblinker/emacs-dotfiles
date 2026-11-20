@@ -21,7 +21,6 @@
 (tool-bar-mode -1)
 (blink-cursor-mode -1)
 (scroll-bar-mode -1)
-(add-hook 'prog-mode-hook #'display-line-numbers-mode)
 (pixel-scroll-precision-mode 1)
 (editorconfig-mode 1)
 
@@ -53,6 +52,8 @@
           #'executable-make-buffer-file-executable-if-script-p)
 (add-hook 'after-init-hook
           #'recentf-mode)
+(add-hook 'prog-mode-hook
+          #'display-line-numbers-mode)
 
 (define-key global-map [remap lisp-buffer] #'ibuffer-list-buffers)
 (keymap-global-unset "<insert>" "<insertchar>")
