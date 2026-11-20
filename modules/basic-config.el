@@ -21,7 +21,7 @@
 (tool-bar-mode -1)
 (blink-cursor-mode -1)
 (scroll-bar-mode -1)
-(global-display-line-numbers-mode 1)
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
 (pixel-scroll-precision-mode 1)
 (editorconfig-mode 1)
 
