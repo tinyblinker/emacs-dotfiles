@@ -45,8 +45,8 @@
   (require 'org-id)
   (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
 
-  ;; Preview LaTeX on open
-  (setq org-startup-with-latex-preview t)
+  ;; Preview LaTeX on demand
+  (setq org-startup-with-latex-preview nil)
 
   ;; LaTeX backend + scale
   (setq org-preview-latex-default-process 'dvisvgm)
