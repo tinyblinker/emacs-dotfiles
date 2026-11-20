@@ -51,8 +51,11 @@
   :bind (("C-c ! n" . flymake-goto-next-error)
          ("C-c ! p" . flymake-goto-prev-error))
   :config
-  (setq-default flymake-indicator-type 'margins
-                flymake-margin-indicator-position 'left-margin
+  (setq-default flymake-indicator-type 'auto
+                flymake-fringe-indicator-position 'left-fringe
+                flymake-error-bitmap '(large-circle compilation-error)
+                flymake-warning-bitmap '(filled-square compilation-warning)
+                flymake-note-bitmap '(question-mark compilation-info)
                 flymake-margin-indicators-string
                 '((error "✖" compilation-error)
                   (warning "▲" compilation-warning)
