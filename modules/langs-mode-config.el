@@ -63,14 +63,21 @@
   (user-error "Please use 'c-ts-mode' instead of the 'c-mode'"))
 (add-hook 'c-mode-hook #'my/reject-c-mode)
 
-;; --Rust--
-;; Remap 'rust-mode' to 'rust-ts-mode'
+;; rust
 (add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
 
-;; ensure Eglot load after rust-ts-mode
+;; rust lsp, linter and formatter
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '((rust-ts-mode rust-mode)
+                 . ("rust-analyzer"
+                    :initializationOptions
+                    (:check (:command "clippy")
+                            :rustfmt (:overrideCommand ["rustfmt"]))))))
+
 (add-hook 'rust-ts-mode-hook #'eglot-ensure)
 
-;; helper functions
+;; cargo helpers
 (defun my/rust-cargo (args)
   "Run cargo in the 'nearest' cargo 'root' dir with 'Cargo.toml'"
   (let ((default-directory
@@ -90,7 +97,7 @@
   (interactive)
   (my/rust-cargo "clippy"))
 
-;; Bind cargo keys as soon as rust-ts-mode loads
+;; rust keys
 (with-eval-after-load 'rust-ts-mode
   (keymap-set rust-ts-mode-map "C-c C-c C-u" #'my/rust-build)
   (keymap-set rust-ts-mode-map "C-c C-c C-k" #'my/rust-check)
@@ -98,11 +105,10 @@
   (keymap-set rust-ts-mode-map "C-c C-c C-l" #'my/rust-clippy)
   (keymap-set rust-ts-mode-map "C-c C-f" #'eglot-format-buffer))
 
-;; Do not load rust-mode(throw an user error)
+;; reject rust-mode
 (defun my/reject-rust-mode ()
   (user-error "Please use 'rust-ts-mode' instead of the 'rust-mode'"))
 (add-hook 'rust-mode-hook #'my/reject-rust-mode)
-(with-eval-after-load 'rust-mode #'my/reject-rust-mode)
 
 (provide 'langs-mode-config)
 ;;; langs-mode-config.el ends here
