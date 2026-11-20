@@ -1,6 +1,8 @@
 ;;; -*- lexical-binding: t -*-
 (use-package dirvish
   :ensure t
+  :hook
+  (image-mode . (lambda () (display-line-numbers-mode -1)))
   :init
   ;; Load dirvish extensions
   (add-to-list 'load-path
