@@ -23,6 +23,7 @@
 (scroll-bar-mode -1)
 (global-display-line-numbers-mode 1)
 (pixel-scroll-precision-mode 1)
+(editorconfig-mode 1)
 
 (setq-default indent-tabs-mode nil
               bidi-paragraph-direction 'left-to-right
@@ -49,8 +50,6 @@
 
 (add-hook 'after-save-hook
           #'executable-make-buffer-file-executable-if-script-p)
-(add-hook 'prog-mode
-          #'editorconfig-mode)
 (add-hook 'after-init-hook
           #'recentf-mode)
 
