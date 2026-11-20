@@ -1,14 +1,4 @@
 #!/usr/bin/env bash
-#
-# install-dependencies.sh
-#
-# Install the system packages needed by this Emacs configuration.
-# Target distribution: Arch Linux (uses pacman).
-#
-# Usage:
-#   chmod +x install-dependencies.sh
-#   ./install-dependencies.sh
-
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
@@ -19,7 +9,10 @@ set -euo pipefail
 # chafa         : render images in the terminal (dirvish image preview)
 # poppler       : PDF tools, provides pdftoppm (dirvish PDF preview)
 # graphviz      : graph layout tools, provides fdp/dot (org-roam graph)
-
+# bash linter : shellcheck
+# bash formatter : shfmt
+# bash lsp : bash-language-server
+# c lsp : clangd, clang-tidy, clang-format
 REQUIRED=(
   ripgrep
   fd
@@ -27,6 +20,10 @@ REQUIRED=(
   poppler
   graphviz
   ttf-sarasa-gothic
+  shellcheck
+  shfmt
+  bash-language-server
+  clang
 )
 
 echo "==> Installing required packages..."
@@ -51,14 +48,11 @@ sudo pacman -S --needed --noconfirm "${OPTIONAL[@]}"
 echo ""
 echo "==> The following are NOT installed by pacman:"
 echo ""
-echo "  Rust LSP server (rust-analyzer), via rustup:"
-echo "    rustup component add rust-analyzer"
+echo "  Rust tools (rust-analyzer, rustfmt, clippy), via rustup:"
+echo "    rustup component add rust-analyzer rustfmt clippy"
 echo ""
 echo "  Mermaid diagrams (ob-mermaid), via npm:"
 echo "    npm install -g @mermaid-js/mermaid-cli"
 echo ""
-echo "  Tree-sitter grammars are compiled separately and placed"
-echo "  in ~/.config/emacs/tree-sitter/ (see the README)."
-
 echo ""
 echo "==> Done."
