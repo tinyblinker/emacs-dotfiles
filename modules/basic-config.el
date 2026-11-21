@@ -16,7 +16,7 @@
 (delete-selection-mode 1) 
 (global-auto-revert-mode 1)
 (savehist-mode 1)
-(global-visual-line-mode 1)
+(global-visual-line-mode -1)
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (blink-cursor-mode -1)
