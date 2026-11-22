@@ -31,3 +31,4 @@ modules/.dir-locals.el
 /projects.eld
 /.dap-breakpoints
 /.mc-lists.el
+/html/
