@@ -4,15 +4,18 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 # Required packages
 # ---------------------------------------------------------------------------
-# ripgrep       : fast text search engine (used by consult-ripgrep)
-# fd            : fast file search (used by dirvish)
-# chafa         : render images in the terminal (dirvish image preview)
-# poppler       : PDF tools, provides pdftoppm (dirvish PDF preview)
-# graphviz      : graph layout tools, provides fdp/dot (org-roam graph)
-# bash linter : shellcheck
-# bash formatter : shfmt
-# bash lsp : bash-language-server
-# c lsp : clangd, clang-tidy, clang-format
+# ripgrep               : fast text search engine (used by consult-ripgrep)
+# fd                    : fast file search (used by dirvish)
+# chafa                 : render images in the terminal (dirvish image preview)
+# poppler               : PDF tools, provides pdftoppm (dirvish PDF preview)
+# graphviz              : graph layout tools, provides fdp/dot (org-roam graph)
+# bash linter           : shellcheck
+# bash formatter        : shfmt
+# bash lsp              : bash-language-server
+# C lsp                 : clangd
+# C linter              : clang-tidy
+# C formatter           : clang-format
+# mermaid-cli           : provide 'mmdc'
 REQUIRED=(
   ripgrep
   fd
@@ -24,6 +27,7 @@ REQUIRED=(
   shfmt
   bash-language-server
   clang
+  mermaid-cli
 )
 
 echo "==> Installing required packages..."

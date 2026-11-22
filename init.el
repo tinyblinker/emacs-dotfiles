@@ -12,7 +12,9 @@
     misc-config
     myhelpers-config
     navigation-config
-    org-config
+    org-basic-config
+    org-roam-config
+    org-publish-config
     terminal-config
     basic-config
     vcs-config)
