@@ -33,7 +33,6 @@
            :base-directory ,(expand-file-name "org" user-emacs-directory)
            :base-extension "org"
            :recursive t
-           :exclude "capture/\\|sitemap\\.org"
            :publishing-directory ,(expand-file-name "blog" user-emacs-directory)
            :publishing-function org-html-publish-to-html
            ;; html5
@@ -51,17 +50,10 @@
            :base-directory ,(expand-file-name "org" user-emacs-directory)
            :base-extension "css\\|txt\\|jpg\\|gif\\|png\\|svg\\|jpeg\\|webp"
            :recursive t
-           :exclude "capture/"
            :publishing-directory ,(expand-file-name "blog" user-emacs-directory)
            :publishing-function org-publish-attachment)
           ("tinyblinker.org"
            :components ("blog" "static")))))
-
-(defun my/org-publish-excluded-p (file org-dir)
-  "Return non-nil if FILE under ORG-DIR should not be published."
-  (let ((relative (file-relative-name file org-dir)))
-    (or (string-prefix-p "capture/" relative)
-        (string= relative "sitemap.org"))))
 
 (defun my/org-link-target (link file)
   "Return the absolute Org target of LINK in FILE, or nil."
@@ -91,10 +83,28 @@
              path
              (equal (file-name-extension path) "org")))))
 
+(defun my/org-publish-entry ()
+  "Return the Org file to use as the publication root.
+When called from an Org buffer under the `org' directory, ask whether
+to use its file instead of index.org."
+  (let* ((org-dir (expand-file-name "org" user-emacs-directory))
+         (index (expand-file-name "index.org" org-dir))
+         (current (and (derived-mode-p 'org-mode)
+                       (buffer-file-name)))
+         (relative (and current (file-relative-name current org-dir))))
+    (if (and current
+             (not noninteractive)
+             (file-in-directory-p current org-dir)
+             (not (file-equal-p current index))
+             (y-or-n-p (format "Use %s as index.org? " relative)))
+        current
+      index)))
+
 (defun my/org-reachable-files (entry &optional max-depth)
   "Return Org files reachable from ENTRY via id:, file: and fuzzy links.
-ENTRY is relative to the `org' directory.  MAX-DEPTH nil means follow
-links transitively, 1 means only direct links, and 0 means only ENTRY."
+ENTRY is relative to the `org' directory, or an absolute file name.
+MAX-DEPTH nil means follow links transitively, 1 means only direct
+links, and 0 means only ENTRY."
   (let* ((org-dir (expand-file-name "org" user-emacs-directory))
          (entry-file (expand-file-name entry org-dir))
          (all-org-files (directory-files-recursively org-dir "\\.org\\'"))
@@ -123,8 +133,7 @@ links transitively, 1 means only direct links, and 0 means only ENTRY."
                     (let ((target (my/org-link-target link file)))
                       (cond
                        ((and target
-                             (file-in-directory-p target org-dir)
-                             (not (my/org-publish-excluded-p target org-dir)))
+                             (file-in-directory-p target org-dir))
                         (let ((true-target (file-truename target)))
                           (unless (gethash true-target seen)
                             (push (cons target (1+ depth)) queue))))
@@ -149,45 +158,84 @@ links transitively, 1 means only direct links, and 0 means only ENTRY."
     (make-directory output-dir t)
     (copy-file source target t)))
 
+(defun my/org-publish-index-copy (org-dir output-dir entry)
+  "Use ENTRY's generated page as index.html under OUTPUT-DIR."
+  (let* ((index (expand-file-name "index.org" org-dir))
+         (relative (file-relative-name entry org-dir))
+         (source (expand-file-name
+                  (concat (file-name-sans-extension relative) ".html")
+                  output-dir))
+         (target (expand-file-name "index.html" output-dir))
+         (base (or (file-name-directory relative) "")))
+    (unless (file-equal-p entry index)
+      (unless (file-exists-p source)
+        (user-error "Missing generated page: %s" source))
+      (let ((html (with-temp-buffer
+                    (insert-file-contents source)
+                    (buffer-string))))
+        (unless (member base '("" "./"))
+          (setq html
+                (replace-regexp-in-string
+                 "\\(href\\|src\\)=\"\\([^\"]+\\)\""
+                 (lambda (match)
+                   (let ((attribute (match-string 1 match))
+                         (url (match-string 2 match)))
+                     (if (or (string-empty-p url)
+                             (string-prefix-p "#" url)
+                             (string-prefix-p "/" url)
+                             (string-match-p
+                              "\\`[[:alpha:]][[:alnum:]+.-]*:" url))
+                         match
+                       (format "%s=\"%s%s\"" attribute base url))))
+                 html t t)))
+        (with-temp-file target
+          (insert html))))))
+
 (defun my/org-publish-prune (org-dir output-dir files)
-  "Remove generated note HTML under OUTPUT-DIR that is not in FILES."
+  "Remove generated subdirectory HTML under OUTPUT-DIR not in FILES."
   (let ((expected (mapcar (lambda (file)
                             (concat (file-name-sans-extension
                                      (file-relative-name file org-dir))
                                     ".html"))
-                          files))
-        (notes-dir (expand-file-name "notes" output-dir)))
-    (when (file-directory-p notes-dir)
-      (dolist (file (directory-files-recursively notes-dir "\\.html\\'"))
-        (unless (member (file-relative-name file output-dir) expected)
-          (delete-file file))))
+                          files)))
+    (when (file-directory-p output-dir)
+      (dolist (file (directory-files-recursively output-dir "\\.html\\'"))
+        (let ((relative (file-relative-name file output-dir)))
+          (when (and (string-match-p "/" relative)
+                     (not (member relative expected)))
+            (delete-file file)))))
     (let ((sitemap (expand-file-name "sitemap.html" output-dir)))
       (when (file-exists-p sitemap)
         (delete-file sitemap)))))
 
 (defun my/org-publish-blog (&optional force)
-  "Publish index.org and the Org files reachable from it."
+  "Publish the site rooted at index.org or the current Org file.
+When called from an Org buffer under the `org' directory, ask whether
+to use that file as index.org."
   (interactive "P")
   (require 'ox-publish)
   (require 'org-id)
   (let* ((org-dir (expand-file-name "org" user-emacs-directory))
-         (files (my/org-reachable-files "index.org"))
+         (entry (my/org-publish-entry))
+         (files (my/org-reachable-files entry))
          (include (mapcar (lambda (file)
                             (file-relative-name file org-dir))
                           files))
          (project (copy-tree (assoc "blog" org-publish-project-alist)))
          (output-dir (org-publish-property :publishing-directory project)))
     (unless files
-      (user-error "No reachable Org files from index.org"))
+      (user-error "No reachable Org files from %s" entry))
     ;; Publish exactly the reachable files, then copy static assets.
     (setcdr project (plist-put (cdr project) :recursive nil))
-    (setcdr project (plist-put (cdr project) :exclude ".*"))
+    (setcdr project (plist-put (cdr project)
+                               :exclude "\\`[^/]+\\.org\\'"))
     (setcdr project (plist-put (cdr project) :include include))
     (setcdr project (plist-put (cdr project) :auto-sitemap nil))
     (let ((org-confirm-babel-evaluate nil))
       (org-publish-project project force)
       (org-publish-project (assoc "static" org-publish-project-alist) force)
       (my/org-publish-prune org-dir output-dir files)
+      (my/org-publish-index-copy org-dir output-dir entry)
       (my/org-publish-copy-style output-dir))))
 
 (provide 'org-publish-config)
