@@ -5,17 +5,6 @@
     (insert-file-contents file)
     (buffer-string)))
 
-(defun my/org-sitemap-date-entry-format (entry style project)
-  "Format ENTRY in org-publish PROJECT Sitemap format ENTRY ENTRY STYLE format that includes date."
-  (let ((filename (org-publish-find-title entry project)))
-    (if (= (length filename) 0)
-        (format "*%s*" entry)
-      (format "{{{timestamp(%s)}}} [[file:%s][%s]]"
-              (format-time-string "%Y-%m-%d"
-                                  (org-publish-find-date entry project))
-              entry
-              filename))))
-
 (defun my/toggle-truncate-of-line ()
   "toggle truncate of the lines"
   (interactive)

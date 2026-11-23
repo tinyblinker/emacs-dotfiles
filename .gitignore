@@ -32,3 +32,4 @@ modules/.dir-locals.el
 /.dap-breakpoints
 /.mc-lists.el
 /html/
+/blog/
