@@ -1,4 +1,10 @@
 ;;; -*- lexical-binding: t -*-
+(defun my/read-file-as-string (file)
+  "Read the FILE's content and return as string."
+  (with-temp-buffer
+    (insert-file-contents file)
+    (buffer-string)))
+
 (defun my/org-sitemap-date-entry-format (entry style project)
   "Format ENTRY in org-publish PROJECT Sitemap format ENTRY ENTRY STYLE format that includes date."
   (let ((filename (org-publish-find-title entry project)))
