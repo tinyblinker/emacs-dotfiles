@@ -104,48 +104,44 @@ running in batch mode, or when the user declines."
       (message "Abort by user.")
       nil))))
 
-(defun my/org-reachable-files (entry &optional max-depth)
-  "Return Org files reachable from ENTRY via id:, file: and fuzzy links.
+(defun my/org-reachable-files (entry)
+  "Return all Org files reachable from ENTRY via id:, file: and fuzzy links.
 ENTRY is relative to the `org' directory, or an absolute file name.
-MAX-DEPTH nil means follow links transitively, 1 means only direct
-links, and 0 means only ENTRY."
+Follow links transitively."
   (let* ((org-dir (expand-file-name "org" user-emacs-directory))
          (entry-file (expand-file-name entry org-dir))
          (all-org-files (directory-files-recursively org-dir "\\.org\\'"))
          (org-id-locations (org-id-update-id-locations all-org-files t))
          (seen (make-hash-table :test #'equal))
-         (queue (list (cons entry-file 0)))
+         (queue (list entry-file))
          (unresolved nil)
          result)
     (unless (file-exists-p entry-file)
       (user-error "Entry file does not exist: %s" entry-file))
     (while queue
-      (let* ((item (pop queue))
-             (file (car item))
-             (depth (cdr item))
+      (let* ((file (pop queue))
              (true-file (file-truename file)))
         (unless (gethash true-file seen)
           (puthash true-file t seen)
           (push file result)
-          (when (or (null max-depth) (< depth max-depth))
-            (with-temp-buffer
-              (insert-file-contents file)
-              (let ((org-inhibit-startup t))
-                (delay-mode-hooks (org-mode))
-                (org-element-map (org-element-parse-buffer) 'link
-                  (lambda (link)
-                    (let ((target (my/org-link-target link file)))
-                      (cond
-                       ((and target
-                             (file-in-directory-p target org-dir))
-                        (let ((true-target (file-truename target)))
-                          (unless (gethash true-target seen)
-                            (push (cons target (1+ depth)) queue))))
-                       ((and (null target)
-                             (my/org-link-org-file-p link))
-                        (push (list (file-relative-name file org-dir)
-                                    (org-element-property :raw-link link))
-                              unresolved))))))))))))
+          (with-temp-buffer
+            (insert-file-contents file)
+            (let ((org-inhibit-startup t))
+              (delay-mode-hooks (org-mode))
+              (org-element-map (org-element-parse-buffer) 'link
+                (lambda (link)
+                  (let ((target (my/org-link-target link file)))
+                    (cond
+                     ((and target
+                           (file-in-directory-p target org-dir))
+                      (let ((true-target (file-truename target)))
+                        (unless (gethash true-target seen)
+                          (push target queue))))
+                     ((and (null target)
+                           (my/org-link-org-file-p link))
+                      (push (list (file-relative-name file org-dir)
+                                  (org-element-property :raw-link link))
+                            unresolved)))))))))))
     (when unresolved
       (message "Unresolved Org links:\n%s"
                (mapconcat (lambda (item)
@@ -213,7 +209,7 @@ links, and 0 means only ENTRY."
         (delete-file sitemap)))))
 
 (defun my/org-publish-blog (&optional force)
-  "Publish the current Org file as index.org after confirmation.
+  "Publish the current Org file and its full link closure.
 Abort without publishing when not in an Org buffer under the `org'
 directory, in batch mode, or when the user declines."
   (interactive "P")
@@ -222,21 +218,16 @@ directory, in batch mode, or when the user declines."
   (when-let* ((entry (my/org-publish-entry)))
     (let* ((org-dir (expand-file-name "org" user-emacs-directory))
            (files (my/org-reachable-files entry))
-           (include (mapcar (lambda (file)
-                              (file-relative-name file org-dir))
-                            files))
-           (project (copy-tree (assoc "blog" org-publish-project-alist)))
+           (project (assoc "blog" org-publish-project-alist))
            (output-dir (org-publish-property :publishing-directory project)))
       (unless files
         (user-error "No reachable Org files from %s" entry))
-      ;; Publish exactly the reachable files, then copy static assets.
-      (setcdr project (plist-put (cdr project) :recursive nil))
-      (setcdr project (plist-put (cdr project)
-                                 :exclude "\\`[^/]+\\.org\\'"))
-      (setcdr project (plist-put (cdr project) :include include))
-      (setcdr project (plist-put (cdr project) :auto-sitemap nil))
-      (let ((org-confirm-babel-evaluate nil))
-        (org-publish-project project force)
+      (let ((org-confirm-babel-evaluate nil)
+            (org-publish-use-timestamps-flag (not force)))
+        (org-publish-initialize-cache "blog")
+        (dolist (file files)
+          (org-publish-file file project t))
+        (org-publish-write-cache-file)
         (org-publish-project (assoc "static" org-publish-project-alist) force)
         (my/org-publish-prune org-dir output-dir files)
         (my/org-publish-index-copy org-dir output-dir entry)
