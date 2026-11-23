@@ -84,21 +84,25 @@
              (equal (file-name-extension path) "org")))))
 
 (defun my/org-publish-entry ()
-  "Return the Org file to use as the publication root.
-When called from an Org buffer under the `org' directory, ask whether
-to use its file instead of index.org."
+  "Return the current Org file as the publication root after confirmation.
+Return nil when not in an Org buffer under the `org' directory, when
+running in batch mode, or when the user declines."
   (let* ((org-dir (expand-file-name "org" user-emacs-directory))
-         (index (expand-file-name "index.org" org-dir))
          (current (and (derived-mode-p 'org-mode)
                        (buffer-file-name)))
          (relative (and current (file-relative-name current org-dir))))
-    (if (and current
-             (not noninteractive)
-             (file-in-directory-p current org-dir)
-             (not (file-equal-p current index))
-             (y-or-n-p (format "Use %s as index.org? " relative)))
-        current
-      index)))
+    (cond
+     ((not (and current
+                (not noninteractive)
+                (file-in-directory-p current org-dir)))
+      (let ((text-quoting-style 'straight))
+        (message "Not in Org-buffer in the 'org/' in user-emacs-directory"))
+      nil)
+     ((y-or-n-p (format "Use %s as index.org? " relative))
+      current)
+     (t
+      (message "Abort by user.")
+      nil))))
 
 (defun my/org-reachable-files (entry &optional max-depth)
   "Return Org files reachable from ENTRY via id:, file: and fuzzy links.
@@ -209,34 +213,34 @@ links, and 0 means only ENTRY."
         (delete-file sitemap)))))
 
 (defun my/org-publish-blog (&optional force)
-  "Publish the site rooted at index.org or the current Org file.
-When called from an Org buffer under the `org' directory, ask whether
-to use that file as index.org."
+  "Publish the current Org file as index.org after confirmation.
+Abort without publishing when not in an Org buffer under the `org'
+directory, in batch mode, or when the user declines."
   (interactive "P")
   (require 'ox-publish)
   (require 'org-id)
-  (let* ((org-dir (expand-file-name "org" user-emacs-directory))
-         (entry (my/org-publish-entry))
-         (files (my/org-reachable-files entry))
-         (include (mapcar (lambda (file)
-                            (file-relative-name file org-dir))
-                          files))
-         (project (copy-tree (assoc "blog" org-publish-project-alist)))
-         (output-dir (org-publish-property :publishing-directory project)))
-    (unless files
-      (user-error "No reachable Org files from %s" entry))
-    ;; Publish exactly the reachable files, then copy static assets.
-    (setcdr project (plist-put (cdr project) :recursive nil))
-    (setcdr project (plist-put (cdr project)
-                               :exclude "\\`[^/]+\\.org\\'"))
-    (setcdr project (plist-put (cdr project) :include include))
-    (setcdr project (plist-put (cdr project) :auto-sitemap nil))
-    (let ((org-confirm-babel-evaluate nil))
-      (org-publish-project project force)
-      (org-publish-project (assoc "static" org-publish-project-alist) force)
-      (my/org-publish-prune org-dir output-dir files)
-      (my/org-publish-index-copy org-dir output-dir entry)
-      (my/org-publish-copy-style output-dir))))
+  (when-let* ((entry (my/org-publish-entry)))
+    (let* ((org-dir (expand-file-name "org" user-emacs-directory))
+           (files (my/org-reachable-files entry))
+           (include (mapcar (lambda (file)
+                              (file-relative-name file org-dir))
+                            files))
+           (project (copy-tree (assoc "blog" org-publish-project-alist)))
+           (output-dir (org-publish-property :publishing-directory project)))
+      (unless files
+        (user-error "No reachable Org files from %s" entry))
+      ;; Publish exactly the reachable files, then copy static assets.
+      (setcdr project (plist-put (cdr project) :recursive nil))
+      (setcdr project (plist-put (cdr project)
+                                 :exclude "\\`[^/]+\\.org\\'"))
+      (setcdr project (plist-put (cdr project) :include include))
+      (setcdr project (plist-put (cdr project) :auto-sitemap nil))
+      (let ((org-confirm-babel-evaluate nil))
+        (org-publish-project project force)
+        (org-publish-project (assoc "static" org-publish-project-alist) force)
+        (my/org-publish-prune org-dir output-dir files)
+        (my/org-publish-index-copy org-dir output-dir entry)
+        (my/org-publish-copy-style output-dir)))))
 
 (provide 'org-publish-config)
 ;;; org-publish-config.el ends here
