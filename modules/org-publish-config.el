@@ -140,6 +140,15 @@ links transitively, 1 means only direct links, and 0 means only ENTRY."
                           (nreverse (delete-dups unresolved)) "\n")))
     (nreverse result)))
 
+(defun my/org-publish-copy-style (output-dir)
+  "Copy snippets/style.css to OUTPUT-DIR/style.css."
+  (let ((source (expand-file-name "snippets/style.css" user-emacs-directory))
+        (target (expand-file-name "style.css" output-dir)))
+    (unless (file-exists-p source)
+      (user-error "Missing stylesheet: %s" source))
+    (make-directory output-dir t)
+    (copy-file source target t)))
+
 (defun my/org-publish-prune (org-dir output-dir files)
   "Remove generated note HTML under OUTPUT-DIR that is not in FILES."
   (let ((expected (mapcar (lambda (file)
@@ -166,7 +175,8 @@ links transitively, 1 means only direct links, and 0 means only ENTRY."
          (include (mapcar (lambda (file)
                             (file-relative-name file org-dir))
                           files))
-         (project (copy-tree (assoc "blog" org-publish-project-alist))))
+         (project (copy-tree (assoc "blog" org-publish-project-alist)))
+         (output-dir (org-publish-property :publishing-directory project)))
     (unless files
       (user-error "No reachable Org files from index.org"))
     ;; Publish exactly the reachable files, then copy static assets.
@@ -177,9 +187,8 @@ links transitively, 1 means only direct links, and 0 means only ENTRY."
     (let ((org-confirm-babel-evaluate nil))
       (org-publish-project project force)
       (org-publish-project (assoc "static" org-publish-project-alist) force)
-      (my/org-publish-prune org-dir
-                            (org-publish-property :publishing-directory project)
-                            files))))
+      (my/org-publish-prune org-dir output-dir files)
+      (my/org-publish-copy-style output-dir))))
 
 (provide 'org-publish-config)
 ;;; org-publish-config.el ends here
