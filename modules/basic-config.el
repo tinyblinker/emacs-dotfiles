@@ -30,7 +30,8 @@
               bidi-paragraph-direction 'left-to-right
               bidi-inhibit-bpa t
               display-line-numbers-width-start t
-              display-line-numbers-grow-only t)
+              display-line-numbers-grow-only t
+              completion-styles '(basic partial-completion emacs22))
 
 (setq kill-do-not-save-duplicates t
       bookmark-save-flag 1

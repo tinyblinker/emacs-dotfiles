@@ -46,17 +46,6 @@
   (add-hook 'completion-at-point-functions #'cape-keyword)     ;; keywords
   (add-hook 'completion-at-point-functions #'cape-elisp-block)) ;; elisp
 
-;; Fuzzy matching
-(use-package orderless
-  :ensure t
-  :demand t
-  :custom
-  (orderless-matching-styles '(orderless-flex))
-  ;; orderless + basic fallback
-  (completion-styles '(orderless basic))
-  (completion-category-defaults nil)
-  (completion-category-overrides '((file (styles basic partial-completion)))))
-
 ;; Core icon library
 (use-package nerd-icons
   :ensure t)
