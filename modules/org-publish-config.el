@@ -55,8 +55,6 @@
   (format-spec (my/org-html-snippet "html-postamble.html")
                (org-html-format-spec info)))
 
-
-
 (defun my/org-link-target (link file)
   "Return the absolute Org target of LINK in FILE, or nil."
   (let* ((type (org-element-property :type link))
@@ -64,65 +62,50 @@
          (path (and raw (car (split-string raw "::")))))
     (pcase type
       ("id"
-       (when (and path org-id-locations)
-         (when-let* ((location (gethash path org-id-locations)))
-           (expand-file-name location))))
+       (when path
+         (org-id-find-id-file path)))
       ((or "file" "fuzzy")
        (when path
          (let ((target (expand-file-name (org-link-unescape path)
                                          (file-name-directory file))))
-           (and (equal (file-name-extension target) "org")
+           (and (my/org-link-org-file-path target)
                 (file-exists-p target)
                 target)))))))
+
+(defun my/org-link-org-file-path (path)
+  "Return non-nil if PATH names an Org file (case-insensitive extension)."
+  (and path
+       (let ((ext (file-name-extension path)))
+         (and ext (string-equal-ignore-case ext "org")))))
 
 (defun my/org-link-org-file-p (link)
   "Return non-nil if LINK points to an Org file or ID."
   (let* ((type (org-element-property :type link))
          (raw (org-element-property :path link))
          (path (and raw (car (split-string raw "::")))))
-    (or (string= type "id")
-        (and (member type '("file" "fuzzy"))
-             path
-             (equal (file-name-extension path) "org")))))
-
-(defun my/org-publish-entry ()
-  "Return the current Org file as the publication root after confirmation.
-Return nil when not in an Org buffer under the `org' directory, when
-running in batch mode, or when the user declines."
-  (let* ((org-dir (expand-file-name "org" user-emacs-directory))
-         (current-file-path (buffer-file-name)))
     (cond
-     ((not (and (file-in-directory-p current-file-path org-dir)
-                (derived-mode-p 'org-mode)
-                (not noninteractive)))
-      (let ((text-quoting-style 'straight))
-        (message "Not in Org-buffer in the 'org/' in user-emacs-directory"))
-      nil)
-     ((y-or-n-p (format "Use %s as index.org? " current-file-path))
-      current-file-path)
-     (t
-      (message "Abort by user.")
-      nil))))
+     ((equal type "id") (and path t))
+     ((member type '("file" "fuzzy"))
+      (my/org-link-org-file-path path))
+     (t nil))))
 
 (defun my/org-reachable-files (entry)
   "Return all Org files reachable from ENTRY via id:, file: and fuzzy links.
-ENTRY is relative to the `org' directory, or an absolute file name.
-Follow links transitively."
+ENTRY is an absolute file name. Follow links transitively."
+  (unless (file-exists-p entry)
+    (user-error "Entry file does not exist: %s" entry))
   (let* ((org-dir (expand-file-name "org" user-emacs-directory))
-         (entry-file (expand-file-name entry org-dir))
+         (entry-file entry)
          (all-org-files (directory-files-recursively org-dir "\\.org\\'"))
-         (org-id-locations (org-id-update-id-locations all-org-files t))
          (seen (make-hash-table :test #'equal))
          (queue (list entry-file))
          (unresolved nil)
          result)
-    (unless (file-exists-p entry-file)
-      (user-error "Entry file does not exist: %s" entry-file))
+    (org-id-update-id-locations all-org-files nil)
     (while queue
-      (let* ((file (pop queue))
-             (true-file (file-truename file)))
-        (unless (gethash true-file seen)
-          (puthash true-file t seen)
+      (let* ((file (pop queue)))
+        (unless (gethash (file-truename file) seen)
+          (puthash (file-truename file) t seen)
           (push file result)
           (with-temp-buffer
             (insert-file-contents file)
@@ -133,10 +116,11 @@ Follow links transitively."
                   (let ((target (my/org-link-target link file)))
                     (cond
                      ((and target
-                           (file-in-directory-p target org-dir))
-                      (let ((true-target (file-truename target)))
-                        (unless (gethash true-target seen)
-                          (push target queue))))
+                           (file-regular-p target)
+                           (file-in-directory-p target org-dir)
+                           (string-suffix-p ".org" target)
+                           (not (gethash (file-truename target) seen)))
+                      (push target queue))
                      ((and (null target)
                            (my/org-link-org-file-p link))
                       (push (list (file-relative-name file org-dir)
