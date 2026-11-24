@@ -1,4 +1,28 @@
 ;;; -*- lexical-binding: t -*-
+(require 'ox-publish)
+(require 'ox-html)
+(require 'org-id)
+
+(defun my/org-html-snippet (name)
+  "Return the contents of snippets/NAME."
+  (my/read-file-as-string
+   (expand-file-name name
+                     (expand-file-name "snippets" user-emacs-directory))))
+
+(defun my/org-html-head (_info)
+  "Return the custom HTML head."
+  (my/org-html-snippet "html-head.html"))
+
+(defun my/org-html-preamble (info)
+  "Return the custom HTML preamble with Org specifiers expanded."
+  (format-spec (my/org-html-snippet "html-preamble.html")
+               (org-html-format-spec info)))
+
+(defun my/org-html-postamble (info)
+  "Return the custom HTML postamble with Org specifiers expanded."
+  (format-spec (my/org-html-snippet "html-postamble.html")
+               (org-html-format-spec info)))
+
 (use-package ox-publish
   :ensure nil
   :config
@@ -30,30 +54,6 @@
            :publishing-function org-publish-attachment)
           ("tinyblinker.org"
            :components ("blog" "static")))))
-
-(require 'ox-publish)
-(require 'ox-html)
-(require 'org-id)
-
-(defun my/org-html-snippet (name)
-  "Return the contents of snippets/NAME."
-  (my/read-file-as-string
-   (expand-file-name name
-                     (expand-file-name "snippets" user-emacs-directory))))
-
-(defun my/org-html-head (_info)
-  "Return the custom HTML head."
-  (my/org-html-snippet "html-head.html"))
-
-(defun my/org-html-preamble (info)
-  "Return the custom HTML preamble with Org specifiers expanded."
-  (format-spec (my/org-html-snippet "html-preamble.html")
-               (org-html-format-spec info)))
-
-(defun my/org-html-postamble (info)
-  "Return the custom HTML postamble with Org specifiers expanded."
-  (format-spec (my/org-html-snippet "html-postamble.html")
-               (org-html-format-spec info)))
 
 (defun my/org-link-target (link file)
   "Return the absolute Org target of LINK in FILE, or nil."
@@ -144,58 +144,28 @@ ENTRY is an absolute file name. Follow links transitively."
 
 (defun my/org-publish-index-copy (org-dir output-dir entry)
   "Use ENTRY's generated page as index.html under OUTPUT-DIR."
-  (let* ((index (expand-file-name "index.org" org-dir))
-         (relative (file-relative-name entry org-dir))
-         (source (expand-file-name
-                  (concat (file-name-sans-extension relative) ".html")
-                  output-dir))
-         (target (expand-file-name "index.html" output-dir))
-         (base (or (file-name-directory relative) "")))
-    (unless (file-equal-p entry index)
-      (unless (file-exists-p source)
-        (user-error "Missing generated page: %s" source))
-      (let ((html (with-temp-buffer
-                    (insert-file-contents source)
-                    (buffer-string))))
-        (unless (member base '("" "./"))
-          (setq html
-                (replace-regexp-in-string
-                 "\\(href\\|src\\)=\"\\([^\"]+\\)\""
-                 (lambda (match)
-                   (let ((attribute (match-string 1 match))
-                         (url (match-string 2 match)))
-                     (if (or (string-empty-p url)
-                             (string-prefix-p "#" url)
-                             (string-prefix-p "/" url)
-                             (string-match-p
-                              "\\`[[:alpha:]][[:alnum:]+.-]*:" url))
-                         match
-                       (format "%s=\"%s%s\"" attribute base url))))
-                 html t t)))
-        (with-temp-file target
-          (insert html))))))
+  (let* (())
+    ))
 
 (defun my/org-publish-prune (org-dir output-dir files)
   "Remove generated subdirectory HTML under OUTPUT-DIR not in FILES."
+  (unless (file-directory-p output-dir)
+    (user-error "The 'output-dir' is not exists: %s" output-dir))
   (let ((expected (mapcar (lambda (file)
                             (concat (file-name-sans-extension
                                      (file-relative-name file org-dir))
                                     ".html"))
                           files)))
-    (when (file-directory-p output-dir)
-      (dolist (file (directory-files-recursively output-dir "\\.html\\'"))
-        (let ((relative (file-relative-name file output-dir)))
-          (when (and (string-match-p "/" relative)
-                     (not (member relative expected)))
-            (delete-file file)))))
-    (let ((sitemap (expand-file-name "sitemap.html" output-dir)))
-      (when (file-exists-p sitemap)
-        (delete-file sitemap)))))
+    (dolist (file (directory-files-recursively output-dir "\\.html\\'"))
+      (let ((relative (file-relative-name file output-dir)))
+        (when (and (string-match-p "/" relative)
+                   (not (member relative expected)))
+          (delete-file file))))))
 
 (defun my/org-publish-blog (&optional force)
   "Publish the current Org file and its full link closure.
 Abort without publishing when not in an Org buffer under the `org'
-directory, in batch mode, or when the user declines."
+directory, in batch mode, or when the user Declines."
   (interactive "P")
   (require 'ox-publish)
   (require 'org-id)
@@ -206,7 +176,7 @@ directory, in batch mode, or when the user declines."
            (output-dir (org-publish-property :publishing-directory project)))
       (unless files
         (user-error "No reachable Org files from %s" entry))
-      (let ((org-confirm-babel-evaluate nil)
+      (let ((org-export-use-babel nil)
             (org-publish-use-timestamps-flag (not force)))
         (org-publish-initialize-cache "blog")
         (dolist (file files)
