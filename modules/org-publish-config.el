@@ -1,28 +1,4 @@
 ;;; -*- lexical-binding: t -*-
-(require 'ox-publish)
-(require 'ox-html)
-(require 'org-id)
-
-(defun my/org-html-snippet (name)
-  "Return the contents of snippets/NAME."
-  (my/read-file-as-string
-   (expand-file-name name
-                     (expand-file-name "snippets" user-emacs-directory))))
-
-(defun my/org-html-head (_info)
-  "Return the custom HTML head."
-  (my/org-html-snippet "html-head.html"))
-
-(defun my/org-html-preamble (info)
-  "Return the custom HTML preamble with Org specifiers expanded."
-  (format-spec (my/org-html-snippet "html-preamble.html")
-               (org-html-format-spec info)))
-
-(defun my/org-html-postamble (info)
-  "Return the custom HTML postamble with Org specifiers expanded."
-  (format-spec (my/org-html-snippet "html-postamble.html")
-               (org-html-format-spec info)))
-
 (use-package ox-publish
   :ensure nil
   :config
@@ -54,6 +30,32 @@
            :publishing-function org-publish-attachment)
           ("tinyblinker.org"
            :components ("blog" "static")))))
+
+(require 'ox-publish)
+(require 'ox-html)
+(require 'org-id)
+
+(defun my/org-html-snippet (name)
+  "Return the contents of snippets/NAME."
+  (my/read-file-as-string
+   (expand-file-name name
+                     (expand-file-name "snippets" user-emacs-directory))))
+
+(defun my/org-html-head (_info)
+  "Return the custom HTML head."
+  (my/org-html-snippet "html-head.html"))
+
+(defun my/org-html-preamble (info)
+  "Return the custom HTML preamble with Org specifiers expanded."
+  (format-spec (my/org-html-snippet "html-preamble.html")
+               (org-html-format-spec info)))
+
+(defun my/org-html-postamble (info)
+  "Return the custom HTML postamble with Org specifiers expanded."
+  (format-spec (my/org-html-snippet "html-postamble.html")
+               (org-html-format-spec info)))
+
+
 
 (defun my/org-link-target (link file)
   "Return the absolute Org target of LINK in FILE, or nil."
@@ -88,18 +90,16 @@
 Return nil when not in an Org buffer under the `org' directory, when
 running in batch mode, or when the user declines."
   (let* ((org-dir (expand-file-name "org" user-emacs-directory))
-         (current (and (derived-mode-p 'org-mode)
-                       (buffer-file-name)))
-         (relative (and current (file-relative-name current org-dir))))
+         (current-file-path (buffer-file-name)))
     (cond
-     ((not (and current
-                (not noninteractive)
-                (file-in-directory-p current org-dir)))
+     ((not (and (file-in-directory-p current-file-path org-dir)
+                (derived-mode-p 'org-mode)
+                (not noninteractive)))
       (let ((text-quoting-style 'straight))
         (message "Not in Org-buffer in the 'org/' in user-emacs-directory"))
       nil)
-     ((y-or-n-p (format "Use %s as index.org? " relative))
-      current)
+     ((y-or-n-p (format "Use %s as index.org? " current-file-path))
+      current-file-path)
      (t
       (message "Abort by user.")
       nil))))
