@@ -1,24 +1,4 @@
 ;;; -*- lexical-binding: t -*-
-(defun my/org-html-snippet (name)
-  "Return the contents of snippets/NAME."
-  (my/read-file-as-string
-   (expand-file-name name
-                     (expand-file-name "snippets" user-emacs-directory))))
-
-(defun my/org-html-head (_info)
-  "Return the custom HTML head."
-  (my/org-html-snippet "html-head.html"))
-
-(defun my/org-html-preamble (info)
-  "Return the custom HTML preamble with Org specifiers expanded."
-  (format-spec (my/org-html-snippet "html-preamble.html")
-               (org-html-format-spec info)))
-
-(defun my/org-html-postamble (info)
-  "Return the custom HTML postamble with Org specifiers expanded."
-  (format-spec (my/org-html-snippet "html-postamble.html")
-               (org-html-format-spec info)))
-
 (defun my/org-link-org-file-path (path)
   "Return non-nil if PATH names an Org file (case-insensitive extension)."
   (and path
@@ -99,8 +79,11 @@ ENTRY is an absolute file name. Follow links transitively."
     (make-directory output-dir t)
     (copy-file source target t)))
 
-(defun my/org-publish-symlink-the-index-html (current-file)
-  "Based on 'current-file' to a symlink to the index.html in output-dir."
+;; (defun my/org-publish-symlink-the-index-html (current-file)
+;;   )
+
+(defun my/org-publish-write-index-redirect (current-file)
+  "Use a index.html, redirect to the 'current-file' in output-dir."
   (let* ((output-dir (plist-get
                       (cdr (assoc "blog" org-publish-project-alist))
                       :publishing-directory))
@@ -111,9 +94,15 @@ ENTRY is an absolute file name. Follow links transitively."
                             (file-relative-name
                              (concat (file-name-sans-extension current-file) ".html")
                              org-dir)
-                            output-dir)))
+                            output-dir))
+         (relative (file-relative-name target-html-file output-dir)))
     (unless (file-exists-p target-html-file)
       (user-error "'target-html-file' does not exist: %s" target-html-file))
+    (with-temp-buffer (expand-file-name "index.html" output-dir)
+                      (insert (format
+                               (my/read-file-as-string (expand-file-name
+                                                        "snippets/index-format.html" user-emacs-directory))
+                               relative relative)))
     (make-symbolic-link target-html-file
                         (expand-file-name "index.html" output-dir) t)))
 
@@ -134,12 +123,14 @@ just all the linked org files."
                    (cdr (assoc "blog" org-publish-project-alist))
                    :base-directory)))
     (setq current-buffer (buffer-file-name))
+    (unless (not (null current-buffer))
+      (user-error "'current-buffer' is nil!"))
     (unless (and (file-in-directory-p current-buffer org-dir)
                  (not noninteractive)
                  (derived-mode-p 'org-mode))
       (user-error "%s is not in the %s OR in noninteractive OR the buffer is not in org-mode."
                   current-buffer org-dir))
-    (unless (y-or-n-p "Use %s as 'index.html'?" current-buffer)
+    (unless (y-or-n-p (format "Use %s as 'index.html'?" current-buffer))
       (setq current-buffer nil)
       (user-error "User abort the selection of 'current-buffer'")))
   (let* ((project (assoc "blog" org-publish-project-alist))
@@ -151,7 +142,7 @@ just all the linked org files."
   (let* ((project (assoc "blog" org-publish-project-alist))
          (output-dir (plist-get (cdr project) :publishing-directory)))
     (my/org-publish-copy-style output-dir)
-    (my/org-publish-symlink-the-index-html current-buffer)))
+    (my/org-publish-write-index-redirect current-buffer)))
 
 (use-package ox-publish
   :ensure nil
@@ -161,6 +152,8 @@ just all the linked org files."
   (setq org-export-with-sub-superscripts nil) ;; don't treat "_" as sub superscripts
   (setq org-export-with-broken-links 'mark)   ;; mark the 'broken links'
   (setq org-publish-use-timestamps-flag nil)  ;; ignore the cache, re-generate all every time
+  (setq org-export-preserve-breaks t)         ;; treat breaks as '\n'
+  (setq org-export-use-babel nil)             ;; do not executed babel
   (setq org-publish-project-alist
         `(("blog"
            :base-directory ,(expand-file-name "org" user-emacs-directory)
@@ -176,10 +169,13 @@ just all the linked org files."
            :html-head-include-scripts nil
            :html-head-include-default-style nil
            ;; use customed StyleSheet(css)
-           :html-head my/org-html-head
+           :html-head (my/read-file-as-string
+                       (expand-file-name "snippets/html-head.html" user-emacs-directory))
            ;; html preamble & postamble
-           :html-preamble my/org-html-preamble
-           :html-postamble my/org-html-postamble)
+           :html-preamble (my/read-file-as-string
+                           (expand-file-name "snippets/html-preamble" user-emacs-directory))
+           :html-postamble (my/read-file-as-string
+                            (expand-file-name "snippets/html-postamble" user-emacs-directory)))
           ("static"
            :base-directory ,(expand-file-name "org" user-emacs-directory)
            :base-extension "css\\|txt\\|jpg\\|gif\\|png\\|svg\\|jpeg\\|webp"

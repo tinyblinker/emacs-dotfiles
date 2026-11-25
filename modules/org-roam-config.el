@@ -15,7 +15,7 @@
   (org-roam-capture-templates
    '(("d" "default" plain "%?"
       :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
-                         "#+title: ${title}\n#+date: %<%Y-%m-%d %H:%M>\n#+filetags:\n\n")
+                         "#+title: ${title}\n#+date: %<%Y-%m-%d %H:%M>\n#+filetags:\n#+OPTIONS: \\n:t\n\n")
       :unnarrowed t)))
   ;; Node display: title + tags
   (org-roam-node-display-template
