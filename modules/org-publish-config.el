@@ -1,4 +1,13 @@
 ;;; -*- lexical-binding: t -*-
+
+(defvar current-buffer nil
+  "The 'buffer-file-name' in which 'org-publish' is executed.")
+
+(defvar org-dir (org-dir (plist-get
+                          (cdr (assoc "blog" org-publish-project-alist))
+                          :base-directory))
+  "Org notes' base dir.")
+
 (defun my/org-link-org-file-path (path)
   "Return non-nil if PATH names an Org file (case-insensitive extension)."
   (and path
@@ -32,14 +41,13 @@
 ENTRY is an absolute file name. Follow links transitively."
   (unless (file-exists-p entry)
     (user-error "Entry file does not exist: %s" entry))
-  (let* ((org-dir (expand-file-name "org" user-emacs-directory))
-         (entry-file entry)
+  (let* ((entry-file entry)
          (all-org-files (directory-files-recursively org-dir "\\.org\\'"))
          (seen (make-hash-table :test #'equal))
          (queue (list entry-file))
          (unresolved nil)
          result)
-    (org-id-update-id-locations all-org-files nil)
+    (org-id-update-id-locations all-org-files t)
     (while queue
       (let* ((file (pop queue)))
         (unless (gethash (file-truename file) seen)
@@ -79,17 +87,11 @@ ENTRY is an absolute file name. Follow links transitively."
     (make-directory output-dir t)
     (copy-file source target t)))
 
-;; (defun my/org-publish-symlink-the-index-html (current-file)
-;;   )
-
 (defun my/org-publish-write-index-redirect (current-file)
   "Use a index.html, redirect to the 'current-file' in output-dir."
   (let* ((output-dir (plist-get
                       (cdr (assoc "blog" org-publish-project-alist))
                       :publishing-directory))
-         (org-dir (plist-get
-                   (cdr (assoc "blog" org-publish-project-alist))
-                   :base-directory))
          (target-html-file (expand-file-name
                             (file-relative-name
                              (concat (file-name-sans-extension current-file) ".html")
@@ -98,13 +100,11 @@ ENTRY is an absolute file name. Follow links transitively."
          (relative (file-relative-name target-html-file output-dir)))
     (unless (file-exists-p target-html-file)
       (user-error "'target-html-file' does not exist: %s" target-html-file))
-    (with-temp-buffer (expand-file-name "index.html" output-dir)
-                      (insert (format
-                               (my/read-file-as-string (expand-file-name
-                                                        "snippets/index-format.html" user-emacs-directory))
-                               relative relative)))
-    (make-symbolic-link target-html-file
-                        (expand-file-name "index.html" output-dir) t)))
+    (with-temp-file (expand-file-name "index.html" output-dir)
+      (insert (format
+               (my/read-file-as-string (expand-file-name
+                                        "snippets/index-format.html" user-emacs-directory))
+               relative relative)))))
 
 (defun my/add-reachable-file-before-org-publish (entry)
   "Edit the 'org-publish-project-alist' based on
@@ -113,15 +113,10 @@ ENTRY is an absolute file name. Follow links transitively."
          (project (assoc "blog" org-publish-project-alist)))
     (setcdr project (plist-put (cdr project) :include reachable-files))))
 
-(defvar current-buffer nil
-  "The 'buffer-file-name' in which 'org-publish' is executed.")
-
 (defun my/before-org-publish-advice (&rest _args)
   "Advice that let us publish the current org-buffer and
 just all the linked org files."
-  (let* ((org-dir (plist-get
-                   (cdr (assoc "blog" org-publish-project-alist))
-                   :base-directory)))
+  (let* (())
     (setq current-buffer (buffer-file-name))
     (unless (not (null current-buffer))
       (user-error "'current-buffer' is nil!"))
@@ -169,13 +164,13 @@ just all the linked org files."
            :html-head-include-scripts nil
            :html-head-include-default-style nil
            ;; use customed StyleSheet(css)
-           :html-head (my/read-file-as-string
-                       (expand-file-name "snippets/html-head.html" user-emacs-directory))
+           :html-head ,(my/read-file-as-string
+                        (expand-file-name "snippets/html-head.html" user-emacs-directory))
            ;; html preamble & postamble
-           :html-preamble (my/read-file-as-string
-                           (expand-file-name "snippets/html-preamble" user-emacs-directory))
-           :html-postamble (my/read-file-as-string
-                            (expand-file-name "snippets/html-postamble" user-emacs-directory)))
+           :html-preamble ,(my/read-file-as-string
+                            (expand-file-name "snippets/html-preamble.html" user-emacs-directory))
+           :html-postamble ,(my/read-file-as-string
+                             (expand-file-name "snippets/html-postamble.html" user-emacs-directory)))
           ("static"
            :base-directory ,(expand-file-name "org" user-emacs-directory)
            :base-extension "css\\|txt\\|jpg\\|gif\\|png\\|svg\\|jpeg\\|webp"
