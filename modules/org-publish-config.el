@@ -1,12 +1,6 @@
 ;;; -*- lexical-binding: t -*-
-
 (defvar current-buffer nil
   "The 'buffer-file-name' in which 'org-publish' is executed.")
-
-(defvar org-dir (org-dir (plist-get
-                          (cdr (assoc "blog" org-publish-project-alist))
-                          :base-directory))
-  "Org notes' base dir.")
 
 (defun my/org-link-org-file-path (path)
   "Return non-nil if PATH names an Org file (case-insensitive extension)."
@@ -58,19 +52,19 @@ ENTRY is an absolute file name. Follow links transitively."
             (let ((org-inhibit-startup t))
               (delay-mode-hooks (org-mode))
               (org-element-map (org-element-parse-buffer) 'link
-                (lambda (link)
-                  (let ((target (my/org-link-target link file)))
-                    (cond
-                     ((and target
-                           (file-regular-p target)
-                           (file-in-directory-p target org-dir)
-                           (string-suffix-p ".org" target)
-                           (not (gethash (file-truename target) seen)))
-                      (push target queue))
-                     ((null target)
-                      (push (list (file-relative-name file org-dir)
-                                  (org-element-property :raw-link link))
-                            unresolved)))))))))))
+			    (lambda (link)
+				  (let ((target (my/org-link-target link file)))
+				    (cond
+				     ((and target
+					       (file-regular-p target)
+					       (file-in-directory-p target org-dir)
+					       (string-suffix-p ".org" target)
+					       (not (gethash (file-truename target) seen)))
+				      (push target queue))
+				     ((null target)
+				      (push (list (file-relative-name file org-dir)
+						          (org-element-property :raw-link link))
+					        unresolved)))))))))))
     (when unresolved
       (message "Unresolved Org links:\n%s"
                (mapconcat (lambda (item)
@@ -116,18 +110,17 @@ ENTRY is an absolute file name. Follow links transitively."
 (defun my/before-org-publish-advice (&rest _args)
   "Advice that let us publish the current org-buffer and
 just all the linked org files."
-  (let* (())
-    (setq current-buffer (buffer-file-name))
-    (unless (not (null current-buffer))
-      (user-error "'current-buffer' is nil!"))
-    (unless (and (file-in-directory-p current-buffer org-dir)
-                 (not noninteractive)
-                 (derived-mode-p 'org-mode))
-      (user-error "%s is not in the %s OR in noninteractive OR the buffer is not in org-mode."
-                  current-buffer org-dir))
-    (unless (y-or-n-p (format "Use %s as 'index.html'?" current-buffer))
-      (setq current-buffer nil)
-      (user-error "User abort the selection of 'current-buffer'")))
+  (setq current-buffer (buffer-file-name))
+  (unless (not (null current-buffer))
+    (user-error "'current-buffer' is nil!"))
+  (unless (and (file-in-directory-p current-buffer org-dir)
+               (not noninteractive)
+               (derived-mode-p 'org-mode))
+    (user-error "%s is not in the %s OR in noninteractive OR the buffer is not in org-mode."
+                current-buffer org-dir))
+  (unless (y-or-n-p (format "Use %s as 'index.html'?" current-buffer))
+    (setq current-buffer nil)
+    (user-error "User abort the selection of 'current-buffer'"))
   (let* ((project (assoc "blog" org-publish-project-alist))
          (output-dir (plist-get (cdr project) :publishing-directory)))
     (my/add-reachable-file-before-org-publish current-buffer)))
@@ -178,7 +171,11 @@ just all the linked org files."
            :publishing-directory ,(expand-file-name "blog" user-emacs-directory)
            :publishing-function org-publish-attachment)
           ("tinyblinker.org"
-           :components ("blog" "static")))))
+           :components ("blog" "static"))))
+  (defvar org-dir (plist-get
+                   (cdr (assoc "blog" org-publish-project-alist))
+                   :base-directory)
+    "Org notes' base dir."))
 
 (provide 'org-publish-config)
 ;;; org-publish-config.el ends here
