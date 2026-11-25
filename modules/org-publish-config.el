@@ -1,8 +1,4 @@
 ;;; -*- lexical-binding: t -*-
-(require 'ox-publish)
-(require 'ox-html)
-(require 'org-id)
-
 (defun my/org-html-snippet (name)
   "Return the contents of snippets/NAME."
   (my/read-file-as-string
@@ -23,71 +19,33 @@
   (format-spec (my/org-html-snippet "html-postamble.html")
                (org-html-format-spec info)))
 
-(use-package ox-publish
-  :ensure nil
-  :config
-  (setq org-export-with-sub-superscripts nil) ;; don't treat "_" as sub superscripts
-  (setq org-export-with-broken-links 'mark)   ;; mark the 'broken links'
-  (setq org-publish-project-alist
-        `(("blog"
-           :base-directory ,(expand-file-name "org" user-emacs-directory)
-           :base-extension "org"
-           :recursive t
-           :publishing-directory ,(expand-file-name "blog" user-emacs-directory)
-           :publishing-function org-html-publish-to-html
-           ;; html5
-           :html-doctype "html5"
-           :html-html5-fancy t
-           ;; disable some Org's default StyleSheet(css) & Scripts
-           :html-head-include-scripts nil
-           :html-head-include-default-style nil
-           ;; use customed StyleSheet(css)
-           :html-head my/org-html-head
-           ;; html preamble & postamble
-           :html-preamble my/org-html-preamble
-           :html-postamble my/org-html-postamble)
-          ("static"
-           :base-directory ,(expand-file-name "org" user-emacs-directory)
-           :base-extension "css\\|txt\\|jpg\\|gif\\|png\\|svg\\|jpeg\\|webp"
-           :recursive t
-           :publishing-directory ,(expand-file-name "blog" user-emacs-directory)
-           :publishing-function org-publish-attachment)
-          ("tinyblinker.org"
-           :components ("blog" "static")))))
-
-(defun my/org-link-target (link file)
-  "Return the absolute Org target of LINK in FILE, or nil."
-  (let* ((type (org-element-property :type link))
-         (raw (org-element-property :path link))
-         (path (and raw (car (split-string raw "::")))))
-    (pcase type
-      ("id"
-       (when path
-         (org-id-find-id-file path)))
-      ((or "file" "fuzzy")
-       (when path
-         (let ((target (expand-file-name (org-link-unescape path)
-                                         (file-name-directory file))))
-           (and (my/org-link-org-file-path target)
-                (file-exists-p target)
-                target)))))))
-
 (defun my/org-link-org-file-path (path)
   "Return non-nil if PATH names an Org file (case-insensitive extension)."
   (and path
        (let ((ext (file-name-extension path)))
-         (and ext (string-equal-ignore-case ext "org")))))
+         (and ext (string-equal ext "org")))))
 
-(defun my/org-link-org-file-p (link)
-  "Return non-nil if LINK points to an Org file or ID."
+(defun my/org-link-target (link file)
+  "Return the absolute Org target of LINK in FILE, or nil."
   (let* ((type (org-element-property :type link))
-         (raw (org-element-property :path link))
-         (path (and raw (car (split-string raw "::")))))
-    (cond
-     ((equal type "id") (and path t))
-     ((member type '("file" "fuzzy"))
-      (my/org-link-org-file-path path))
-     (t nil))))
+         (path (org-element-property :path link))
+         (p (and path (org-link-unescape path)))
+         (dir (file-name-directory path)))
+    (when path
+      (cond
+       ((member type '("id"))
+        (let ((file (org-id-find-id-file path)))
+          (and file
+               (file-regular-p file)
+               (my/org-link-org-file-path file)
+               file)))
+       ((member type '("file"))
+        (let ((file (expand-file-name p dir)))
+          (and file
+               (file-regular-p file)
+               (my/org-link-org-file-path file)
+               file)))
+       (t nil)))))
 
 (defun my/org-reachable-files (entry)
   "Return all Org files reachable from ENTRY via id:, file: and fuzzy links.
@@ -121,8 +79,7 @@ ENTRY is an absolute file name. Follow links transitively."
                            (string-suffix-p ".org" target)
                            (not (gethash (file-truename target) seen)))
                       (push target queue))
-                     ((and (null target)
-                           (my/org-link-org-file-p link))
+                     ((null target)
                       (push (list (file-relative-name file org-dir)
                                   (org-element-property :raw-link link))
                             unresolved)))))))))))
@@ -142,50 +99,55 @@ ENTRY is an absolute file name. Follow links transitively."
     (make-directory output-dir t)
     (copy-file source target t)))
 
-(defun my/org-publish-index-copy (org-dir output-dir entry)
-  "Use ENTRY's generated page as index.html under OUTPUT-DIR."
-  (let* (())
-    ))
+(defun my/add-reachable-file-before-org-publish ()
+  "Edit the 'org-publish-project-alist' based on
+'my/org-reachable-files''s reachable files list."
+  (let* ((entry (buffer-file-name))
+         (reachable-files (my/org-reachable-files entry))
+         (project (assoc "blog" org-publish-project-alist)))
+    (setcdr project (plist-put (cdr project) :include reachable-files))))
 
-(defun my/org-publish-prune (org-dir output-dir files)
-  "Remove generated subdirectory HTML under OUTPUT-DIR not in FILES."
-  (unless (file-directory-p output-dir)
-    (user-error "The 'output-dir' is not exists: %s" output-dir))
-  (let ((expected (mapcar (lambda (file)
-                            (concat (file-name-sans-extension
-                                     (file-relative-name file org-dir))
-                                    ".html"))
-                          files)))
-    (dolist (file (directory-files-recursively output-dir "\\.html\\'"))
-      (let ((relative (file-relative-name file output-dir)))
-        (when (and (string-match-p "/" relative)
-                   (not (member relative expected)))
-          (delete-file file))))))
+(defun my/before-org-publish-advice ()
+  "Advice for let us publish the current buffer and
+exactly all the related org files."
+  (let ((project (assoc "blog" org-publish-project-alist))
+        (output-dir (plist-get (cdr project) :publishing-directory)))
+    (my/add-reachable-file-before-org-publish)
+    (my/org-publish-copy-style output-dir)))
 
-(defun my/org-publish-blog (&optional force)
-  "Publish the current Org file and its full link closure.
-Abort without publishing when not in an Org buffer under the `org'
-directory, in batch mode, or when the user Declines."
-  (interactive "P")
-  (require 'ox-publish)
-  (require 'org-id)
-  (when-let* ((entry (my/org-publish-entry)))
-    (let* ((org-dir (expand-file-name "org" user-emacs-directory))
-           (files (my/org-reachable-files entry))
-           (project (assoc "blog" org-publish-project-alist))
-           (output-dir (org-publish-property :publishing-directory project)))
-      (unless files
-        (user-error "No reachable Org files from %s" entry))
-      (let ((org-export-use-babel nil)
-            (org-publish-use-timestamps-flag (not force)))
-        (org-publish-initialize-cache "blog")
-        (dolist (file files)
-          (org-publish-file file project t))
-        (org-publish-write-cache-file)
-        (org-publish-project (assoc "static" org-publish-project-alist) force)
-        (my/org-publish-prune org-dir output-dir files)
-        (my/org-publish-index-copy org-dir output-dir entry)
-        (my/org-publish-copy-style output-dir)))))
+(use-package ox-publish
+  :ensure nil
+  :config
+  (advice-add 'org-publish :before #'my/before-org-publish-advice)
+  (setq org-export-with-sub-superscripts nil) ;; don't treat "_" as sub superscripts
+  (setq org-export-with-broken-links 'mark)   ;; mark the 'broken links'
+  (setq org-publish-project-alist
+        `(("blog"
+           :base-directory ,(expand-file-name "org" user-emacs-directory)
+           :base-extension "org"
+           :exclude ".*"
+           :recursive t
+           :publishing-directory ,(expand-file-name "blog" user-emacs-directory)
+           :publishing-function org-html-publish-to-html
+           ;; html5
+           :html-doctype "html5"
+           :html-html5-fancy t
+           ;; disable some Org's default StyleSheet(css) & Scripts
+           :html-head-include-scripts nil
+           :html-head-include-default-style nil
+           ;; use customed StyleSheet(css)
+           :html-head my/org-html-head
+           ;; html preamble & postamble
+           :html-preamble my/org-html-preamble
+           :html-postamble my/org-html-postamble)
+          ("static"
+           :base-directory ,(expand-file-name "org" user-emacs-directory)
+           :base-extension "css\\|txt\\|jpg\\|gif\\|png\\|svg\\|jpeg\\|webp"
+           :recursive t
+           :publishing-directory ,(expand-file-name "blog" user-emacs-directory)
+           :publishing-function org-publish-attachment)
+          ("tinyblinker.org"
+           :components ("blog" "static")))))
 
 (provide 'org-publish-config)
 ;;; org-publish-config.el ends here
