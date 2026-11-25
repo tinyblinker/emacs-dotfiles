@@ -123,6 +123,7 @@ just all the linked org files."
     (user-error "User abort the selection of 'current-buffer'"))
   (let* ((project (assoc "blog" org-publish-project-alist))
          (output-dir (plist-get (cdr project) :publishing-directory)))
+    (delete-directory output-dir t t)
     (my/add-reachable-file-before-org-publish current-buffer)))
 
 (defun my/after-org-publish-advice (&rest _args)
