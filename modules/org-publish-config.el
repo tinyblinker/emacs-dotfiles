@@ -99,28 +99,59 @@ ENTRY is an absolute file name. Follow links transitively."
     (make-directory output-dir t)
     (copy-file source target t)))
 
-(defun my/add-reachable-file-before-org-publish ()
+(defun my/org-publish-symlink-the-index-html (current-file)
+  "Based on 'current-file' to a symlink to the index.html in output-dir."
+  (let* ((output-dir (plist-get
+                      (cdr (assoc "blog" org-publish-project-alist))
+                      :publishing-directory))
+         (org-dir (plist-get
+                   (cdr (assoc "blog" org-publish-project-alist))
+                   :base-directory))
+         (target-html-file (expand-file-name
+                            (file-relative-name
+                             (concat (file-name-sans-extension current-file) ".html")
+                             org-dir)
+                            output-dir)))
+    (unless (file-exists-p target-html-file)
+      (user-error "'target-html-file' does not exist: %s" target-html-file))
+    (make-symbolic-link target-html-file
+                        (expand-file-name "index.html" output-dir) t)))
+
+(defun my/add-reachable-file-before-org-publish (entry)
   "Edit the 'org-publish-project-alist' based on
 'my/org-reachable-files''s reachable files list."
-  (let* ((entry (buffer-file-name))
-         (reachable-files (my/org-reachable-files entry))
+  (let* ((reachable-files (my/org-reachable-files entry))
          (project (assoc "blog" org-publish-project-alist)))
     (setcdr project (plist-put (cdr project) :include reachable-files))))
 
-(defun my/before-org-publish-advice ()
-  "Advice for let us publish the current buffer and
-exactly all the related org files."
-  (let ((project (assoc "blog" org-publish-project-alist))
-        (output-dir (plist-get (cdr project) :publishing-directory)))
-    (my/add-reachable-file-before-org-publish)
-    (my/org-publish-copy-style output-dir)))
+(defvar current-buffer nil
+  "The 'buffer-file-name' in which 'org-publish' is executed.")
+
+(defun my/before-org-publish-advice (&rest _args)
+  "Advice that let us publish the current org-buffer and
+just all the linked org files."
+  (setq current-buffer (buffer-file-name))
+  (let* ((project (assoc "blog" org-publish-project-alist))
+         (output-dir (plist-get (cdr project) :publishing-directory))
+         (current-file current-buffer))
+    (my/add-reachable-file-before-org-publish current-file)))
+
+(defun my/after-org-publish-advice (&rest _args)
+  "Advice for things to do after the 'org-publish'."
+  (let* ((project (assoc "blog" org-publish-project-alist))
+         (output-dir (plist-get (cdr project) :publishing-directory))
+         (current-file current-buffer))
+    (my/org-publish-copy-style output-dir)
+    (my/org-publish-symlink-the-index-html current-file)))
 
 (use-package ox-publish
   :ensure nil
   :config
   (advice-add 'org-publish :before #'my/before-org-publish-advice)
+  (advice-add 'org-publish :after #'my/after-org-publish-advice)
   (setq org-export-with-sub-superscripts nil) ;; don't treat "_" as sub superscripts
   (setq org-export-with-broken-links 'mark)   ;; mark the 'broken links'
+  (setq org-publish-use-timestamps-flag nil)  ;; ignore the cache, re-generate all every time
   (setq org-publish-project-alist
         `(("blog"
            :base-directory ,(expand-file-name "org" user-emacs-directory)
