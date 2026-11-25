@@ -130,19 +130,28 @@ ENTRY is an absolute file name. Follow links transitively."
 (defun my/before-org-publish-advice (&rest _args)
   "Advice that let us publish the current org-buffer and
 just all the linked org files."
-  (setq current-buffer (buffer-file-name))
+  (let* ((org-dir (plist-get
+                   (cdr (assoc "blog" org-publish-project-alist))
+                   :base-directory)))
+    (setq current-buffer (buffer-file-name))
+    (unless (and (file-in-directory-p current-buffer org-dir)
+                 (not noninteractive)
+                 (derived-mode-p 'org-mode))
+      (user-error "%s is not in the %s OR in noninteractive OR the buffer is not in org-mode."
+                  current-buffer org-dir))
+    (unless (y-or-n-p "Use %s as 'index.html'?" current-buffer)
+      (setq current-buffer nil)
+      (user-error "User abort the selection of 'current-buffer'")))
   (let* ((project (assoc "blog" org-publish-project-alist))
-         (output-dir (plist-get (cdr project) :publishing-directory))
-         (current-file current-buffer))
-    (my/add-reachable-file-before-org-publish current-file)))
+         (output-dir (plist-get (cdr project) :publishing-directory)))
+    (my/add-reachable-file-before-org-publish current-buffer)))
 
 (defun my/after-org-publish-advice (&rest _args)
   "Advice for things to do after the 'org-publish'."
   (let* ((project (assoc "blog" org-publish-project-alist))
-         (output-dir (plist-get (cdr project) :publishing-directory))
-         (current-file current-buffer))
+         (output-dir (plist-get (cdr project) :publishing-directory)))
     (my/org-publish-copy-style output-dir)
-    (my/org-publish-symlink-the-index-html current-file)))
+    (my/org-publish-symlink-the-index-html current-buffer)))
 
 (use-package ox-publish
   :ensure nil
